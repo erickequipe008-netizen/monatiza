@@ -1,4 +1,5 @@
 import "./globals.css";
+import Script from "next/script";
 
 export const metadata = {
   metadataBase: new URL("https://monatiza.com"),
@@ -10,6 +11,10 @@ export const metadata = {
 
   verification: {
     google: "IOWIeKcohKK9sb6OBildSWbc781JwP02s6qYSbnhA1A",
+  },
+
+  other: {
+    "google-adsense-account": "ca-pub-2575495674688917",
   },
 
   openGraph: {
@@ -29,7 +34,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+
+      <body>
+
+        <Script
+          id="adsense-script"
+          async
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2575495674688917"
+          crossOrigin="anonymous"
+        />
+
+        {children}
+
+      </body>
+
     </html>
   );
 }
