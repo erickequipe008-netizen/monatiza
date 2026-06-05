@@ -1,22 +1,23 @@
-import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import EditClient from "./EditClient";
+"use client";
 
-export default async function EditPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const supabase = await createClient();
+interface EditClientProps {
+  article: any;
+}
 
-  const { data: article } = await supabase
-    .from("articles")
-    .select("*")
-    .eq("id", id)
-    .single();
+export default function EditClient({
+  article,
+}: EditClientProps) {
 
-  if (!article) return notFound();
+  return (
+    <div className="p-10 text-white">
+      <h1 className="text-2xl font-bold">
+        Editando artigo
+      </h1>
 
-  return <EditClient article={article} />;
+      <pre className="mt-6">
+        {JSON.stringify(article, null, 2)}
+      </pre>
+    </div>
+  );
+
 }
