@@ -62,20 +62,7 @@ export default function RootLayout({
   }}
 >
 
-  <a
-    href="/brazil"
-    style={{
-      textDecoration: "none",
-      fontSize: "15px",
-      fontWeight: "800",
-      color: "#111",
-      letterSpacing: "-0.3px",
-    }}
-  >
-    Monatiza <span style={{ color: "#16a34a" }}>Brazil</span>
-  </a>
-
-  <a
+ <a
   href="/brazil"
   style={{
     textDecoration: "none",
@@ -112,6 +99,19 @@ export default function RootLayout({
   }}
 >
   Monatiza<span style={{ color: "#2563eb" }}>Play</span>
+</a>
+
+<a
+  href="/empreende"
+  style={{
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "900",
+    color: "#111",
+    letterSpacing: "-0.4px",
+  }}
+>
+  Empreende
 </a>
 
 <a
