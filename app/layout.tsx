@@ -43,53 +43,77 @@ export default function RootLayout({
      <body>
 
   <div
+  style={{
+    background: "#ffffff",
+    height: "42px",
+    color: "#111",
+    display: "flex",
+    alignItems: "center",
+    gap: "32px",
+    padding: "0 24px",
+    fontWeight: "700",
+    borderBottom: "1px solid #e5e5e5",
+    overflowX: "auto",
+    whiteSpace: "nowrap",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    zIndex: 999999,
+    fontFamily: "Arial, sans-serif",
+  }}
+>
+
+  <a
+    href="/brazil"
     style={{
-      background: "#ffffff",
-      height: "42px",
-      color: "#111",
-      display: "flex",
-      alignItems: "center",
-      gap: "24px",
-      padding: "0 24px",
-      fontWeight: "700",
-      borderBottom: "1px solid #e5e5e5",
-      overflowX: "auto",
-      whiteSpace: "nowrap",
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      zIndex: 999999,
+      color: "#0f9d58",
+      textDecoration: "none",
+      fontSize: "18px",
+      fontWeight: "800",
     }}
   >
+    monatiza brazil
+  </a>
 
-    <a href="/">monatiza</a>
+  <a
+    href="/play"
+    style={{
+      color: "#ff4d00",
+      textDecoration: "none",
+      fontSize: "18px",
+      fontWeight: "800",
+    }}
+  >
+    monatiza play
+  </a>
 
-    <a href="/brazil">
-      monatiza brazil
-    </a>
+  <a
+    href="/life"
+    style={{
+      color: "#7c3aed",
+      textDecoration: "none",
+      fontSize: "18px",
+      fontWeight: "800",
+    }}
+  >
+    monatiza life
+  </a>
 
-    <a href="/play">
-      monatiza play
-    </a>
+  <a
+    href="/empreende"
+    style={{
+      color: "#111111",
+      textDecoration: "none",
+      fontSize: "18px",
+      fontWeight: "900",
+      letterSpacing: "-0.5px",
+    }}
+  >
+    empreende
+  </a>
 
-    <a href="/esportes">
-      monatiza esportes
-    </a>
-
-    <a href="/saude">
-      monatiza saúde
-    </a>
-
-    <a href="/life">
-      monatiza life
-    </a>
-
-    <a href="/empreende">
-      empreende
-    </a>
-
-  </div>
+</div>
 
   <div style={{ paddingTop: "42px" }}>
     {children}
