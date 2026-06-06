@@ -48,44 +48,48 @@ export default function RootLayout({
     height: "34px",
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    padding: "0 16px",
+    gap: "14px",
+    padding: "0 18px",
     borderBottom: "1px solid #ececec",
     fontFamily: "Arial, sans-serif",
   }}
 >
-  <a href="/brazil" style={{ textDecoration: "none" }}>
-    <span style={{ color: "#111", fontWeight: 900 }}>
-      Monatiza
-    </span>
-    <span style={{ color: "#16a34a", fontWeight: 900 }}>
-      {" "}Brazil
-    </span>
+
+  <a
+    href="/brazil"
+    style={{
+      textDecoration: "none",
+      color: "#111",
+      fontWeight: 900,
+      fontSize: "14px",
+    }}
+  >
+    Monatiza Brazil
   </a>
 
   <a
-  href="/play"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "900",
-    color: "#111",
-  }}
->
-  Monatiza<span style={{ color: "#2563eb" }}>Play</span>
-</a>
+    href="/play"
+    style={{
+      textDecoration: "none",
+      fontWeight: 900,
+      fontSize: "14px",
+    }}
+  >
+    <span style={{ color: "#111" }}>Monatiza</span>
+    <span style={{ color: "#2563eb" }}>Play</span>
+  </a>
 
-<a
-  href="/life"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "900",
-    color: "#111",
-  }}
->
-  Monatiza<span style={{ color: "#eab308" }}>Life</span>
-</a>
+  <a
+    href="/life"
+    style={{
+      textDecoration: "none",
+      fontWeight: 900,
+      fontSize: "14px",
+    }}
+  >
+    <span style={{ color: "#111" }}>Monatiza</span>
+    <span style={{ color: "#eab308" }}>Life</span>
+  </a>
 
   <a
     href="/empreende"
@@ -93,10 +97,12 @@ export default function RootLayout({
       textDecoration: "none",
       color: "#111",
       fontWeight: 900,
+      fontSize: "14px",
     }}
   >
     Empreende
   </a>
+
 </div>
 
   <div style={{ paddingTop: "42px" }}>
