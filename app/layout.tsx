@@ -42,61 +42,41 @@ export default function RootLayout({
 
      <body>
 
- <div
+<div
   style={{
-    background: "#ffffff",
+    background: "#fff",
     height: "34px",
     display: "flex",
     alignItems: "center",
-    gap: "14px",
-    padding: "0 18px",
+    gap: "12px",
+    padding: "0 16px",
     borderBottom: "1px solid #ececec",
-    overflowX: "auto",
-    whiteSpace: "nowrap",
+    fontFamily: "Arial, sans-serif",
   }}
 >
-
-  <a
-    href="/brazil"
-    style={{
-      textDecoration: "none",
-      fontSize: "14px",
-      fontWeight: "900",
-      color: "#111",
-    }}
-  >
-    Monatiza
-    <span style={{ color: "#16a34a" }}>
+  <a href="/brazil" style={{ textDecoration: "none" }}>
+    <span style={{ color: "#111", fontWeight: 900 }}>
+      Monatiza
+    </span>
+    <span style={{ color: "#16a34a", fontWeight: 900 }}>
       {" "}Brazil
     </span>
   </a>
 
-  <a
-    href="/life"
-    style={{
-      textDecoration: "none",
-      fontSize: "14px",
-      fontWeight: "900",
-      color: "#111",
-    }}
-  >
-    Monatiza
-    <span style={{ color: "#eab308" }}>
+  <a href="/life" style={{ textDecoration: "none" }}>
+    <span style={{ color: "#111", fontWeight: 900 }}>
+      Monatiza
+    </span>
+    <span style={{ color: "#eab308", fontWeight: 900 }}>
       Life
     </span>
   </a>
 
-  <a
-    href="/play"
-    style={{
-      textDecoration: "none",
-      fontSize: "14px",
-      fontWeight: "900",
-      color: "#111",
-    }}
-  >
-    Monatiza
-    <span style={{ color: "#2563eb" }}>
+  <a href="/play" style={{ textDecoration: "none" }}>
+    <span style={{ color: "#111", fontWeight: 900 }}>
+      Monatiza
+    </span>
+    <span style={{ color: "#2563eb", fontWeight: 900 }}>
       Play
     </span>
   </a>
@@ -105,14 +85,12 @@ export default function RootLayout({
     href="/empreende"
     style={{
       textDecoration: "none",
-      fontSize: "14px",
-      fontWeight: "900",
       color: "#111",
+      fontWeight: 900,
     }}
   >
     Empreende
   </a>
-
 </div>
 
   <div style={{ paddingTop: "42px" }}>
