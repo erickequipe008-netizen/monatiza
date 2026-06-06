@@ -43,25 +43,57 @@ export default function RootLayout({
       <body>
 
         <div
-          style={{
-            background: "red",
-            color: "white",
-            height: "60px",
-            display: "flex",
-            alignItems: "center",
-            paddingLeft: "20px",
-            fontWeight: "bold",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            zIndex: 999999,
-          }}
-        >
-          TESTE MONATIZA
-        </div>
+  style={{
+    background: "#ffffff",
+    height: "42px",
+    color: "#111",
+    display: "flex",
+    alignItems: "center",
+    gap: "24px",
+    padding: "0 24px",
+    fontWeight: "700",
+    borderBottom: "1px solid #e5e5e5",
+    overflowX: "auto",
+    whiteSpace: "nowrap",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    zIndex: 999999,
+  }}
+>
 
-        {children}
+  <a href="/">monatiza</a>
+
+  <a href="/brazil">
+    monatiza brazil
+  </a>
+
+  <a href="/play">
+    monatiza play
+  </a>
+
+  <a href="/esportes">
+    monatiza esportes
+  </a>
+
+  <a href="/saude">
+    monatiza saúde
+  </a>
+
+  <a href="/life">
+    monatiza life
+  </a>
+
+  <a href="/empreende">
+    empreende
+  </a>
+
+</div>
+
+        <div style={{ paddingTop: "42px" }}>
+  {children}
+</div>
 
         <CookieBanner />
 
