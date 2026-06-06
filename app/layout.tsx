@@ -68,28 +68,26 @@ export default function RootLayout({
   </a>
 
   <a
-    href="/play"
-    style={{
-      textDecoration: "none",
-      fontWeight: 900,
-      fontSize: "14px",
-    }}
-  >
-    <span style={{ color: "#111" }}>Monatiza</span>
-    <span style={{ color: "#2563eb" }}>Play</span>
-  </a>
+  href="/play"
+  style={{
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "900",
+  }}
+>
+  <span style={{ color: "#111" }}>Monatiza</span><span style={{ color: "#2563eb" }}>play</span>
+</a>
 
-  <a
-    href="/life"
-    style={{
-      textDecoration: "none",
-      fontWeight: 900,
-      fontSize: "14px",
-    }}
-  >
-    <span style={{ color: "#111" }}>Monatiza</span>
-    <span style={{ color: "#eab308" }}>Life</span>
-  </a>
+<a
+  href="/life"
+  style={{
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "900",
+  }}
+>
+  <span style={{ color: "#111" }}>Monatiza</span><span style={{ color: "#eab308" }}>life</span>
+</a>
 
   <a
     href="/empreende"
