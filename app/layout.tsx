@@ -5,10 +5,10 @@ import CookieBanner from "@/components/CookieBanner";
 export const metadata = {
   metadataBase: new URL("https://monatiza.com"),
 
-  title: "monatiza",
+  title: "Monatiza - Notícias, IA, Negócios e Tecnologia",
 
   description:
-    "Portal de notícias, IA, negócios, tecnologia e mídia digital.",
+    "Acompanhe notícias sobre inteligência artificial, negócios, tecnologia, startups, economia e tendências digitais no Brasil e no mundo.",
 
   verification: {
     google: "IOWIeKcohKK9sb6OBildSWbc781JwP02s6qYSbnhA1A",
@@ -19,7 +19,20 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "monatiza",
+    title: "Monatiza",
+    description:
+      "Portal premium de notícias sobre IA, negócios, tecnologia e economia.",
+    url: "https://monatiza.com",
+    siteName: "Monatiza",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
   },
 };
 
@@ -40,76 +53,89 @@ export default function RootLayout({
         />
       </head>
 
-     <body>
+      <body>
 
-<div
-  style={{
-    background: "#fff",
-    height: "34px",
-    display: "flex",
-    alignItems: "center",
-    gap: "14px",
-    padding: "0 18px",
-    borderBottom: "1px solid #ececec",
-    fontFamily: "Arial, sans-serif",
-  }}
->
+        {/* BARRA SUPERIOR */}
+        <div
+          style={{
+            background: "#fff",
+            height: "34px",
 
-  <a
-    href="/brazil"
-    style={{
-      textDecoration: "none",
-      color: "#111",
-      fontWeight: 900,
-      fontSize: "14px",
-    }}
-  >
-    Monatiza Brazil
-  </a>
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            zIndex: 999999,
 
-  <a
-  href="/play"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "900",
-  }}
->
-  <span style={{ color: "#111" }}>Monatiza</span><span style={{ color: "#2563eb" }}>play</span>
-</a>
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            padding: "0 18px",
 
-<a
-  href="/life"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "900",
-  }}
->
-  <span style={{ color: "#111" }}>Monatiza</span><span style={{ color: "#eab308" }}>life</span>
-</a>
+            borderBottom: "1px solid #ececec",
 
-  <a
-    href="/empreende"
-    style={{
-      textDecoration: "none",
-      color: "#111",
-      fontWeight: 900,
-      fontSize: "14px",
-    }}
-  >
-    Empreende
-  </a>
+            fontFamily: "Arial, sans-serif",
+          }}
+        >
 
-</div>
+          <a
+            href="/brazil"
+            style={{
+              textDecoration: "none",
+              color: "#111",
+              fontWeight: 900,
+              fontSize: "14px",
+            }}
+          >
+            Monatiza Brazil
+          </a>
 
-  <div style={{ paddingTop: "112px" }}>
-    {children}
-  </div>
+          <a
+            href="/play"
+            style={{
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: "900",
+            }}
+          >
+            <span style={{ color: "#111" }}>Monatiza</span>
+            <span style={{ color: "#0045d9" }}>play</span>
+          </a>
 
-  <CookieBanner />
+          <a
+            href="/life"
+            style={{
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: "900",
+            }}
+          >
+            <span style={{ color: "#111" }}>Monatiza</span>
+            <span style={{ color: "#ffaa00" }}>life</span>
+          </a>
 
-</body>
+          <a
+            href="/empreende"
+            style={{
+              textDecoration: "none",
+              color: "#111",
+              fontWeight: 900,
+              fontSize: "14px",
+            }}
+          >
+            Empreende
+          </a>
+
+        </div>
+
+        {/* CONTEÚDO */}
+        <div style={{ paddingTop: "34px" }}>
+          {children}
+        </div>
+
+        <CookieBanner />
+
+      </body>
     </html>
   );
 }
