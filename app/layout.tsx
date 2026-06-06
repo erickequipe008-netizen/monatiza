@@ -40,26 +40,32 @@ export default function RootLayout({
         />
       </head>
 
-     <body>
+      <body>
 
-  <div className="top-brands">
-    <a href="/">monatiza</a>
-    <a href="/brazil">monatiza brazil</a>
-    <a href="/play">monatiza play</a>
-    <a href="/esportes">monatiza esportes</a>
-    <a href="/saude">monatiza saúde</a>
-    <a href="/life">monatiza life</a>
-    <a href="/empreende">empreende</a>
-  </div>
+        <div
+          style={{
+            background: "red",
+            color: "white",
+            height: "60px",
+            display: "flex",
+            alignItems: "center",
+            paddingLeft: "20px",
+            fontWeight: "bold",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            zIndex: 999999,
+          }}
+        >
+          TESTE MONATIZA
+        </div>
 
-  <div style={{ marginTop: "42px" }}>
-    {children}
-  </div>
+        {children}
 
-  <CookieBanner />
+        <CookieBanner />
 
-</body>
-      
+      </body>
     </html>
   );
 }
