@@ -1,5 +1,6 @@
 import "./globals.css";
 import Script from "next/script";
+import CookieBanner from "@/components/CookieBanner";
 
 export const metadata = {
   metadataBase: new URL("https://monatiza.com"),
@@ -7,7 +8,7 @@ export const metadata = {
   title: "monatiza",
 
   description:
-    "Portal premium de notícias, IA, negócios, tecnologia e mídia digital.",
+    "Portal de notícias, IA, negócios, tecnologia e mídia digital.",
 
   verification: {
     google: "IOWIeKcohKK9sb6OBildSWbc781JwP02s6qYSbnhA1A",
@@ -19,11 +20,6 @@ export const metadata = {
 
   openGraph: {
     title: "monatiza",
-
-    description:
-      "Portal premium de notícias.",
-
-    siteName: "MONATIZA",
   },
 };
 
@@ -34,9 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-
-      <body>
-
+      <head>
         <Script
           id="adsense-script"
           async
@@ -44,11 +38,25 @@ export default function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2575495674688917"
           crossOrigin="anonymous"
         />
+      </head>
+
+      <body>
+
+        {/* BARRA DAS MARCAS */}
+        <div className="top-brands">
+          <a href="/">monatiza</a>
+          <a href="/brazil">monatiza brazil</a>
+          <a href="/play">monatiza play</a>
+          <a href="/esportes">monatiza esportes</a>
+          <a href="/saude">monatiza saúde</a>
+          <a href="/life">monatiza life</a>
+          <a href="/empreende">empreende</a>
+        </div>
 
         {children}
 
+        <CookieBanner />
       </body>
-
     </html>
   );
 }
