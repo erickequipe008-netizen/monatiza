@@ -48,7 +48,7 @@ export default function RootLayout({
     height: "34px",
     display: "flex",
     alignItems: "center",
-    gap: "18px",
+    gap: "16px",
     padding: "0 18px",
     borderBottom: "1px solid #ececec",
     overflowX: "auto",
@@ -76,43 +76,56 @@ export default function RootLayout({
   </a>
 
   <a
-    href="/life"
-    style={{
-      textDecoration: "none",
-      fontSize: "15px",
-      fontWeight: "800",
-      color: "#111",
-      letterSpacing: "-0.3px",
-    }}
-  >
-    Monatiza<span style={{ color: "#eab308" }}>Life</span>
-  </a>
+  href="/brazil"
+  style={{
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "800",
+    color: "#111",
+    letterSpacing: "-0.3px",
+  }}
+>
+  Monatiza <span style={{ color: "#16a34a" }}>Brazil</span>
+</a>
 
-  <a
-    href="/play"
-    style={{
-      textDecoration: "none",
-      fontSize: "15px",
-      fontWeight: "800",
-      color: "#111",
-      letterSpacing: "-0.3px",
-    }}
-  >
-    Monatiza<span style={{ color: "#2563eb" }}>Play</span>
-  </a>
+<a
+  href="/life"
+  style={{
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "800",
+    color: "#111",
+    letterSpacing: "-0.3px",
+  }}
+>
+  Monatiza<span style={{ color: "#eab308" }}>Life</span>
+</a>
 
-  <a
-    href="/empreende"
-    style={{
-      textDecoration: "none",
-      fontSize: "15px",
-      fontWeight: "900",
-      color: "#111",
-      letterSpacing: "-0.4px",
-    }}
-  >
-    Empreende
-  </a>
+<a
+  href="/play"
+  style={{
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "800",
+    color: "#111",
+    letterSpacing: "-0.3px",
+  }}
+>
+  Monatiza<span style={{ color: "#2563eb" }}>Play</span>
+</a>
+
+<a
+  href="/empreende"
+  style={{
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "900",
+    color: "#111",
+    letterSpacing: "-0.4px",
+  }}
+>
+  Empreende
+</a>
 
 </div>
 
