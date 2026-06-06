@@ -64,54 +64,13 @@ export default function RootLayout({
   }}
 >
 
-  <a
-    href="/brazil"
-    style={{
-      color: "#0f9d58",
-      textDecoration: "none",
-      fontSize: "18px",
-      fontWeight: "800",
-    }}
-  >
-    monatiza brazil
-  </a>
+  <a href="/brazil">monatiza brazil</a>
 
-  <a
-    href="/play"
-    style={{
-      color: "#ff4d00",
-      textDecoration: "none",
-      fontSize: "18px",
-      fontWeight: "800",
-    }}
-  >
-    monatiza play
-  </a>
+  <a href="/play">monatiza play</a>
 
-  <a
-    href="/life"
-    style={{
-      color: "#7c3aed",
-      textDecoration: "none",
-      fontSize: "18px",
-      fontWeight: "800",
-    }}
-  >
-    monatiza life
-  </a>
+  <a href="/life">monatiza life</a>
 
-  <a
-    href="/empreende"
-    style={{
-      color: "#111111",
-      textDecoration: "none",
-      fontSize: "18px",
-      fontWeight: "900",
-      letterSpacing: "-0.5px",
-    }}
-  >
-    empreende
-  </a>
+  <a href="/empreende">empreende</a>
 
 </div>
 
