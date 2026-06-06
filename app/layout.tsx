@@ -40,23 +40,26 @@ export default function RootLayout({
         />
       </head>
 
-      <body>
+     <body>
 
-        {/* BARRA DAS MARCAS */}
-        <div className="top-brands">
-          <a href="/">monatiza</a>
-          <a href="/brazil">monatiza brazil</a>
-          <a href="/play">monatiza play</a>
-          <a href="/esportes">monatiza esportes</a>
-          <a href="/saude">monatiza saúde</a>
-          <a href="/life">monatiza life</a>
-          <a href="/empreende">empreende</a>
-        </div>
+  <div className="top-brands">
+    <a href="/">monatiza</a>
+    <a href="/brazil">monatiza brazil</a>
+    <a href="/play">monatiza play</a>
+    <a href="/esportes">monatiza esportes</a>
+    <a href="/saude">monatiza saúde</a>
+    <a href="/life">monatiza life</a>
+    <a href="/empreende">empreende</a>
+  </div>
 
-        {children}
+  <div style={{ marginTop: "42px" }}>
+    {children}
+  </div>
 
-        <CookieBanner />
-      </body>
+  <CookieBanner />
+
+</body>
+      
     </html>
   );
 }
