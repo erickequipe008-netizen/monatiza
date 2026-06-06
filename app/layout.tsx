@@ -69,10 +69,17 @@ export default function RootLayout({
     fontSize: "14px",
     fontWeight: "800",
     color: "#111",
-    letterSpacing: "-0.3px",
   }}
 >
-  Monatiza <span style={{ color: "#16a34a" }}>Brazil</span>
+  Monatiza{" "}
+  <span
+    style={{
+      color: "#16a34a",
+      fontWeight: "900",
+    }}
+  >
+    Brazil
+  </span>
 </a>
 
 <a
@@ -82,10 +89,17 @@ export default function RootLayout({
     fontSize: "14px",
     fontWeight: "800",
     color: "#111",
-    letterSpacing: "-0.3px",
   }}
 >
-  Monatiza<span style={{ color: "#eab308" }}>Life</span>
+  Monatiza
+  <span
+    style={{
+      color: "#eab308",
+      fontWeight: "900",
+    }}
+  >
+    Life
+  </span>
 </a>
 
 <a
@@ -95,10 +109,17 @@ export default function RootLayout({
     fontSize: "14px",
     fontWeight: "800",
     color: "#111",
-    letterSpacing: "-0.3px",
   }}
 >
-  Monatiza<span style={{ color: "#2563eb" }}>Play</span>
+  Monatiza
+  <span
+    style={{
+      color: "#2563eb",
+      fontWeight: "900",
+    }}
+  >
+    Play
+  </span>
 </a>
 
 <a
@@ -108,20 +129,6 @@ export default function RootLayout({
     fontSize: "14px",
     fontWeight: "900",
     color: "#111",
-    letterSpacing: "-0.4px",
-  }}
->
-  Empreende
-</a>
-
-<a
-  href="/empreende"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "900",
-    color: "#111",
-    letterSpacing: "-0.4px",
   }}
 >
   Empreende
