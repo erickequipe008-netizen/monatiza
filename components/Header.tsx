@@ -2,19 +2,38 @@
 
 export default function Header() {
   return (
-    <div
+    <header
       style={{
-        background: "red",
-        height: "120px",
-        color: "white",
-        fontSize: "40px",
-        fontWeight: "bold",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        position: "fixed",
+        top: "34px", // altura da barra branca
+        left: 0,
+        width: "100%",
+        zIndex: 999998,
+        background: "#000",
+        color: "#fff",
       }}
     >
-      HEADER TESTE
-    </div>
+      <div
+        style={{
+          maxWidth: "1600px",
+          margin: "0 auto",
+          height: "78px",
+          padding: "0 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: "58px",
+            fontWeight: "900",
+            margin: 0,
+          }}
+        >
+          monatiza
+        </h1>
+      </div>
+    </header>
   );
 }
