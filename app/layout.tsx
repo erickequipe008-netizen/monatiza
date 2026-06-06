@@ -48,91 +48,70 @@ export default function RootLayout({
     height: "34px",
     display: "flex",
     alignItems: "center",
-    gap: "16px",
+    gap: "14px",
     padding: "0 18px",
     borderBottom: "1px solid #ececec",
     overflowX: "auto",
     whiteSpace: "nowrap",
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    zIndex: 999999,
-    fontFamily: "Arial, sans-serif",
   }}
 >
 
- <a
-  href="/brazil"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "800",
-    color: "#111",
-  }}
->
-  Monatiza{" "}
-  <span
+  <a
+    href="/brazil"
     style={{
-      color: "#16a34a",
+      textDecoration: "none",
+      fontSize: "14px",
       fontWeight: "900",
+      color: "#111",
     }}
   >
-    Brazil
-  </span>
-</a>
+    Monatiza
+    <span style={{ color: "#16a34a" }}>
+      {" "}Brazil
+    </span>
+  </a>
 
-<a
-  href="/life"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "800",
-    color: "#111",
-  }}
->
-  Monatiza
-  <span
+  <a
+    href="/life"
     style={{
-      color: "#eab308",
+      textDecoration: "none",
+      fontSize: "14px",
       fontWeight: "900",
+      color: "#111",
     }}
   >
-    Life
-  </span>
-</a>
+    Monatiza
+    <span style={{ color: "#eab308" }}>
+      Life
+    </span>
+  </a>
 
-<a
-  href="/play"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "800",
-    color: "#111",
-  }}
->
-  Monatiza
-  <span
+  <a
+    href="/play"
     style={{
-      color: "#2563eb",
+      textDecoration: "none",
+      fontSize: "14px",
       fontWeight: "900",
+      color: "#111",
     }}
   >
-    Play
-  </span>
-</a>
+    Monatiza
+    <span style={{ color: "#2563eb" }}>
+      Play
+    </span>
+  </a>
 
-<a
-  href="/empreende"
-  style={{
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "900",
-    color: "#111",
-  }}
->
-  Empreende
-</a>
+  <a
+    href="/empreende"
+    style={{
+      textDecoration: "none",
+      fontSize: "14px",
+      fontWeight: "900",
+      color: "#111",
+    }}
+  >
+    Empreende
+  </a>
 
 </div>
 
