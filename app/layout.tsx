@@ -42,17 +42,15 @@ export default function RootLayout({
 
      <body>
 
-  <div
+ <div
   style={{
     background: "#ffffff",
-    height: "42px",
-    color: "#111",
+    height: "34px",
     display: "flex",
     alignItems: "center",
-    gap: "32px",
-    padding: "0 24px",
-    fontWeight: "700",
-    borderBottom: "1px solid #e5e5e5",
+    gap: "18px",
+    padding: "0 18px",
+    borderBottom: "1px solid #ececec",
     overflowX: "auto",
     whiteSpace: "nowrap",
     position: "fixed",
@@ -64,13 +62,57 @@ export default function RootLayout({
   }}
 >
 
-  <a href="/brazil">monatiza brazil</a>
+  <a
+    href="/brazil"
+    style={{
+      textDecoration: "none",
+      fontSize: "15px",
+      fontWeight: "800",
+      color: "#111",
+      letterSpacing: "-0.3px",
+    }}
+  >
+    Monatiza <span style={{ color: "#16a34a" }}>Brazil</span>
+  </a>
 
-  <a href="/play">monatiza play</a>
+  <a
+    href="/life"
+    style={{
+      textDecoration: "none",
+      fontSize: "15px",
+      fontWeight: "800",
+      color: "#111",
+      letterSpacing: "-0.3px",
+    }}
+  >
+    Monatiza<span style={{ color: "#eab308" }}>Life</span>
+  </a>
 
-  <a href="/life">monatiza life</a>
+  <a
+    href="/play"
+    style={{
+      textDecoration: "none",
+      fontSize: "15px",
+      fontWeight: "800",
+      color: "#111",
+      letterSpacing: "-0.3px",
+    }}
+  >
+    Monatiza<span style={{ color: "#2563eb" }}>Play</span>
+  </a>
 
-  <a href="/empreende">empreende</a>
+  <a
+    href="/empreende"
+    style={{
+      textDecoration: "none",
+      fontSize: "15px",
+      fontWeight: "900",
+      color: "#111",
+      letterSpacing: "-0.4px",
+    }}
+  >
+    Empreende
+  </a>
 
 </div>
 
