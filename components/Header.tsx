@@ -3,16 +3,16 @@
 export default function Header() {
   return (
     <header
-      style={{
-        position: "fixed",
-        top: "34px", // altura da barra branca
-        left: 0,
-        width: "100%",
-        zIndex: 999998,
-        background: "#000",
-        color: "#fff",
-      }}
-    >
+  style={{
+    position: "fixed",
+    top: "34px",
+    left: 0,
+    width: "100%",
+    zIndex: 999998,
+    background: "#000",
+    color: "#fff",
+  }}
+>
       <div
         style={{
           maxWidth: "1600px",
