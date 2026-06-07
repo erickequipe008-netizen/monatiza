@@ -99,7 +99,7 @@ export default function RootLayout({
             }}
           >
             <span style={{ color: "#111" }}>Monatiza</span>
-            <span style={{ color: "#0045d9" }}>play</span>
+            <span style={{ color: "#0045d9" }}>Play</span>
           </a>
 
           <a
@@ -111,7 +111,7 @@ export default function RootLayout({
             }}
           >
             <span style={{ color: "#111" }}>Monatiza</span>
-            <span style={{ color: "#ffaa00" }}>life</span>
+            <span style={{ color: "#ffaa00" }}>Life</span>
           </a>
 
           <a
@@ -128,10 +128,14 @@ export default function RootLayout({
 
         </div>
 
-        {/* CONTEÚDO */}
-        <div style={{ paddingTop: "34px" }}>
-          {children}
-        </div>
+       {/* CONTEÚDO */}
+<div
+  style={{
+    paddingTop: "98px",
+  }}
+>
+  {children}
+</div>
 
         <CookieBanner />
 
