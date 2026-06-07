@@ -129,13 +129,9 @@ export default function RootLayout({
         </div>
 
        {/* CONTEÚDO */}
-<div
-  style={{
-    paddingTop: "84px",
-  }}
->
+<>
   {children}
-</div>
+</>
 
         <CookieBanner />
 
