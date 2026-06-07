@@ -2,38 +2,55 @@
 
 export default function Header() {
   return (
-    <header
-  style={{
-    position: "fixed",
-    top: "34px",
-    left: 0,
-    width: "100%",
-    zIndex: 999998,
-    background: "#000",
-    color: "#fff",
-  }}
->
-      <div
-        style={{
-          maxWidth: "1600px",
-          margin: "0 auto",
-          height: "78px",
-          padding: "0 20px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "58px",
-            fontWeight: "900",
-            margin: 0,
-          }}
-        >
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        zIndex: 999999,
+      }}
+    >
+
+      {/* DESKTOP */}
+      <div className="desktopHeader">
+
+        <div className="leftIcons">
+          <span>☰</span>
+          <span>⌕</span>
+        </div>
+
+        <h1 className="logo">
           monatiza
         </h1>
+
+        <div className="rightIcons">
+          <span>☼</span>
+
+          <button>
+            Assinar
+          </button>
+        </div>
+
       </div>
-    </header>
+
+      {/* MOBILE */}
+      <div className="mobileHeader">
+
+        <span className="mobileIcon">
+          ☰
+        </span>
+
+        <h1 className="mobileLogo">
+          monatiza
+        </h1>
+
+        <span className="mobileIcon">
+          ⌕
+        </span>
+
+      </div>
+
+    </div>
   );
 }
