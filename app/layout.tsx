@@ -131,7 +131,7 @@ export default function RootLayout({
        {/* CONTEÚDO */}
 <div
   style={{
-    paddingTop: "128px",
+    paddingTop: "110px",
   }}
 >
   {children}
