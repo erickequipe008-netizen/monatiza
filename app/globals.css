@@ -39,63 +39,7 @@ body {
 
 }
 
-.top-brands {
-  width: 100%;
-  height: 42px;
 
-  background: #ffffff;
-
-  border-bottom: 1px solid #e5e5e5;
-
-  display: flex;
-  align-items: center;
-
-  gap: 24px;
-
-  padding: 0 24px;
-
-  overflow-x: auto;
-
-  position: relative;
-  z-index: 9999;
-}
-
-.top-brands a {
-  color: #111111;
-
-  text-decoration: none;
-
-  font-size: 15px;
-  font-weight: 700;
-
-  white-space: nowrap;
-
-  transition: 0.2s;
-}
-
-.top-brands a:hover {
-  opacity: 0.7;
-}
-
-.topbar {
-  background: #fff;
-  height: 32px;
-
-  border-bottom: 1px solid #e5e5e5;
-
-  display: flex;
-  align-items: center;
-  gap: 18px;
-
-  padding: 0 20px;
-
-  overflow-x: auto;
-
-  white-space: nowrap;
-
-  font-size: 14px;
-  font-weight: 700;
-}
 
 .desktopHeader {
   background: #000;
@@ -122,10 +66,16 @@ body {
 .logo {
   margin: 0;
 
-  font-size: 64px;
+  font-size: 42px;
+
   font-weight: 900;
 
   line-height: 1;
+
+  display: flex;
+  align-items: center;
+
+  height: 100%;
 }
 
 .rightIcons button {
@@ -147,22 +97,20 @@ body {
   display: none;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
 
-  .topbar {
-    height: 32px;
-
-    padding: 0 10px;
-
-    gap: 12px;
-
-    font-size: 11px;
-  }
 
   .desktopHeader {
-    display: none;
-  }
+  background: #000;
+  color: #fff;
+
+  height: 76px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 32px;
+}
 
   .mobileHeader {
     background: #000;
@@ -178,17 +126,30 @@ body {
   }
 
   .mobileLogo {
-    margin: 0;
+  margin: 0;
 
-    font-size: 26px;
-    font-weight: 900;
+  font-size: 22px;
 
-    line-height: 1;
-  }
+  font-weight: 900;
+
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+
+  height: 100%;
+}
 
   .mobileIcon {
     font-size: 24px;
 
     line-height: 1;
   }
+
+  html,
+body {
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
 }
