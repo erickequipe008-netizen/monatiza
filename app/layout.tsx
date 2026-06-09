@@ -55,83 +55,9 @@ export default function RootLayout({
 
       <body>
 
-        {/* BARRA SUPERIOR */}
-        <div
-          style={{
-            background: "#fff",
-            height: "34px",
-
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            zIndex: 999999,
-
-            display: "flex",
-            alignItems: "center",
-            gap: "14px",
-            padding: "0 18px",
-
-            borderBottom: "1px solid #ececec",
-
-            fontFamily: "Arial, sans-serif",
-          }}
-        >
-
-          <a
-            href="/brazil"
-            style={{
-              textDecoration: "none",
-              color: "#111",
-              fontWeight: 900,
-              fontSize: "14px",
-            }}
-          >
-            Monatiza Brazil
-          </a>
-
-          <a
-            href="/play"
-            style={{
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: "900",
-            }}
-          >
-            <span style={{ color: "#111" }}>Monatiza</span>
-            <span style={{ color: "#0045d9" }}>Play</span>
-          </a>
-
-          <a
-            href="/life"
-            style={{
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: "900",
-            }}
-          >
-            <span style={{ color: "#111" }}>Monatiza</span>
-            <span style={{ color: "#ffaa00" }}>Life</span>
-          </a>
-
-          <a
-            href="/empreende"
-            style={{
-              textDecoration: "none",
-              color: "#111",
-              fontWeight: 900,
-              fontSize: "14px",
-            }}
-          >
-            Empreende
-          </a>
-
+        <div style={{ paddingTop: "76px" }}>
+          {children}
         </div>
-
-       {/* CONTEÚDO */}
-<>
-  {children}
-</>
 
         <CookieBanner />
 

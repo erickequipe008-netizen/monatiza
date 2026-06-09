@@ -4,7 +4,7 @@ export default function Header() {
   return (
     <div
       style={{
-        position: "sticky",
+        position: "fixed",
         top: 0,
         left: 0,
         width: "100%",
