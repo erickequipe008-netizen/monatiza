@@ -20,7 +20,7 @@ const EDITORIAS = [
 ];
 
 const INSIDE = [
-  "BrandVoice",
+  "Publicidade",
   "Infomercial",
   "Monatiza Cast",
   "Collab",
@@ -99,8 +99,13 @@ export default function Home() {
   };
 
   return (
-    <main className={`min-h-screen ${dark ? "bg-[#0a0a0a] text-white" : "bg-[#f7f7f7] text-black"}`}>
-
+    <main
+  className={dark ? "bg-[#0a0a0a] text-white" : "bg-[#f7f7f7] text-black"}
+  style={{
+    margin: 0,
+    padding: 0,
+  }}
+>
       {/* ── MEGA MENU ESTILO FORBES ── */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 flex">
@@ -319,52 +324,54 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── HEADER ── */}
-      <header className="sticky top-0 z-40 bg-black text-white">
-        <div className="max-w-[1600px] mx-auto h-[78px] px-5 flex items-center justify-between">
+     {/* ── HEADER ── */}
+<header className="fixed top-0 left-0 w-full z-50 bg-black text-white">
+  <div className="max-w-[1600px] mx-auto h-[78px] px-5 flex items-center justify-between">
 
-          <div className="flex items-center gap-5">
-            <button
-              aria-label="Abrir menu"
-              onClick={() => setMenuOpen(true)}
-              className="hover:opacity-70 transition"
-            >
-              <Menu size={26} strokeWidth={1.8} />
-            </button>
+    <div className="flex items-center gap-5">
+      <button
+        aria-label="Abrir menu"
+        onClick={() => setMenuOpen(true)}
+        className="hover:opacity-70 transition"
+      >
+        <Menu size={26} strokeWidth={1.8} />
+      </button>
 
-            {/* Lupa: abre o modal de pesquisa */}
-            <button
-              aria-label="Pesquisar"
-              onClick={() => setSearchOpen(true)}
-              className="hover:opacity-70 transition"
-            >
-              <Search size={23} strokeWidth={1.8} />
-            </button>
-          </div>
+      <button
+        aria-label="Pesquisar"
+        onClick={() => setSearchOpen(true)}
+        className="hover:opacity-70 transition"
+      >
+        <Search size={23} strokeWidth={1.8} />
+      </button>
+    </div>
 
-          <Link href="/">
-            <h1 className="text-[30px] md:text-[42px] font-serif font-black tracking-tight">
-              monatiza
-            </h1>
-          </Link>
+    <Link href="/">
+      <h1 className="text-[30px] md:text-[42px] font-serif font-black tracking-tight">
+        monatiza
+      </h1>
+    </Link>
 
-          <div className="flex items-center gap-5">
-            <button
-              aria-label="Alternar tema"
-              onClick={() => setDarkMode(!darkMode)}
-              className="hover:opacity-70 transition"
-            >
-              {darkMode ? <Sun size={22} /> : <Moon size={22} />}
-            </button>
-            <button
-              onClick={() => setLoginOpen(true)}
-              className="border border-white px-5 py-3 text-[14px] font-semibold hover:bg-white hover:text-black transition-all"
-            >
-              Assinar
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="flex items-center gap-5">
+      <button
+        aria-label="Alternar tema"
+        onClick={() => setDarkMode(!darkMode)}
+        className="hover:opacity-70 transition"
+      >
+        {darkMode ? <Sun size={22} /> : <Moon size={22} />}
+      </button>
+
+      <button
+        onClick={() => setLoginOpen(true)}
+        className="border border-white px-5 py-3 text-[14px] font-semibold hover:bg-white hover:text-black transition-all"
+      >
+        Assinar
+      </button>
+    </div>
+
+  </div>
+</header>
+
 
       {/* ── CATEGORIAS ── */}
       <div className={`border-b ${dark ? "bg-[#0f0f0f] border-zinc-800" : "bg-white border-zinc-200"}`}>
