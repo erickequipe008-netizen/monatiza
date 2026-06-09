@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Menu, Search, Moon, Sun, X } from "lucide-react";
 import { supabase } from "@/services/supabase";
+import Header from "@/components/Header";
 
 // ─── DADOS DO MEGA MENU ────────────────────────────────────────────────
 const EDITORIAS = [
@@ -99,13 +100,18 @@ export default function Home() {
   };
 
   return (
+
+  <>
+
+    <Header />
+
     <main
-  className={dark ? "bg-[#0a0a0a] text-white" : "bg-[#f7f7f7] text-black"}
-  style={{
-    margin: 0,
-    padding: 0,
-  }}
->
+      className={dark ? "bg-[#0a0a0a] text-white" : "bg-[#f7f7f7] text-black"}
+      style={{
+        margin: 0,
+        padding: 0,
+      }}
+    >
       {/* ── MEGA MENU ESTILO FORBES ── */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 flex">
@@ -149,8 +155,7 @@ export default function Home() {
             </div>
 
             {/* Grid de colunas */}
-            <div className="px-10 py-10 grid grid-cols-[1.1fr_1fr_1.1fr_0.8fr] gap-10 flex-1">
-
+            <div className="px-10 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.1fr_1fr_1.1fr_0.8fr] gap-10 flex-1">
               {/* COLUNA 1: Editorias */}
               <div>
                 <h4 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-6">
@@ -324,93 +329,6 @@ export default function Home() {
         </div>
       )}
 
-     {/* ── HEADER ── */}
-<header className="fixed top-0 left-0 w-full z-50 bg-black text-white">
-  <div className="max-w-[1600px] mx-auto h-[78px] px-5 flex items-center justify-between">
-
-    <div className="flex items-center gap-5">
-      <button
-        aria-label="Abrir menu"
-        onClick={() => setMenuOpen(true)}
-        className="hover:opacity-70 transition"
-      >
-        <Menu size={26} strokeWidth={1.8} />
-      </button>
-
-      <button
-        aria-label="Pesquisar"
-        onClick={() => setSearchOpen(true)}
-        className="hover:opacity-70 transition"
-      >
-        <Search size={23} strokeWidth={1.8} />
-      </button>
-    </div>
-
-    <Link href="/">
-      <h1 className="text-[30px] md:text-[42px] font-serif font-black tracking-tight">
-        monatiza
-      </h1>
-    </Link>
-
-    <div className="flex items-center gap-5">
-      <button
-        aria-label="Alternar tema"
-        onClick={() => setDarkMode(!darkMode)}
-        className="hover:opacity-70 transition"
-      >
-        {darkMode ? <Sun size={22} /> : <Moon size={22} />}
-      </button>
-
-      <button
-        onClick={() => setLoginOpen(true)}
-        className="border border-white px-5 py-3 text-[14px] font-semibold hover:bg-white hover:text-black transition-all"
-      >
-        Assinar
-      </button>
-    </div>
-
-  </div>
-</header>
-
-
-      {/* ── CATEGORIAS ── */}
-      <div className={`border-b ${dark ? "bg-[#0f0f0f] border-zinc-800" : "bg-white border-zinc-200"}`}>
-        <div className="max-w-[1600px] mx-auto h-[58px] px-5 flex items-center gap-10 overflow-x-auto whitespace-nowrap text-[13px] font-medium">
-          {["Negócios", "IA", "Mercado", "Brasil", "Tech", "Empreende", "Startups", "Carreira", "Assinantes", "Revista"].map((cat) => (
-            <button key={cat} className="hover:text-red-600 transition shrink-0">
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── TICKER FINANCEIRO ── */}
-      <div className={`border-b overflow-hidden ${dark ? "bg-[#111] border-zinc-800" : "bg-[#f5f5f5] border-zinc-200"}`}>
-        <div className="overflow-hidden whitespace-nowrap">
-          <div
-            className="flex gap-16 py-3 text-[13px] font-semibold"
-            style={{ animation: "marquee 30s linear infinite" }}
-          >
-            {[
-              { label: "IBOV ▲ 128.420 +1,22%", up: true },
-              { label: "DÓLAR ▼ R$5,42 -0,32%", up: false },
-              { label: "NASDAQ ▲ +0,88%", up: true },
-              { label: "BITCOIN ▲ US$108.220", up: true },
-              { label: "PETR4 ▼ -1,04%", up: false },
-              { label: "VALE3 ▲ +2,18%", up: true },
-              { label: "ETHEREUM ▲ US$4.180", up: true },
-              { label: "IBOV ▲ 128.420 +1,22%", up: true },
-              { label: "DÓLAR ▼ R$5,42 -0,32%", up: false },
-              { label: "NASDAQ ▲ +0,88%", up: true },
-            ].map((item, i) => (
-              <span key={i} className={item.up ? "text-green-500" : "text-red-500"}>
-                {item.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <style>{`
         @keyframes marquee {
           0%   { transform: translateX(0); }
@@ -427,15 +345,15 @@ export default function Home() {
 
       {/* ── HERO ── */}
       {!loading && featured && (
-        <section className="max-w-[1600px] mx-auto px-5 py-10 grid lg:grid-cols-[1.5fr_520px] gap-10">
+        <section className="max-w-[1600px] mx-auto px-4 md:px-5 py-6 md:py-10 grid grid-cols-1 lg:grid-cols-[1.5fr_520px] gap-8 md:gap-10">
           <div>
             <p className="text-red-600 text-[13px] font-bold uppercase mb-4">{featured.category}</p>
-            <h1 className="text-[28px] md:text-[38px] leading-[1.1] font-serif font-bold tracking-tight max-w-[900px]">
+            <h1 className="text-[34px] sm:text-[42px] md:text-[58px] leading-[1.1] font-serif font-bold tracking-tight max-w-[900px]">
               {featured.title}
             </h1>
             <p className="text-zinc-500 text-[15px] leading-7 mt-5 max-w-[900px]">{featured.excerpt}</p>
             <Link href={`/noticia/${featured.slug}`}>
-              <div className="relative w-full h-[420px] md:h-[560px] mt-8 overflow-hidden bg-zinc-200">
+              <div className="relative w-full h-[260px] md:h-[560px] mt-8 overflow-hidden bg-zinc-200">
                 <img
                   src={featured.image_url || "https://images.unsplash.com/photo-1498050108023-c5249f4df085"}
                   alt={featured.title}
@@ -449,7 +367,7 @@ export default function Home() {
             {sideArticles.map((item) => (
               <Link href={`/noticia/${item.slug}`} key={item.id}
                 className={`border-b pb-8 ${dark ? "border-zinc-800" : "border-zinc-200"}`}>
-                <div className="grid grid-cols-[140px_1fr] gap-5 items-start">
+                <div className="grid grid-cols-[110px_1fr] md:grid-cols-[140px_1fr] gap-4 md:gap-5 items-start">
                   {item.image_url && (
                     <div className="relative w-full h-[100px] overflow-hidden">
                       <img src={item.image_url} alt={item.title}
@@ -483,7 +401,7 @@ export default function Home() {
 
       {/* ── GRID ── */}
       {!loading && (
-        <section className="max-w-[1600px] mx-auto px-5 pb-20 grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <section className="max-w-[1600px] mx-auto px-4 md:px-5 pb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {gridArticles.map((item) => (
             <Link href={`/noticia/${item.slug}`} key={item.id}
               className={`border-t pt-5 group ${dark ? "border-zinc-800" : "border-zinc-200"}`}>
@@ -503,6 +421,8 @@ export default function Home() {
         </section>
       )}
 
-    </main>
-  );
-}
+        </main>
+
+  </>
+
+);

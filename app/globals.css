@@ -12,47 +12,59 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html,
 body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+
   background: var(--background);
   color: var(--foreground);
+
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@keyframes marquee {
-
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-
-}
-
-.animate-marquee {
-
-  animation:
-  marquee 22s linear infinite;
-
-  width: max-content;
-
-}
-
-
+/* HEADER DESKTOP */
 
 .desktopHeader {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 76px;
+
   background: #000;
   color: #fff;
-
-  height: 84px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   padding: 0 32px;
+
+  z-index: 99999;
 }
+
+/* HEADER MOBILE */
+
+.mobileHeader {
+  display: none;
+}
+
+/* LOGO */
+
+.logo {
+  margin: 0;
+
+  font-size: 42px;
+  font-weight: 900;
+
+  line-height: 1;
+}
+
+/* ICONES */
 
 .leftIcons,
 .rightIcons {
@@ -63,21 +75,6 @@ body {
   font-size: 30px;
 }
 
-.logo {
-  margin: 0;
-
-  font-size: 42px;
-
-  font-weight: 900;
-
-  line-height: 1;
-
-  display: flex;
-  align-items: center;
-
-  height: 100%;
-}
-
 .rightIcons button {
   height: 46px;
 
@@ -86,70 +83,26 @@ body {
   border: 1px solid #fff;
 
   background: transparent;
-
   color: #fff;
 
   font-size: 16px;
   font-weight: 700;
 }
 
-.mobileHeader {
-  display: none;
-}
+/* MARQUEE */
 
+@keyframes marquee {
 
-
-  .desktopHeader {
-  background: #000;
-  color: #fff;
-
-  height: 76px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 32px;
-}
-
-  .mobileHeader {
-    background: #000;
-    color: #fff;
-
-    height: 56px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 16px;
+  0% {
+    transform: translateX(0);
   }
 
-  .mobileLogo {
-  margin: 0;
-
-  font-size: 22px;
-
-  font-weight: 900;
-
-  line-height: 1;
-
-  display: flex;
-  align-items: center;
-
-  height: 100%;
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
-  .mobileIcon {
-    font-size: 24px;
-
-    line-height: 1;
-  }
-
-  html,
-body {
-  margin: 0;
-  padding: 0;
-
-  overflow-x: hidden;
+.animate-marquee {
+  animation: marquee 22s linear infinite;
+  width: max-content;
 }

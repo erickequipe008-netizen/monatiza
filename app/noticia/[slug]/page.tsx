@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Header from "@/components/Header";
 
 import Link from "next/link";
 import Image from "next/image";
 
 import {
-  Menu,
-  Search,
-  Moon,
   Clock3,
   ChevronRight,
 } from "lucide-react";
@@ -104,113 +102,42 @@ export default function ArticlePage() {
   }
 
   const currentUrl =
-  typeof window !== "undefined"
-    ? window.location.href
-    : "";
+    typeof window !== "undefined"
+      ? window.location.href
+      : "";
 
   return (
 
     <div className="bg-[#f5f5f5] min-h-screen text-black">
 
-      {/* HEADER */}
-
-      <header className="bg-black text-white border-b border-zinc-800 sticky top-0 z-50">
-
-        <div className="max-w-[1400px] mx-auto px-4 md:px-5 h-[64px] md:h-[76px] flex items-center justify-between">
-          <div className="flex items-center gap-4">
-
-            <button className="hover:opacity-70 transition">
-              <Menu size={24} />
-            </button>
-
-            <button className="hover:opacity-70 transition">
-              <Search size={20} />
-            </button>
-
-          </div>
-
-          <Link
-            href="/"
-            className="text-[24px] md:text-3xl font-black tracking-tight"
-          >
-            monatiza
-          </Link>
-
-          <div className="flex items-center gap-5">
-
-            <button className="hover:opacity-70 transition">
-              <Moon size={20} />
-            </button>
-
-            <button className="
-              border
-              border-white
-              px-3 md:px-5
-py-2
-text-[12px] md:text-sm
-              font-semibold
-              hover:bg-white
-              hover:text-black
-              transition
-            ">
-
-              Assinar
-
-            </button>
-
-          </div>
-
-        </div>
-
-        <div className="border-t border-zinc-800">
-
-          <div className="
-            max-w-[1400px]
-            mx-auto
-            px-5
-            h-[44px] md:h-[50px]
-gap-5 md:gap-7
-text-[12px] md:text-[14px]
-            font-semibold
-            overflow-x-auto
-            whitespace-nowrap
-          ">
-
-            <span>Negócios</span>
-            <span>IA</span>
-            <span>Mercado</span>
-            <span>Brasil</span>
-            <span>Tech</span>
-            <span>Empreende</span>
-            <span>Startups</span>
-            <span>Carreira</span>
-            <span>Assinantes</span>
-            <span>Revista</span>
-
-          </div>
-
-        </div>
-
-      </header>
+<Header />
 
       {/* CONTEÚDO */}
 
-      <main className="max-w-[1400px] mx-auto px-5 py-10">
+      <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-6 md:py-10">
 
-        <div className="grid grid-cols-12 gap-10">
+        <div className="
+  grid
+  grid-cols-1
+  lg:grid-cols-12
+  gap-6
+  md:gap-10
+">
 
           {/* SOCIAL */}
 
-          <div className="
-            hidden
-            lg:flex
-            flex-col
-            gap-3
-            col-span-1
-            sticky
-            top-32
-            h-fit
-          ">
+          <div
+            className="
+              hidden
+              lg:flex
+              flex-col
+              gap-3
+              col-span-1
+              sticky
+              top-32
+              h-fit
+            "
+          >
 
             <a
               href={`https://wa.me/?text=${encodeURIComponent(currentUrl)}`}
@@ -255,7 +182,7 @@ text-[12px] md:text-[14px]
             </a>
 
             <a
-             href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}`}
+              href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}`}
               target="_blank"
               className="
                 w-11
@@ -304,81 +231,111 @@ text-[12px] md:text-[14px]
 
           <article className="col-span-12 lg:col-span-7">
 
-            <span className="
-              text-red-600
-              font-bold
-              uppercase
-              text-xs
-              tracking-wider
-            ">
+            <span
+              className="
+                text-red-600
+                font-bold
+                uppercase
+                text-xs
+                tracking-wider
+              "
+            >
 
               {article.category}
 
             </span>
 
-            <h1 className="
-              text-black
-              text-3xl
-              lg:text-5xl
-              leading-tight
-              font-black
-              mt-4
-              tracking-tight
-            ">
+            <h1
+              className="
+                text-black
+
+                text-[22px]
+sm:text-[30px]
+md:text-[52px]
+
+                leading-[1.05]
+
+                font-black
+
+                mt-4
+
+                tracking-tight
+              "
+            >
 
               {article.title}
 
             </h1>
 
-            <p className="
-              text-zinc-600
-              text-lg
-              lg:text-xl
-              mt-6
-              leading-relaxed
-            ">
+            <p
+              className="
+                text-zinc-600
+
+                text-[18px]
+                md:text-[22px]
+
+                mt-6
+
+                leading-relaxed
+              "
+            >
 
               {article.excerpt}
 
             </p>
 
-            <div className="
-  flex
-  items-center
-  gap-6
-  text-zinc-500
-  mt-8
-  border-y
-  border-zinc-300
-  py-4
-  text-sm
-">
+            <div
+              className="
+                flex
+                items-center
+                gap-6
 
-  <span className="font-semibold">
-  {article.journalist_name ||
-   article.author ||
-   "Redação MONATIZA"}
-</span>
+                text-zinc-500
 
-  <div className="flex items-center gap-2">
+                mt-8
 
-    <Clock3 size={16} />
+                border-y
+                border-zinc-300
 
-    <span>5 min leitura</span>
+                py-4
 
-  </div>
+                text-sm
+              "
+            >
 
-</div>
+              <span className="font-semibold">
 
-            <div className="
-              relative
-              w-full
-              h-[280px]
-              lg:h-[500px]
-              mt-8
-              rounded-3xl
-              overflow-hidden
-            ">
+                {article.journalist_name ||
+                  article.author ||
+                  "Redação MONATIZA"}
+
+              </span>
+
+              <div className="flex items-center gap-2">
+
+                <Clock3 size={16} />
+
+                <span>5 min leitura</span>
+
+              </div>
+
+            </div>
+
+            <div
+              className="
+                relative
+                w-full
+
+                h-[240px]
+                sm:h-[340px]
+                md:h-[500px]
+
+                mt-8
+
+                rounded-3xl
+                overflow-hidden
+              "
+            >
 
               <Image
                 src={article.image_url}
@@ -390,47 +347,59 @@ text-[12px] md:text-[14px]
 
             </div>
 
-           <div
-  className="
-    max-w-none
-    mt-10
+            <div
+              className="
+                max-w-none
 
-    text-[#1d1d1f]
+                mt-10
 
-    font-serif
+                text-[#1d1d1f]
 
-    [&_p]:text-[20px]
-    [&_p]:leading-[1.9]
-    [&_p]:font-normal
-    [&_p]:mb-8
+                font-serif
 
-    [&_h2]:text-[36px]
-    [&_h2]:font-bold
-    [&_h2]:mt-14
-    [&_h2]:mb-6
+                [&_p]:text-[16px]
+                md:[&_p]:text-[22px]
 
-    [&_strong]:font-semibold
+                [&_p]:leading-[1.9]
+                [&_p]:font-normal
+                [&_p]:mb-8
 
-    [&_img]:rounded-2xl
-    [&_img]:my-10
-  "
-  dangerouslySetInnerHTML={{
-    __html: `<p>${article.content.replace(/\n/g, "</p><p>")}</p>`,
-  }}
-/>
+                [&_h2]:text-[28px]
+                md:[&_h2]:text-[42px]
+
+                [&_h2]:font-bold
+                [&_h2]:mt-14
+                [&_h2]:mb-6
+
+                [&_strong]:font-semibold
+
+                [&_img]:rounded-2xl
+                [&_img]:my-10
+              "
+              dangerouslySetInnerHTML={{
+                __html: `<p>${article.content.replace(/\n/g, "</p><p>")}</p>`,
+              }}
+            />
 
           </article>
 
           {/* SIDEBAR */}
 
-          <aside className="col-span-12 lg:col-span-4">
-
-            <h2 className="
-              text-3xl
-              font-black
-              text-black
-              mb-8
-            ">
+          <aside className="
+  hidden
+  lg:block
+  lg:col-span-4
+  mt-10
+  lg:mt-0
+">
+            <h2
+              className="
+                text-3xl
+                font-black
+                text-black
+                mb-8
+              "
+            >
 
               Leia também
 
@@ -451,14 +420,20 @@ text-[12px] md:text-[14px]
                   "
                 >
 
-                  <div className="
-                    relative
-                    w-full
-                    h-[220px]
-                    rounded-2xl
-                    overflow-hidden
-                    mb-4
-                  ">
+                  <div
+                    className="
+                      relative
+                      w-full
+
+                      h-[180px]
+                      md:h-[220px]
+
+                      rounded-2xl
+                      overflow-hidden
+
+                      mb-4
+                    "
+                  >
 
                     <Image
                       src={item.image_url}
@@ -470,37 +445,43 @@ text-[12px] md:text-[14px]
 
                   </div>
 
-                  <span className="
-                    text-red-600
-                    uppercase
-                    text-xs
-                    font-bold
-                  ">
+                  <span
+                    className="
+                      text-red-600
+                      uppercase
+                      text-xs
+                      font-bold
+                    "
+                  >
 
                     {item.category}
 
                   </span>
 
-                  <h3 className="
-                    text-xl
-                    font-bold
-                    text-black
-                    mt-3
-                    leading-snug
-                  ">
+                  <h3
+                    className="
+                      text-xl
+                      font-bold
+                      text-black
+                      mt-3
+                      leading-snug
+                    "
+                  >
 
                     {item.title}
 
                   </h3>
 
-                  <div className="
-                    flex
-                    items-center
-                    gap-2
-                    mt-4
-                    text-zinc-600
-                    text-sm
-                  ">
+                  <div
+                    className="
+                      flex
+                      items-center
+                      gap-2
+                      mt-4
+                      text-zinc-600
+                      text-sm
+                    "
+                  >
 
                     <span>Ler matéria</span>
 
@@ -516,30 +497,40 @@ text-[12px] md:text-[14px]
 
             {/* NEWSLETTER */}
 
-            <div className="
-              mt-12
-              bg-white
-              rounded-3xl
-              border
-              border-zinc-200
-              p-8
-            ">
+            <div
+              className="
+                mt-12
 
-              <h3 className="
-                text-3xl
-                font-black
-                text-black
-              ">
+                bg-white
+
+                rounded-3xl
+
+                border
+                border-zinc-200
+
+                p-5 md:p-8
+              "
+            >
+
+              <h3
+                className="
+                  text-3xl
+                  font-black
+                  text-black
+                "
+              >
 
                 Newsletter
 
               </h3>
 
-              <p className="
-                text-zinc-600
-                mt-4
-                leading-relaxed
-              ">
+              <p
+                className="
+                  text-zinc-600
+                  mt-4
+                  leading-relaxed
+                "
+              >
 
                 Receba notícias exclusivas,
                 inteligência artificial,
@@ -554,26 +545,38 @@ text-[12px] md:text-[14px]
                 className="
                   w-full
                   mt-6
+
                   border
                   border-zinc-300
+
                   rounded-2xl
+
                   px-5
                   py-4
+
                   outline-none
                 "
               />
 
-              <button className="
-                w-full
-                bg-black
-                text-white
-                py-4
-                rounded-2xl
-                mt-5
-                font-bold
-                hover:opacity-90
-                transition
-              ">
+              <button
+                className="
+                  w-full
+
+                  bg-black
+                  text-white
+
+                  py-4
+
+                  rounded-2xl
+
+                  mt-5
+
+                  font-bold
+
+                  hover:opacity-90
+                  transition
+                "
+              >
 
                 Assinar Agora
 

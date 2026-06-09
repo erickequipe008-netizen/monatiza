@@ -1,5 +1,7 @@
+
 import "./globals.css";
 import Script from "next/script";
+
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata = {
@@ -15,15 +17,20 @@ export const metadata = {
   },
 
   other: {
-    "google-adsense-account": "ca-pub-2575495674688917",
+    "google-adsense-account":
+      "ca-pub-2575495674688917",
   },
 
   openGraph: {
     title: "Monatiza",
+
     description:
       "Portal premium de notícias sobre IA, negócios, tecnologia e economia.",
+
     url: "https://monatiza.com",
+
     siteName: "Monatiza",
+
     images: [
       {
         url: "/og-image.png",
@@ -31,7 +38,9 @@ export const metadata = {
         height: 630,
       },
     ],
+
     locale: "pt_BR",
+
     type: "website",
   },
 };
@@ -41,9 +50,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
+
     <html lang="pt-BR">
+
       <head>
+
+        {/* ADSENSE */}
         <Script
           id="adsense-script"
           async
@@ -51,17 +65,25 @@ export default function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2575495674688917"
           crossOrigin="anonymous"
         />
+
+        {/* VIEWPORT MOBILE */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1"
+        />
+
       </head>
 
       <body>
 
-        <div style={{ paddingTop: "76px" }}>
-          {children}
-        </div>
+        {children}
 
         <CookieBanner />
 
       </body>
+
     </html>
+
   );
+
 }
