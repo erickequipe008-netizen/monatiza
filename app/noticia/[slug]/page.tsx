@@ -116,8 +116,7 @@ export default function ArticlePage() {
 
       <header className="bg-black text-white border-b border-zinc-800 sticky top-0 z-50">
 
-        <div className="max-w-[1400px] mx-auto px-5 h-[76px] flex items-center justify-between">
-
+        <div className="max-w-[1400px] mx-auto px-4 md:px-5 h-[64px] md:h-[76px] flex items-center justify-between">
           <div className="flex items-center gap-4">
 
             <button className="hover:opacity-70 transition">
@@ -132,7 +131,7 @@ export default function ArticlePage() {
 
           <Link
             href="/"
-            className="text-3xl font-black tracking-tight hover:opacity-80 transition"
+            className="text-[24px] md:text-3xl font-black tracking-tight"
           >
             monatiza
           </Link>
@@ -146,9 +145,9 @@ export default function ArticlePage() {
             <button className="
               border
               border-white
-              px-5
-              py-2
-              text-sm
+              px-3 md:px-5
+py-2
+text-[12px] md:text-sm
               font-semibold
               hover:bg-white
               hover:text-black
@@ -169,11 +168,9 @@ export default function ArticlePage() {
             max-w-[1400px]
             mx-auto
             px-5
-            h-[50px]
-            flex
-            items-center
-            gap-7
-            text-[14px]
+            h-[44px] md:h-[50px]
+gap-5 md:gap-7
+text-[12px] md:text-[14px]
             font-semibold
             overflow-x-auto
             whitespace-nowrap
