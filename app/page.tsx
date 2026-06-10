@@ -408,7 +408,7 @@ export default function Home() {
         <section className="max-w-[1600px] mx-auto px-4 md:px-5 pb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {gridArticles.map((item) => (
             <Link href={`/noticia/${item.slug}`} key={item.id}
-              className={`border-t pt-5 group ${ddarkMode ? "border-zinc-800" : "border-zinc-200"}`}>
+              className={`border-t pt-5 group ${darkMode ? "border-zinc-800" : "border-zinc-200"}`}>
               {item.image_url && (
                 <div className="relative w-full h-[240px] overflow-hidden mb-5">
                   <img src={item.image_url} alt={item.title}
