@@ -273,22 +273,26 @@ export default function Home() {
             </p>
             <div className="space-y-4">
               <input
-                type="email"
-                placeholder="Seu e-mail"
-                className={`w-full h-[54px] px-5 border bg-transparent outline-none
-                  ${ "border-zinc-700 placeholder:text-zinc-500 text-white" : "border-zinc-300"}`}
-              />
+  type="email"
+  placeholder="Digite seu e-mail"
+  className={`w-full h-[54px] border px-5 bg-transparent outline-none mb-4
+    ${
+      darkMode
+        ? "border-zinc-700 placeholder:text-zinc-500 text-white"
+        : "border-zinc-300"
+    }`}
+/>
               <input
                 type="password"
                 placeholder="Sua senha"
                 className={`w-full h-[54px] px-5 border bg-transparent outline-none
-                  ${dark ? "border-zinc-700 placeholder:text-zinc-500 text-white" : "border-zinc-300"}`}
+                  ${darkMode ? "border-zinc-700 placeholder:text-zinc-500 text-white" : "border-zinc-300"}`}
               />
               <button className="w-full h-[54px] bg-red-600 text-white font-semibold hover:bg-red-700 transition-all">
                 Entrar na área exclusiva
               </button>
               <button className={`w-full h-[54px] border font-semibold hover:opacity-70 transition
-                ${dark ? "border-zinc-600" : "border-zinc-300"}`}>
+                $darkMode ? "border-zinc-600" : "border-zinc-300"}`}>
                 Criar nova conta
               </button>
             </div>
@@ -366,7 +370,7 @@ export default function Home() {
           <div className="flex flex-col gap-8">
             {sideArticles.map((item) => (
               <Link href={`/noticia/${item.slug}`} key={item.id}
-                className={`border-b pb-8 ${dark ? "border-zinc-800" : "border-zinc-200"}`}>
+                className={`border-b pb-8 ${darkMode ? "border-zinc-800" : "border-zinc-200"}`}>
                 <div className="grid grid-cols-[110px_1fr] md:grid-cols-[140px_1fr] gap-4 md:gap-5 items-start">
                   {item.image_url && (
                     <div className="relative w-full h-[100px] overflow-hidden">
@@ -382,14 +386,14 @@ export default function Home() {
               </Link>
             ))}
 
-            <div className={`p-7 border ${dark ? "bg-[#111] border-zinc-800" : "bg-white border-zinc-200"}`}>
+            <div className={`p-7 border ${darkMode ? "bg-[#111] border-zinc-800" : "bg-white border-zinc-200"}`}>
               <h3 className="text-[28px] font-serif font-bold mb-4">Newsletter MONATIZA</h3>
               <p className="text-zinc-500 text-[14px] leading-7 mb-6">
                 Receba notícias exclusivas, análises de mercado, tecnologia e tendências diretamente no seu e-mail.
               </p>
               <input type="email" placeholder="Digite seu e-mail"
                 className={`w-full h-[54px] border px-5 bg-transparent outline-none mb-4
-                  ${dark ? "border-zinc-700 placeholder:text-zinc-500 text-white" : "border-zinc-300"}`}
+                  ${darkMode ? "border-zinc-700 placeholder:text-zinc-500 text-white" : "border-zinc-300"}`}
               />
               <button className="w-full h-[54px] bg-black text-white font-semibold hover:bg-zinc-800 transition-all">
                 Assinar newsletter
@@ -404,7 +408,7 @@ export default function Home() {
         <section className="max-w-[1600px] mx-auto px-4 md:px-5 pb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {gridArticles.map((item) => (
             <Link href={`/noticia/${item.slug}`} key={item.id}
-              className={`border-t pt-5 group ${dark ? "border-zinc-800" : "border-zinc-200"}`}>
+              className={`border-t pt-5 group ${ddarkMode ? "border-zinc-800" : "border-zinc-200"}`}>
               {item.image_url && (
                 <div className="relative w-full h-[240px] overflow-hidden mb-5">
                   <img src={item.image_url} alt={item.title}
