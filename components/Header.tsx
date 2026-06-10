@@ -250,32 +250,25 @@ export default function Header() {
             {/* LINKS */}
             <div className="flex flex-col gap-5">
 
-              {[
-                "Negócios",
-                "IA",
-                "Mercado",
-                "Brasil",
-                "Tech",
-                "Empreende",
-                "Startups",
-                "Carreira",
-                "Assinantes",
-                "Revista",
-              ].map((item) => (
+            
+{[
+  { name: "Negócios", href: "/negocios" },
+  { name: "IA", href: "/ia" },
+  { name: "Mercado", href: "/mercado" },
+  { name: "Brasil", href: "/brasil" },
+  { name: "Tech", href: "/tech" },
+].map((cat) => (
 
-                <button
-                  key={item}
-                  className="
-                    text-left
-                    text-lg
-                    hover:text-red-500
-                    transition
-                  "
-                >
-                  {item}
-                </button>
+  <Link
+    key={cat.name}
+    href={cat.href}
+    className="hover:text-red-500 transition shrink-0"
+  >
+    {cat.name}
+  </Link>
 
-              ))}
+))}
+
 
             </div>
 
