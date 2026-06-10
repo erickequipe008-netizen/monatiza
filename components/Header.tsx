@@ -31,23 +31,17 @@ export default function Header() {
       {/* HEADER */}
       <header className="fixed top-0 left-0 w-full z-50 bg-black text-white border-b border-zinc-800">
 
+        {/* TOPO */}
         <div className="max-w-[1600px] mx-auto h-[64px] md:h-[78px] px-4 md:px-5 flex items-center justify-between">
 
           {/* ESQUERDA */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center">
 
             <button
               onClick={() => setMenuOpen(true)}
               className="hover:opacity-70 transition"
             >
-              <Menu size={22} />
-            </button>
-
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="hover:opacity-70 transition"
-            >
-              <Search size={20} />
+              <Menu size={24} />
             </button>
 
           </div>
@@ -59,8 +53,23 @@ export default function Header() {
             </h1>
           </Link>
 
-          {/* DIREITA */}
-          <div className="flex items-center gap-5">
+          {/* MOBILE SEARCH */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="hover:opacity-70 transition md:hidden"
+          >
+            <Search size={22} />
+          </button>
+
+          {/* DESKTOP RIGHT */}
+          <div className="hidden md:flex items-center gap-5">
+
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hover:opacity-70 transition"
+            >
+              <Search size={20} />
+            </button>
 
             <button
               onClick={() => setDarkMode(!darkMode)}
@@ -74,12 +83,9 @@ export default function Header() {
               className="
                 border
                 border-white
-                px-3
-                md:px-5
-                py-2
-                md:py-3
-                text-[12px]
-                md:text-[14px]
+                px-5
+                py-3
+                text-[14px]
                 font-semibold
                 hover:bg-white
                 hover:text-black
@@ -96,23 +102,25 @@ export default function Header() {
         {/* CATEGORIAS */}
         <div className="border-t border-zinc-800 bg-black">
 
-          <div className="
-            max-w-[1600px]
-            mx-auto
-            h-[44px]
-            md:h-[50px]
-            px-4
-            md:px-5
-            flex
-            items-center
-            gap-5
-            md:gap-7
-            overflow-x-auto
-            whitespace-nowrap
-            text-[12px]
-            md:text-[14px]
-            font-semibold
-          ">
+          <div
+            className="
+              max-w-[1600px]
+              mx-auto
+              h-[44px]
+              md:h-[50px]
+              px-4
+              md:px-5
+              flex
+              items-center
+              gap-5
+              md:gap-7
+              overflow-x-auto
+              whitespace-nowrap
+              text-[12px]
+              md:text-[14px]
+              font-semibold
+            "
+          >
 
             {[
               "Negócios",
@@ -143,29 +151,39 @@ export default function Header() {
       </header>
 
       {/* ESPAÇO HEADER */}
-      <div className="h-[150px] md:h-[170px]" />
+      <div className="h-[108px] md:h-[128px]" />
 
-<style>{`
-  @keyframes marquee {
-    0% {
-      transform: translateX(0);
-    }
+      {/* ANIMAÇÃO */}
+      <style>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
 
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-`}</style>
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
 
+      {/* TICKER FINANCEIRO */}
+      <div
+        className={`border-b overflow-hidden ${
+          darkMode
+            ? "bg-[#111] border-zinc-800"
+            : "bg-[#f5f5f5] border-zinc-200"
+        }`}
+      >
 
-
-      {/* ── TICKER FINANCEIRO ── */}
-      <div className={`border-b overflow-hidden ${dark ? "bg-[#111] border-zinc-800" : "bg-[#f5f5f5] border-zinc-200"}`}>
         <div className="overflow-hidden whitespace-nowrap">
+
           <div
             className="flex gap-16 py-3 text-[13px] font-semibold"
-            style={{ animation: "marquee 30s linear infinite" }}
+            style={{
+              animation: "marquee 30s linear infinite",
+            }}
           >
+
             {[
               { label: "IBOV ▲ 128.420 +1,22%", up: true },
               { label: "DÓLAR ▼ R$5,42 -0,32%", up: false },
@@ -178,12 +196,24 @@ export default function Header() {
               { label: "DÓLAR ▼ R$5,42 -0,32%", up: false },
               { label: "NASDAQ ▲ +0,88%", up: true },
             ].map((item, i) => (
-              <span key={i} className={item.up ? "text-green-500" : "text-red-500"}>
+
+              <span
+                key={i}
+                className={
+                  item.up
+                    ? "text-green-500"
+                    : "text-red-500"
+                }
+              >
                 {item.label}
               </span>
+
             ))}
+
           </div>
+
         </div>
+
       </div>
 
       {/* MENU */}
@@ -191,15 +221,18 @@ export default function Header() {
 
         <div className="fixed inset-0 z-[999] bg-black/70">
 
-          <div className="
-            w-full
-            md:w-[420px]
-            h-full
-            bg-[#111]
-            text-white
-            p-6
-          ">
+          <div
+            className="
+              w-full
+              md:w-[420px]
+              h-full
+              bg-[#111]
+              text-white
+              p-6
+            "
+          >
 
+            {/* TOPO MENU */}
             <div className="flex items-center justify-between mb-8">
 
               <h2 className="text-2xl font-bold">
@@ -214,6 +247,7 @@ export default function Header() {
 
             </div>
 
+            {/* LINKS */}
             <div className="flex flex-col gap-5">
 
               {[
@@ -222,17 +256,61 @@ export default function Header() {
                 "Mercado",
                 "Brasil",
                 "Tech",
+                "Empreende",
                 "Startups",
+                "Carreira",
+                "Assinantes",
+                "Revista",
               ].map((item) => (
 
                 <button
                   key={item}
-                  className="text-left text-lg hover:text-red-500 transition"
+                  className="
+                    text-left
+                    text-lg
+                    hover:text-red-500
+                    transition
+                  "
                 >
                   {item}
                 </button>
 
               ))}
+
+            </div>
+
+            {/* MOBILE EXTRA */}
+            <div className="mt-10 border-t border-zinc-800 pt-8 flex flex-col gap-4 md:hidden">
+
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="
+                  flex
+                  items-center
+                  gap-3
+                  text-left
+                  text-lg
+                "
+              >
+                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+                Alterar tema
+              </button>
+
+              <button
+                onClick={() => setLoginOpen(true)}
+                className="
+                  border
+                  border-white
+                  py-4
+                  text-sm
+                  font-bold
+                  hover:bg-white
+                  hover:text-black
+                  transition
+                "
+              >
+                Assinar
+              </button>
 
             </div>
 
@@ -297,14 +375,16 @@ export default function Header() {
 
         <div className="fixed inset-0 z-[999] bg-black/70 flex items-center justify-center p-5">
 
-          <div className="
-            w-full
-            max-w-[420px]
-            bg-white
-            text-black
-            p-8
-            rounded-2xl
-          ">
+          <div
+            className="
+              w-full
+              max-w-[420px]
+              bg-white
+              text-black
+              p-8
+              rounded-2xl
+            "
+          >
 
             <div className="flex items-center justify-between mb-6">
 
@@ -334,14 +414,16 @@ export default function Header() {
               "
             />
 
-            <button className="
-              w-full
-              bg-black
-              text-white
-              py-4
-              rounded-xl
-              font-bold
-            ">
+            <button
+              className="
+                w-full
+                bg-black
+                text-white
+                py-4
+                rounded-xl
+                font-bold
+              "
+            >
               Continuar
             </button>
 
