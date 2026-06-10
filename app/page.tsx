@@ -106,7 +106,7 @@ export default function Home() {
     <Header />
 
     <main
-      className={dark ? "bg-[#0a0a0a] text-white" : "bg-[#f7f7f7] text-black"}
+      className={darkMode ? "bg-[#0a0a0a] text-white" : "bg-[#f7f7f7] text-black"}
       style={{
         margin: 0,
         padding: 0,
@@ -260,7 +260,7 @@ export default function Home() {
       {/* ── MODAL ASSINAR ── */}
       {loginOpen && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-5">
-          <div className={`w-full max-w-[460px] p-8 ${dark ? "bg-[#111] text-white" : "bg-white text-black"}`}>
+          <div className={`w-full max-w-[460px] p-8 ${darkMode ? "bg-[#111] text-white" : "bg-white text-black"}`}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[34px] font-serif font-bold">MONATIZA Assinar</h2>
               <button aria-label="Fechar" onClick={() => setLoginOpen(false)} className="hover:opacity-60 transition">
@@ -276,7 +276,7 @@ export default function Home() {
                 type="email"
                 placeholder="Seu e-mail"
                 className={`w-full h-[54px] px-5 border bg-transparent outline-none
-                  ${dark ? "border-zinc-700 placeholder:text-zinc-500 text-white" : "border-zinc-300"}`}
+                  ${ "border-zinc-700 placeholder:text-zinc-500 text-white" : "border-zinc-300"}`}
               />
               <input
                 type="password"
