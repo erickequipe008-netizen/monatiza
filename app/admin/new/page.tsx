@@ -109,12 +109,12 @@ export default function NewArticlePage() {
             slug,
 
             author:
-              profile?.display_name ||
-              user.email,
+  profile?.display_name ||
+  "Redação Monatiza",
 
-            journalist_name:
-              profile?.display_name ||
-              user.email,
+journalist_name:
+  profile?.display_name ||
+  "Redação Monatiza",
 
             author_id: user.id,
           },
