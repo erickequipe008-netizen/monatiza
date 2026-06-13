@@ -96,29 +96,28 @@ export default function NewArticlePage() {
         .single();
 
     const { error } =
-      await supabase
-        .from("articles")
-        .insert([
-          {
-            title,
-            description,
-            content,
-            category,
-            image_url:
-              uploadedImage,
-            slug,
+  await supabase
+    .from("articles")
+    .insert([
+      {
+        title,
+        description,
+        content,
+        category,
+        image_url: uploadedImage,
+        slug,
 
-            author:
-  profile?.display_name ||
-  "Redação Monatiza",
+        author:
+          profile?.display_name ||
+          "Redação Monatiza",
 
-journalist_name:
-  profile?.display_name ||
-  "Redação Monatiza",
+        journalist_name:
+          profile?.display_name ||
+          "Redação Monatiza",
 
-            author_id: user.id,
-          },
-        ]);
+        author_id: user.id,
+      },
+    ]);
 
     if (error) {
       console.log(error);

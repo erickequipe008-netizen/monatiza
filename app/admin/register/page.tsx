@@ -28,7 +28,7 @@ export default function RegisterPage() {
     await supabase.from("profiles").insert({
       id: data.user?.id,
       name: name,
-      display_name: name,
+      display_name: displayName,
       email,
       role: "journalist",
     });
