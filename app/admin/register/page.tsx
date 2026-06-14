@@ -56,7 +56,9 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!data.user) {
+    const user = data.user;
+
+    if (!user) {
       alert("Erro ao criar usuário");
       setLoading(false);
       return;
@@ -67,11 +69,10 @@ export default function RegisterPage() {
       .from("profiles")
       .insert([
         {
-          id: data.user.id,
+          id: user.id,
           name: name,
           display_name: journalismName || name,
           email: email,
-          role: "journalist",
         },
       ]);
 
@@ -79,6 +80,28 @@ export default function RegisterPage() {
       console.log(profileError);
 
       alert("Erro ao salvar perfil");
+
+      setLoading(false);
+
+      return;
+    }
+
+    // CRIA JORNALISTA
+    const { error: journalistError } = await supabase
+      .from("journalists")
+      .insert([
+        {
+          id: user.id,
+          name: journalismName || name,
+          email: email,
+          role: "journalist",
+        },
+      ]);
+
+    if (journalistError) {
+      console.log(journalistError);
+
+      alert("Erro ao salvar jornalista");
 
       setLoading(false);
 
