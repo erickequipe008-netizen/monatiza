@@ -87,18 +87,20 @@ async function handlePublish(
   }
 
   // PEGA PERFIL DO USUÁRIO
-  const { data: profile } =
-    await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+const { data: profile } =
+  await supabase
+    .from("profiles")
+    .select("name, display_name")
+    .eq("id", user.id)
+    .single();
 
-  // DEFINE NOME DO AUTOR
-  const authorName =
-    profile?.display_name ||
-    profile?.name ||
-    "Redação Monatiza";
+const authorName =
+  profile?.display_name ||
+  profile?.name ||
+  user.email ||
+  "Redação Monatiza";
+
+
 
   // PUBLICA MATÉRIA
   const { error } =
