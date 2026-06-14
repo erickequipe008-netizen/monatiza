@@ -58,85 +58,89 @@ export default function NewArticlePage() {
     return publicUrl;
   }
 
-  async function handlePublish(
-    e: React.FormEvent
-  ) {
-    e.preventDefault();
+async function handlePublish(
+  e: React.FormEvent
+) {
+  e.preventDefault();
 
-    setLoading(true);
+  setLoading(true);
 
-    const uploadedImage =
-      await uploadCover();
+  const uploadedImage =
+    await uploadCover();
 
-    const slug = title
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      )
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
+  const slug = title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  // PEGA USUÁRIO LOGADO
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!user) {
-      alert("Usuário não autenticado");
-      setLoading(false);
-      return;
-    }
-
-    const { data: profile } =
-      await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", user.id)
-        .single();
-
-    const { error } =
-  await supabase
-    .from("articles")
-    .insert([
-      {
-        title,
-        description,
-        content,
-        category,
-        image_url: uploadedImage,
-        slug,
-
-        author:
-          profile?.display_name ||
-          "Redação Monatiza",
-
-        journalist_name:
-          profile?.display_name ||
-          "Redação Monatiza",
-
-        author_id: user.id,
-      },
-    ]);
-
-    if (error) {
-      console.log(error);
-
-      alert(error.message);
-
-      setLoading(false);
-
-      return;
-    }
-
-    alert(
-      "Matéria publicada com sucesso!"
-    );
-
-    router.push(
-      "/admin/dashboard"
-    );
+  if (!user) {
+    alert("Usuário não autenticado");
+    setLoading(false);
+    return;
   }
+
+  // PEGA PERFIL DO USUÁRIO
+  const { data: profile } =
+    await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+  // DEFINE NOME DO AUTOR
+  const authorName =
+    profile?.display_name ||
+    profile?.name ||
+    "Redação Monatiza";
+
+  // PUBLICA MATÉRIA
+  const { error } =
+    await supabase
+      .from("articles")
+      .insert([
+        {
+          title,
+          description,
+          content,
+          category,
+          image_url: uploadedImage,
+          slug,
+
+          author: authorName,
+
+          journalist_name:
+            authorName,
+
+          author_id: user.id,
+        },
+      ]);
+
+  if (error) {
+    console.log(error);
+
+    alert(error.message);
+
+    setLoading(false);
+
+    return;
+  }
+
+  alert(
+    "Matéria publicada com sucesso!"
+  );
+
+  router.push(
+    "/admin/dashboard"
+  );
+}
+
 
   return (
     <main className="min-h-screen bg-[#f5f5f7] px-6 py-12">
