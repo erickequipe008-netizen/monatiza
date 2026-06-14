@@ -136,9 +136,11 @@ async function handlePublish(
     "Matéria publicada com sucesso!"
   );
 
-  router.push(
-    "/admin/dashboard"
-  );
+ router.push(
+  "/admin/dashboard"
+);
+
+setLoading(false);
 }
 
 
