@@ -479,42 +479,26 @@ md:text-[52px]
               )}
             </div>
 
-            <div
-              className="
-                flex
-                items-center
-                gap-6
+            <div className="flex items-center gap-4 text-gray-500 text-sm">
+  <span>{article.author}</span>
 
-                text-zinc-500
+  <span>•</span>
 
-                mt-8
+  <span>
+    {new Date(article.created_at).toLocaleDateString(
+      "pt-BR",
+      {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      }
+    )}
+  </span>
 
-                border-y
-                border-zinc-300
+  <span>•</span>
 
-                py-4
-
-                text-sm
-              "
-            >
-
-              <span className="font-semibold">
-
-                {article.journalist_name ||
-                  article.author ||
-                  "Redação MONATIZA"}
-
-              </span>
-
-              <div className="flex items-center gap-2">
-
-                <Clock3 size={16} />
-
-                <span>5 min leitura</span>
-
-              </div>
-
-            </div>
+  <span>5 min leitura</span>
+</div>
 
             <div
               className="
