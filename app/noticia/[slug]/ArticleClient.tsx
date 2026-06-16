@@ -16,6 +16,50 @@ import { supabase } from "@/lib/supabase/client";
 
 
 
+// ─── ícones de redes sociais (minimalistas, traço único, sem marca colorida pesada) ───
+function WhatsAppIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.87.5 3.62 1.44 5.15L2 22l5.13-1.5a9.86 9.86 0 0 0 4.91 1.31h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.51 2 12.04 2zm0 18.13h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.11.91.93-3.03-.2-.31a8.17 8.17 0 0 1-1.26-4.36c0-4.53 3.69-8.22 8.23-8.22 2.2 0 4.27.86 5.82 2.41a8.16 8.16 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.23 8.23zm4.52-6.16c-.25-.12-1.46-.72-1.68-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.96-.15.17-.29.18-.54.06-.25-.12-1.04-.38-1.98-1.21-.73-.65-1.22-1.46-1.37-1.71-.14-.25-.01-.39.11-.51.12-.12.27-.31.4-.46.13-.16.18-.27.27-.45.08-.18.04-.33-.04-.46-.08-.12-.5-1.2-.69-1.65-.18-.43-.37-.37-.51-.38-.13-.01-.28-.01-.43-.01-.15 0-.39.06-.6.27-.21.21-.8.78-.8 1.91 0 1.13.82 2.21.94 2.37.12.15 1.59 2.43 3.87 3.31 1.93.75 2.33.64 2.75.6.42-.04 1.36-.55 1.55-1.09.19-.53.19-.99.13-1.09-.06-.1-.23-.16-.48-.28z" />
+    </svg>
+  );
+}
+
+function XIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.9 2H22l-7.1 8.1L23.3 22H17l-5.4-7.1L5.4 22H2.3l7.6-8.7L1 2h6.4l4.9 6.5L18.9 2zm-2.1 18h1.7L7.3 4H5.5l11.3 16z" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.16 8.44 9.94v-7.03H7.9v-2.91h2.54V9.79c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.87h2.78l-.44 2.91h-2.34V22c4.78-.78 8.43-4.94 8.43-9.94z" />
+    </svg>
+  );
+}
+
+function InstagramIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="2.5" y="2.5" width="19" height="19" rx="5" />
+      <circle cx="12" cy="12" r="4.2" />
+      <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function LinkIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.5 4.5" />
+      <path d="M14 11a5 5 0 0 0-7.07 0l-2.83 2.83a5 5 0 0 0 7.07 7.07L12.5 19.5" />
+    </svg>
+  );
+}
+
 export default function ArticlePage() {
 
   const params = useParams();
@@ -30,6 +74,9 @@ export default function ArticlePage() {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [copied, setCopied] =
+    useState(false);
 
   useEffect(() => {
 
@@ -107,6 +154,14 @@ export default function ArticlePage() {
     typeof window !== "undefined"
       ? window.location.href
       : "";
+
+  function handleCopyLink() {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(currentUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
 
       const jsonLd = {
   "@context": "https://schema.org",
@@ -191,88 +246,136 @@ export default function ArticlePage() {
             <a
               href={`https://wa.me/?text=${encodeURIComponent(currentUrl)}`}
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Compartilhar no WhatsApp"
+              title="Compartilhar no WhatsApp"
               className="
                 w-11
                 h-11
                 rounded-full
-                bg-green-500
-                text-white
+                border
+                border-zinc-200
+                bg-white
+                text-zinc-500
                 flex
                 items-center
                 justify-center
-                text-xs
-                font-bold
+                hover:border-[#25D366]
+                hover:text-[#25D366]
                 hover:scale-105
-                transition
+                transition-all
               "
             >
-              WA
+              <WhatsAppIcon />
             </a>
 
             <a
               href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`}
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Compartilhar no Facebook"
+              title="Compartilhar no Facebook"
               className="
                 w-11
                 h-11
                 rounded-full
-                bg-blue-600
-                text-white
+                border
+                border-zinc-200
+                bg-white
+                text-zinc-500
                 flex
                 items-center
                 justify-center
-                text-xs
-                font-bold
+                hover:border-[#1877F2]
+                hover:text-[#1877F2]
                 hover:scale-105
-                transition
+                transition-all
               "
             >
-              FB
+              <FacebookIcon />
             </a>
 
             <a
               href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}`}
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Compartilhar no X"
+              title="Compartilhar no X"
               className="
                 w-11
                 h-11
                 rounded-full
-                bg-black
-                text-white
+                border
+                border-zinc-200
+                bg-white
+                text-zinc-500
                 flex
                 items-center
                 justify-center
-                text-xs
-                font-bold
-                border
-                border-zinc-700
+                hover:border-black
+                hover:text-black
                 hover:scale-105
-                transition
+                transition-all
               "
             >
-              X
+              <XIcon />
             </a>
 
             <a
               href="https://instagram.com/monatizabrazil"
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Monatiza no Instagram"
+              title="Monatiza no Instagram"
               className="
                 w-11
                 h-11
                 rounded-full
-                bg-pink-600
-                text-white
+                border
+                border-zinc-200
+                bg-white
+                text-zinc-500
                 flex
                 items-center
                 justify-center
-                text-xs
-                font-bold
+                hover:border-[#E4405F]
+                hover:text-[#E4405F]
                 hover:scale-105
-                transition
+                transition-all
               "
             >
-              IG
+              <InstagramIcon />
             </a>
+
+            <button
+              onClick={handleCopyLink}
+              aria-label="Copiar link da matéria"
+              title={copied ? "Link copiado!" : "Copiar link"}
+              className="
+                w-11
+                h-11
+                rounded-full
+                border
+                border-zinc-200
+                bg-white
+                text-zinc-500
+                flex
+                items-center
+                justify-center
+                hover:border-red-600
+                hover:text-red-600
+                hover:scale-105
+                transition-all
+                relative
+              "
+            >
+              <LinkIcon />
+              {copied && (
+                <span className="absolute left-full ml-3 whitespace-nowrap text-[11px] font-semibold bg-black text-white px-2.5 py-1 rounded-md">
+                  Copiado!
+                </span>
+              )}
+            </button>
 
           </div>
 
@@ -332,6 +435,49 @@ md:text-[52px]
               {article.excerpt}
 
             </p>
+
+            {/* SOCIAL MOBILE (só aparece quando a coluna lateral está oculta) */}
+            <div className="flex lg:hidden items-center gap-3 mt-6">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(currentUrl)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Compartilhar no WhatsApp"
+                className="w-10 h-10 rounded-full border border-zinc-200 bg-white text-zinc-500 flex items-center justify-center hover:border-[#25D366] hover:text-[#25D366] transition-all"
+              >
+                <WhatsAppIcon size={16} />
+              </a>
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Compartilhar no Facebook"
+                className="w-10 h-10 rounded-full border border-zinc-200 bg-white text-zinc-500 flex items-center justify-center hover:border-[#1877F2] hover:text-[#1877F2] transition-all"
+              >
+                <FacebookIcon size={16} />
+              </a>
+              <a
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Compartilhar no X"
+                className="w-10 h-10 rounded-full border border-zinc-200 bg-white text-zinc-500 flex items-center justify-center hover:border-black hover:text-black transition-all"
+              >
+                <XIcon size={14} />
+              </a>
+              <button
+                onClick={handleCopyLink}
+                aria-label="Copiar link"
+                className="w-10 h-10 rounded-full border border-zinc-200 bg-white text-zinc-500 flex items-center justify-center hover:border-red-600 hover:text-red-600 transition-all relative"
+              >
+                <LinkIcon size={16} />
+              </button>
+              {copied && (
+                <span className="text-[12px] font-semibold text-red-600">
+                  Link copiado!
+                </span>
+              )}
+            </div>
 
             <div
               className="
