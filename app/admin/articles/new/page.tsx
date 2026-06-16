@@ -448,10 +448,12 @@ export default function NewArticlePage() {
     }
 
     const { data: profile } = await supabase
-      .from("profiles")
-      .select("display_name")
-      .eq("id", user.id)
-      .single();
+  .from("journalists")
+  .select("name")
+  .eq("id", user.id)
+  .single();
+
+console.log(profile);
 
     const { error } = await supabase.from("articles").insert([{
       title,
@@ -460,8 +462,8 @@ export default function NewArticlePage() {
       category,
       image_url: uploadedImage,
       slug,
-      author: profile?.display_name || user.email,
-      journalist_name: profile?.display_name || user.email,
+      author: profile?.name || user.email,
+journalist_name: profile?.name || user.email,
       author_id: user.id,
     }]);
 
