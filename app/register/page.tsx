@@ -29,30 +29,49 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  async function handleRegister(e: React.FormEvent) {
-    e.preventDefault();
+async function handleRegister(
+  e: React.FormEvent
+) {
+  e.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("As senhas não coincidem");
-      return;
-    }
+  if (!name.trim()) {
+    alert("Digite seu nome");
+    return;
+  }
 
-    if (password.length < 6) {
-      alert("A senha deve ter no mínimo 6 caracteres");
-      return;
-    }
+  if (password !== confirmPassword) {
+    alert("As senhas não coincidem");
+    return;
+  }
 
+  if (password.length < 6) {
+    alert(
+      "A senha deve ter no mínimo 6 caracteres"
+    );
+    return;
+  }
+
+  try {
     setLoading(true);
 
-    // CRIA LOGIN
-    const { data, error } = await supabase.auth.signUp({
+    // CRIA USUÁRIO AUTH
+    const {
+      data,
+      error,
+    } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          name: name,
+          display_name:
+            journalismName || name,
+        },
+      },
     });
 
     if (error) {
       alert(error.message);
-      setLoading(false);
       return;
     }
 
@@ -60,31 +79,72 @@ export default function RegisterPage() {
 
     if (!user) {
       alert("Erro ao criar usuário");
-      setLoading(false);
       return;
     }
 
-    // CRIA PERFIL
-    const { error: profileError } = await supabase
+    // PROFILE
+    const {
+      error: profileError,
+    } = await supabase
       .from("profiles")
-      .insert([
-        {
-          id: user.id,
-          name: name,
-          display_name: journalismName || name,
-          email: email,
-        },
-      ]);
+      .upsert({
+        id: user.id,
+        name: name,
+        display_name:
+          journalismName || name,
+        email: email,
+      });
 
     if (profileError) {
       console.log(profileError);
 
-      alert("Erro ao salvar perfil");
-
-      setLoading(false);
+      alert(
+        "Erro ao salvar perfil"
+      );
 
       return;
     }
+
+    // JOURNALIST
+    const {
+      error: journalistError,
+    } = await supabase
+      .from("journalists")
+      .upsert({
+        id: user.id,
+        name:
+          journalismName || name,
+        email: email,
+        role: "journalist",
+      });
+
+    if (journalistError) {
+      console.log(
+        journalistError
+      );
+
+      alert(
+        "Erro ao salvar jornalista"
+      );
+
+      return;
+    }
+
+    alert(
+      "Conta criada com sucesso!"
+    );
+
+    router.push("/login");
+  } catch (err) {
+    console.log(err);
+
+    alert(
+      "Erro inesperado ao criar conta"
+    );
+  } finally {
+    setLoading(false);
+  }
+}
 
     // CRIA JORNALISTA
     const { error: journalistError } = await supabase
@@ -113,21 +173,31 @@ export default function RegisterPage() {
     router.push("/login");
   }
 
-  async function handleGoogleLogin() {
+async function handleGoogleLogin() {
+  try {
     setGoogleLoading(true);
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const { error } =
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
     if (error) {
       alert(error.message);
-      setGoogleLoading(false);
     }
+  } catch (err) {
+    console.log(err);
+
+    alert(
+      "Erro ao conectar Google"
+    );
+  } finally {
+    setGoogleLoading(false);
   }
+}
 
   return (
     <main className="min-h-screen flex bg-white">
