@@ -7,87 +7,98 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    console.log("WEBHOOK RECEBIDO:", body);
+    console.log("====================================");
+    console.log("WEBHOOK RECEBIDO:");
+    console.log(JSON.stringify(body, null, 2));
+    console.log("====================================");
 
-    // Dados vindos da Kiwify
     const produto =
-      body.product_name ||
-      body.Product?.name ||
-      body.product?.name ||
+      body?.Product?.product_name ||
+      body?.product_name ||
       "";
 
-    const orderId =
-      body.order_id ||
-      body.order?.order_id ||
-      body.order?.order_ref;
-
-    const nome =
-      body.customer_name ||
-      body.Customer?.full_name ||
-      body.customer?.name;
-
-    const email =
-      body.customer_email ||
-      body.Customer?.email ||
-      body.customer?.email;
-
-    const telefone =
-      body.customer_phone ||
-      body.Customer?.mobile ||
-      body.customer?.phone;
-
-
     console.log("PRODUTO:", produto);
-    console.log("EMAIL CLIENTE:", email);
 
-
-    // Só dispara para Revista
     if (produto !== "Revista Empreende Brazil") {
+      console.log("PRODUTO IGNORADO");
+
       return NextResponse.json({
         success: true,
         ignored: true,
       });
     }
 
+    const orderId =
+      body?.order_id ||
+      body?.order_ref;
 
-    // evita duplicar pedido
+    const productId =
+      body?.Product?.product_id ||
+      null;
+
+    const nome =
+      body?.Customer?.full_name ||
+      body?.customer_name ||
+      "";
+
+    const email =
+      body?.Customer?.email ||
+      body?.customer_email ||
+      "";
+
+    const telefone =
+      body?.Customer?.mobile ||
+      body?.customer_phone ||
+      "";
+
+    console.log("ORDER ID:", orderId);
+    console.log("EMAIL CLIENTE:", email);
+    console.log("NOME CLIENTE:", nome);
+
     const existe = await supabaseAdmin
       .from("magazine_orders")
       .select("id")
       .eq("order_id", orderId)
       .maybeSingle();
 
+    console.log("PEDIDO EXISTE:", existe.data);
 
-   if (existe.data) {
-  console.log("PEDIDO EXISTENTE, CONTINUANDO ENVIO EMAIL");
-}
+    if (existe.data) {
+      console.log("PEDIDO DUPLICADO");
 
+      return NextResponse.json({
+        success: true,
+        duplicated: true,
+      });
+    }
 
     const token = uuidv4();
 
+    console.log("TOKEN GERADO:", token);
 
-    // salva pedido
     const { data, error } = await supabaseAdmin
       .from("magazine_orders")
       .insert({
         order_id: orderId,
-        product_id: body.product_id,
-
+        product_id: productId,
         nome,
         email,
         telefone,
-
         plano: produto,
         token,
-
         status: "novo",
       })
       .select();
 
+    console.log("====================================");
+    console.log("RESULTADO INSERT:");
+    console.log(data);
+
+    console.log("ERRO INSERT:");
+    console.log(error);
+    console.log("====================================");
 
     if (error) {
-      console.error("ERRO SUPABASE:", error);
-
       return NextResponse.json(
         {
           success: false,
@@ -99,133 +110,98 @@ export async function POST(req: Request) {
       );
     }
 
-
-    console.log("PEDIDO SALVO:", data);
-
-
     const formularioUrl =
       `https://www.monatiza.com/editorial/revista/formulario/${token}`;
 
+    const htmlEmail = `
+      <div style="font-family: Arial; padding: 30px;">
+        <h2>Olá ${nome}</h2>
 
-    // ENVIO EMAIL RESEND
-    const emailResult = await resend.emails.send({
+        <p>
+          Recebemos sua inscrição na
+          Revista Empreende Brazil.
+        </p>
 
-      from:
-        "Revista Empreende Brazil <revista@monatiza.com>",
+        <p>
+          Para iniciarmos a produção da sua matéria,
+          preencha o formulário abaixo:
+        </p>
 
-      to: email,
-
-      subject:
-        "Preencha seu formulário da Revista Empreende Brazil",
-
-      html: `
-        <div style="
-          font-family: Arial;
-          padding:30px;
-        ">
-
-          <h2>
-            Olá ${nome}
-          </h2>
-
-          <p>
-            Recebemos sua inscrição na 
-            Revista Empreende Brazil.
-          </p>
-
-          <p>
-            Para iniciarmos a produção 
-            da sua matéria, preencha 
-            o formulário abaixo:
-          </p>
-
-
-          <p style="margin-top:30px">
-
-            <a href="${formularioUrl}"
-
+        <p style="margin-top:30px">
+          <a
+            href="${formularioUrl}"
             style="
-            background:#000;
-            color:white;
-            padding:15px 25px;
-            border-radius:8px;
-            text-decoration:none;
-            display:inline-block;
-            ">
-
+              background:#000;
+              color:#fff;
+              padding:14px 24px;
+              border-radius:8px;
+              text-decoration:none;
+              display:inline-block;
+            "
+          >
             Preencher Formulário
+          </a>
+        </p>
 
-            </a>
+        <p>
+          Caso o botão não funcione:
+        </p>
 
-          </p>
+        <p>
+          ${formularioUrl}
+        </p>
 
+        <br />
 
-          <br/>
+        <p>
+          Equipe Empreende Brazil
+        </p>
+      </div>
+    `;
 
-          <p>
-            Equipe Empreende Brazil
-          </p>
+    try {
+      console.log("====================================");
+      console.log("ENVIANDO EMAIL...");
+      console.log("EMAIL DESTINO:", email);
 
-        </div>
-      `,
-    });
-
-
-    console.log(
-      "RESULTADO EMAIL:",
-      emailResult
-    );
-
-
-    if (emailResult.error) {
-
-      console.error(
-        "ERRO RESEND:",
-        emailResult.error
-      );
-
-      return NextResponse.json({
-        success: true,
-        saved: true,
-        email: false,
-        resend_error:
-          emailResult.error,
+      const resultadoEmail = await resend.emails.send({
+        from: "Revista Empreende Brazil <revista@monatiza.com>",
+        to: email,
+        subject: "Preencha seu formulário da Revista Empreende Brazil",
+        html: htmlEmail,
       });
+
+      console.log("RESULTADO EMAIL:");
+      console.log(JSON.stringify(resultadoEmail, null, 2));
+
+      console.log("EMAIL ENVIADO COM SUCESSO");
+      console.log("====================================");
+    } catch (emailError: any) {
+      console.log("====================================");
+      console.error("ERRO EMAIL COMPLETO:");
+      console.error(JSON.stringify(emailError, null, 2));
+      console.log("====================================");
     }
 
-
-
     return NextResponse.json({
-
       success: true,
-
-      saved: true,
-
-      email: true,
-
       data,
-
     });
-
-
-
   } catch (error: any) {
-
-    console.error(
-      "ERRO WEBHOOK:",
-      error
-    );
-
+    console.log("====================================");
+    console.error("ERRO GERAL WEBHOOK:");
+    console.error(error);
+    console.error(error?.message);
+    console.log("====================================");
 
     return NextResponse.json(
       {
-        success:false,
-        error:error?.message,
+        success: false,
+        error: error?.message,
       },
       {
-        status:500,
+        status: 500,
       }
     );
-
   }
 }
