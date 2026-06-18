@@ -58,14 +58,9 @@ export async function POST(req: Request) {
       .maybeSingle();
 
 
-    if (existe.data) {
-      console.log("PEDIDO DUPLICADO");
-
-      return NextResponse.json({
-        success: true,
-        duplicated: true,
-      });
-    }
+   if (existe.data) {
+  console.log("PEDIDO EXISTENTE, CONTINUANDO ENVIO EMAIL");
+}
 
 
     const token = uuidv4();
