@@ -8,7 +8,9 @@ try {
 const body = await req.json();
 
 
-console.log("WEBHOOK:", body);
+console.log(
+  JSON.stringify(body, null, 2)
+);
 
 const produto =
   body.product_name ||

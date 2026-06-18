@@ -1,89 +1,40 @@
-import { supabaseAdmin } from "@/lib/supabase/admin";
-
-export default async function ProducaoPage() {
-  const { data: formularios } = await supabaseAdmin
-    .from("magazine_forms")
-    .select(`
-      *,
-      magazine_orders (
-        nome,
-        email,
-        status
-      )
-    `)
-    .order("created_at", { ascending: false });
-
+export default function RevistaAdmin() {
   return (
-    <div className="p-10">
-      <h1 className="text-4xl font-bold mb-8">
-        Produção Editorial
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">
+        Revista Empreende Brazil
       </h1>
 
-      <div className="overflow-auto">
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-3 text-left">
-                Cliente
-              </th>
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="bg-white border rounded-lg p-4">
+          <p className="text-sm text-gray-500">Novos</p>
+          <p className="text-2xl font-bold">0</p>
+        </div>
 
-              <th className="border p-3 text-left">
-                Empresa
-              </th>
+        <div className="bg-white border rounded-lg p-4">
+          <p className="text-sm text-gray-500">Briefings</p>
+          <p className="text-2xl font-bold">0</p>
+        </div>
 
-              <th className="border p-3 text-left">
-                Cargo
-              </th>
+        <div className="bg-white border rounded-lg p-4">
+          <p className="text-sm text-gray-500">Produção</p>
+          <p className="text-2xl font-bold">0</p>
+        </div>
 
-              <th className="border p-3 text-left">
-                Tema
-              </th>
+        <div className="bg-white border rounded-lg p-4">
+          <p className="text-sm text-gray-500">Publicados</p>
+          <p className="text-2xl font-bold">0</p>
+        </div>
+      </div>
 
-              <th className="border p-3 text-left">
-                Status
-              </th>
+      <div className="bg-white border rounded-lg p-6">
+        <h2 className="font-bold mb-4">
+          Clientes da Revista
+        </h2>
 
-              <th className="border p-3 text-left">
-                Ações
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {formularios?.map((item: any) => (
-              <tr key={item.id}>
-                <td className="border p-3">
-                  {item.magazine_orders?.nome}
-                </td>
-
-                <td className="border p-3">
-                  {item.nome_empresa}
-                </td>
-
-                <td className="border p-3">
-                  {item.cargo}
-                </td>
-
-                <td className="border p-3">
-                  {item.tema_materia}
-                </td>
-
-                <td className="border p-3">
-                  {item.magazine_orders?.status}
-                </td>
-
-                <td className="border p-3">
-                  <a
-                    href={`/editorial/revista/producao/${item.id}`}
-                    className="bg-black text-white px-4 py-2 rounded"
-                  >
-                    Abrir
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <button className="bg-black text-white px-4 py-2 rounded">
+          Novo Cliente
+        </button>
       </div>
     </div>
   );
