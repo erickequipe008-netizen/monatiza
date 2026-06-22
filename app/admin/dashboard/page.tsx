@@ -2,24 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  FileText, Eye, Users, TrendingUp, Plus,
-  MoreHorizontal, ExternalLink,
-} from "lucide-react";
-
-import PageHeader   from "@/components/layout/PageHeader";
-import StatCard     from "@/components/dashboard/StatCard";
+import { FileText, Eye, Users, Plus, ExternalLink, TrendingUp } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import PageHeader from "@/components/layout/PageHeader";
+import StatCard from "@/components/dashboard/StatCard";
 
 export default function DashboardPage() {
   const [articles,      setArticles]      = useState<any[]>([]);
   const [total,         setTotal]         = useState(0);
   const [journalists,   setJournalists]   = useState(0);
   const [todayArticles, setTodayArticles] = useState(0);
+  const [userName,      setUserName]      = useState("");
 
   useEffect(() => { load(); }, []);
 
   async function load() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setUserName(user.user_metadata?.name || user.email?.split("@")[0] || "Jornalista");
+    }
+
     const { data } = await supabase
       .from("articles")
       .select("*")
@@ -29,7 +31,7 @@ export default function DashboardPage() {
       setArticles(data);
       setTotal(data.length);
       const today = new Date().toISOString().split("T")[0];
-      setTodayArticles(data.filter(a => a.created_at?.startsWith(today)).length);
+      setTodayArticles(data.filter((a: any) => a.created_at?.startsWith(today)).length);
     }
 
     const { count } = await supabase
@@ -39,171 +41,210 @@ export default function DashboardPage() {
     setJournalists(count || 0);
   }
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+
   return (
-    <>
-      <PageHeader
-        title="Dashboard"
-        description="Visão geral do portal"
-        action={
-          <Link href="/admin/articles/new">
-            <button className="
-              flex items-center gap-1.5
-              bg-black text-white
-              px-4 py-2 rounded-xl
-              text-[13px] font-semibold
-              hover:opacity-80 transition
-            ">
-              <Plus size={14} />
-              Nova matéria
-            </button>
-          </Link>
-        }
-      />
+    <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }} className="min-h-screen bg-[#F7F6F3]">
 
-      <div className="p-8 space-y-8">
+      {/* ── Top bar ── */}
+      <div className="bg-[#0b0b0c] border-b border-white/5 px-8 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-white font-black text-lg tracking-tight" style={{ fontFamily: "sans-serif" }}>
+            MONATIZA
+          </span>
+          <span className="h-4 w-px bg-white/20" />
+          <span className="text-[#E0263B] text-xs font-semibold uppercase tracking-[0.3em]" style={{ fontFamily: "sans-serif" }}>
+            Redação
+          </span>
+        </div>
+        <Link href="/admin/articles/new">
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
+            style={{ fontFamily: "sans-serif", background: "#E0263B", color: "#fff" }}
+          >
+            <Plus size={14} />
+            Nova matéria
+          </button>
+        </Link>
+      </div>
 
-        {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <StatCard
-            title="Matérias"
-            value={total}
-            icon={<FileText size={15} className="text-blue-500" />}
-            color="bg-blue-50"
-            trend="Total publicadas"
-          />
-          <StatCard
-            title="Hoje"
-            value={todayArticles}
-            icon={<Eye size={15} className="text-green-500" />}
-            color="bg-green-50"
-            trend="Publicadas hoje"
-          />
-          <StatCard
-            title="Jornalistas"
-            value={journalists}
-            icon={<Users size={15} className="text-purple-500" />}
-            color="bg-purple-50"
-            trend="Ativos"
-          />
-          <StatCard
-            title="Portal"
-            value="Online"
-            icon={<TrendingUp size={15} className="text-emerald-500" />}
-            color="bg-emerald-50"
-            trend="Status operacional"
-          />
+      <div className="px-8 py-10 max-w-6xl mx-auto space-y-10">
+
+        {/* ── Saudação ── */}
+        <div className="border-l-4 border-[#E0263B] pl-5">
+          <p className="text-xs uppercase tracking-[0.35em] text-[#999] mb-1" style={{ fontFamily: "sans-serif" }}>
+            {greeting}
+          </p>
+          <h1 className="text-4xl font-bold text-[#0b0b0c] leading-tight">
+            {userName}
+          </h1>
+          <p className="text-sm text-[#777] mt-1" style={{ fontFamily: "sans-serif" }}>
+            {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </p>
         </div>
 
-        {/* TABLE */}
-        <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+        {/* ── KPIs ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Matérias publicadas", value: total,         sub: "no portal",       accent: "#0b0b0c" },
+            { label: "Publicadas hoje",      value: todayArticles, sub: "nesta edição",    accent: "#E0263B" },
+            { label: "Jornalistas ativos",   value: journalists,   sub: "na redação",      accent: "#6366F1" },
+            { label: "Status do portal",     value: "●",           sub: "online e estável",accent: "#10B981" },
+          ].map((k) => (
+            <div key={k.label} className="bg-white rounded-2xl border border-[#E8E6E1] px-5 py-5 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.25em] text-[#999] mb-3" style={{ fontFamily: "sans-serif" }}>
+                {k.label}
+              </p>
+              <p className="text-4xl font-bold leading-none" style={{ color: k.accent }}>
+                {k.value}
+              </p>
+              <p className="text-xs text-[#bbb] mt-2" style={{ fontFamily: "sans-serif" }}>{k.sub}</p>
+            </div>
+          ))}
+        </div>
 
-          {/* Table header */}
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        {/* ── Ações rápidas ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link href="/admin/articles/new" className="group bg-[#0b0b0c] rounded-2xl px-6 py-5 flex items-center justify-between hover:bg-[#E0263B] transition-colors duration-200">
             <div>
-              <h3 className="text-[13px] font-bold text-black">Últimas matérias</h3>
-              <p className="text-[11px] text-gray-400 mt-0.5">Acompanhe as publicações recentes</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-white/40 mb-1" style={{ fontFamily: "sans-serif" }}>Ação</p>
+              <p className="text-white font-bold text-base">Escrever matéria</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
+              <FileText size={18} className="text-white" />
+            </div>
+          </Link>
+
+          <Link href="/admin/articles" className="group bg-white border border-[#E8E6E1] rounded-2xl px-6 py-5 flex items-center justify-between hover:border-[#0b0b0c] transition-colors duration-200">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-[#999] mb-1" style={{ fontFamily: "sans-serif" }}>Arquivo</p>
+              <p className="text-[#0b0b0c] font-bold text-base">Minhas matérias</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-[#F7F6F3] flex items-center justify-center group-hover:bg-[#0b0b0c] transition">
+              <Eye size={18} className="text-[#999] group-hover:text-white transition" />
+            </div>
+          </Link>
+
+          <Link href="/admin/journalists" className="group bg-white border border-[#E8E6E1] rounded-2xl px-6 py-5 flex items-center justify-between hover:border-[#6366F1] transition-colors duration-200">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-[#999] mb-1" style={{ fontFamily: "sans-serif" }}>Equipe</p>
+              <p className="text-[#0b0b0c] font-bold text-base">Jornalistas</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-[#F7F6F3] flex items-center justify-center group-hover:bg-[#EEF2FF] transition">
+              <Users size={18} className="text-[#999] group-hover:text-[#6366F1] transition" />
+            </div>
+          </Link>
+        </div>
+
+        {/* ── Tabela de matérias ── */}
+        <div className="bg-white rounded-2xl border border-[#E8E6E1] shadow-sm overflow-hidden">
+          <div className="px-6 py-5 border-b border-[#F0EDE8] flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-bold text-[#0b0b0c]">Últimas matérias</h2>
+              <p className="text-xs text-[#999] mt-0.5" style={{ fontFamily: "sans-serif" }}>
+                Acompanhe as publicações recentes
+              </p>
             </div>
             <Link
               href="/admin/articles"
-              className="text-[12px] text-gray-400 hover:text-black flex items-center gap-1 transition font-medium"
+              className="flex items-center gap-1 text-xs font-semibold text-[#999] hover:text-[#E0263B] transition-colors"
+              style={{ fontFamily: "sans-serif" }}
             >
               Ver todas <ExternalLink size={11} />
             </Link>
           </div>
 
           {articles.length === 0 ? (
-            <div className="p-16 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-                <FileText size={24} className="text-gray-300" />
+            <div className="py-20 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-[#F7F6F3] border border-[#E8E6E1] flex items-center justify-center mx-auto mb-4">
+                <FileText size={22} className="text-[#ccc]" />
               </div>
-              <p className="text-[13px] font-semibold text-gray-400">Nenhuma matéria ainda.</p>
-              <p className="text-[12px] text-gray-300 mt-1">As publicações aparecerão aqui.</p>
+              <p className="text-sm font-bold text-[#999]" style={{ fontFamily: "sans-serif" }}>Nenhuma matéria ainda.</p>
+              <p className="text-xs text-[#bbb] mt-1" style={{ fontFamily: "sans-serif" }}>As publicações aparecerão aqui.</p>
             </div>
           ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50/70 border-b border-gray-100">
-                  {["Título", "Categoria", "Autor", "Data", ""].map(h => (
-                    <th key={h} className="
-                      px-6 py-3
-                      text-left text-[11px] font-semibold
-                      text-gray-400 uppercase tracking-wider
-                    ">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {articles.slice(0, 8).map(a => (
-                  <tr
-                    key={a.id}
-                    className="hover:bg-gray-50/60 transition-colors group"
-                  >
-                    <td className="px-6 py-4">
-                      <p className="text-[13px] font-semibold text-black truncate max-w-[260px] group-hover:text-gray-700 transition-colors">
-                        {a.title}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="
-                        inline-block px-2.5 py-1
-                        bg-gray-100 text-gray-600
-                        rounded-lg text-[11px] font-semibold
-                        group-hover:bg-gray-200 transition-colors
-                      ">
-                        {a.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-[10px] font-bold text-gray-500">
-                            {(a.journalist_name || a.author || "?")[0]?.toUpperCase()}
-                          </span>
-                        </div>
-                        <p className="text-[12px] text-gray-500">{a.journalist_name || a.author}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-[12px] text-gray-400 tabular-nums">
-                        {new Date(a.created_at).toLocaleDateString("pt-BR")}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link href={`/admin/articles/${a.id}`}>
-                        <button className="
-                          p-1.5 rounded-lg
-                          hover:bg-gray-100 transition
-                          text-gray-300 hover:text-black
-                          opacity-0 group-hover:opacity-100
-                        ">
-                          <MoreHorizontal size={15} />
-                        </button>
-                      </Link>
-                    </td>
+            <>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-[#F7F6F3] border-b border-[#F0EDE8]">
+                    {["Título", "Categoria", "Autor", "Data", ""].map((h) => (
+                      <th
+                        key={h}
+                        className="px-6 py-3 text-left text-[11px] font-semibold text-[#999] uppercase tracking-wider"
+                        style={{ fontFamily: "sans-serif" }}
+                      >
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody className="divide-y divide-[#F7F6F3]">
+                  {articles.slice(0, 8).map((a: any) => (
+                    <tr key={a.id} className="group hover:bg-[#FAFAF8] transition-colors">
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-[#0b0b0c] truncate max-w-[260px] leading-snug">
+                          {a.title}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className="inline-block px-2.5 py-1 rounded-lg text-[11px] font-semibold"
+                          style={{ fontFamily: "sans-serif", background: "#F0EDE8", color: "#666" }}
+                        >
+                          {a.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-black text-white"
+                            style={{ background: "#0b0b0c", fontFamily: "sans-serif" }}
+                          >
+                            {(a.journalist_name || a.author || "?")[0]?.toUpperCase()}
+                          </div>
+                          <p className="text-xs text-[#666]" style={{ fontFamily: "sans-serif" }}>
+                            {a.journalist_name || a.author}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-xs text-[#aaa] tabular-nums" style={{ fontFamily: "sans-serif" }}>
+                          {new Date(a.created_at).toLocaleDateString("pt-BR")}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link href={`/admin/articles/${a.id}`}>
+                          <span
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#ccc] group-hover:text-[#E0263B] transition-colors opacity-0 group-hover:opacity-100"
+                            style={{ fontFamily: "sans-serif" }}
+                          >
+                            Editar →
+                          </span>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-          {/* Table footer */}
-          {articles.length > 0 && (
-            <div className="px-6 py-3 border-t border-gray-50 bg-gray-50/40 flex items-center justify-between">
-              <p className="text-[11px] text-gray-400">
-                Mostrando {Math.min(8, articles.length)} de {articles.length} matérias
-              </p>
-              <Link
-                href="/admin/articles"
-                className="text-[11px] text-gray-500 hover:text-black font-medium transition"
-              >
-                Ver todas →
-              </Link>
-            </div>
+              <div className="px-6 py-3 border-t border-[#F0EDE8] bg-[#F7F6F3] flex items-center justify-between">
+                <p className="text-[11px] text-[#aaa]" style={{ fontFamily: "sans-serif" }}>
+                  Mostrando {Math.min(8, articles.length)} de {articles.length} matérias
+                </p>
+                <Link
+                  href="/admin/articles"
+                  className="text-[11px] font-semibold text-[#666] hover:text-[#E0263B] transition-colors"
+                  style={{ fontFamily: "sans-serif" }}
+                >
+                  Ver todas →
+                </Link>
+              </div>
+            </>
           )}
         </div>
+
       </div>
-    </>
+    </div>
   );
 }
