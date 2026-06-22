@@ -1,5 +1,6 @@
 import "./globals.css";
 import Script from "next/script";
+import Footer from "@/components/Footer";
 
 export const metadata = {
   metadataBase: new URL("https://monatiza.com"),
@@ -65,7 +66,22 @@ export default function RootLayout({
         />
       </head>
 
-      <body>{children}</body>
+     <body>
+  <div
+    style={{
+      background: "red",
+      color: "white",
+      padding: "20px",
+      textAlign: "center",
+    }}
+  >
+    TESTE LAYOUT
+  </div>
+
+  {children}
+
+  <Footer />
+</body>
     </html>
   );
 }
