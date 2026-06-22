@@ -1,26 +1,34 @@
 // app/noticia/[slug]/page.tsx
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@supabase/supabase-js";
 import ArticleClient from "./ArticleClient";
 import type { Metadata } from "next";
+
+// Cliente criado inline — garante que roda no servidor sem depender do client-side singleton
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 export async function generateMetadata(
   { params }: { params: { slug: string } }
 ): Promise<Metadata> {
-  const { data: article } = await supabase
+  const supabase = getSupabase();
+
+  const { data: article, error } = await supabase
     .from("articles")
     .select("title, excerpt, description, image_url, category, slug")
     .eq("slug", params.slug)
     .single();
 
-  if (!article) {
-    return { title: "Artigo não encontrado" };
+  if (error || !article) {
+    return { title: "Monatiza" };
   }
 
   const desc = article.description || article.excerpt || "";
 
   return {
-    // O layout.tsx tem template: "%s | Monatiza"
-    // então isso vira automaticamente "Título do Artigo | Monatiza" na aba
     title: article.title,
     description: desc,
     keywords: [article.category, "Monatiza", "IA", "Tecnologia", "Negócios", article.title],
