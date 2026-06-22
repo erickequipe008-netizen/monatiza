@@ -1,9 +1,22 @@
-export default function RevistaAdmin() {
+import { supabaseAdmin } from "@/lib/supabase/admin";
+
+export default async function RevistaAdmin() {
+  const { data: pedidos, error } = await supabaseAdmin
+    .from("magazine_orders")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const total = pedidos?.length ?? 0;
+  const novos = pedidos?.filter((p: any) => p.status === "novo").length ?? 0;
+  const briefings = pedidos?.filter((p: any) => p.status === "briefing").length ?? 0;
+  const producao = pedidos?.filter((p: any) => p.status === "producao").length ?? 0;
+  const publicados = pedidos?.filter((p: any) => p.status === "publicado").length ?? 0;
+
   const kpis = [
-    { label: "Novos", value: 0, dot: "#6366F1", bg: "#EEF2FF", text: "#4F46E5" },
-    { label: "Briefings", value: 0, dot: "#F59E0B", bg: "#FFFBEB", text: "#92400E" },
-    { label: "Produção", value: 0, dot: "#3B82F6", bg: "#EFF6FF", text: "#1D4ED8" },
-    { label: "Publicados", value: 0, dot: "#10B981", bg: "#ECFDF5", text: "#065F46" },
+    { label: "Novos", value: novos, dot: "#6366F1", bg: "#EEF2FF", text: "#4F46E5" },
+    { label: "Briefings", value: briefings, dot: "#F59E0B", bg: "#FFFBEB", text: "#92400E" },
+    { label: "Produção", value: producao, dot: "#3B82F6", bg: "#EFF6FF", text: "#1D4ED8" },
+    { label: "Publicados", value: publicados, dot: "#10B981", bg: "#ECFDF5", text: "#065F46" },
   ];
 
   return (
@@ -32,34 +45,33 @@ export default function RevistaAdmin() {
             className="bg-white rounded-2xl border border-[#E5E7EB] px-5 py-4 shadow-sm"
           >
             <div className="flex items-center gap-2 mb-2">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ background: kpi.dot }}
-              />
+              <span className="w-2 h-2 rounded-full" style={{ background: kpi.dot }} />
               <p className="text-xs font-medium text-[#9CA3AF] uppercase tracking-wide">
                 {kpi.label}
               </p>
             </div>
-            <p
-              className="text-3xl font-bold"
-              style={{ color: kpi.text }}
-            >
+            <p className="text-3xl font-bold" style={{ color: kpi.text }}>
               {kpi.value}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Clientes da Revista */}
+      {/* Error state */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 mb-6 text-sm">
+          Erro ao carregar pedidos: {error.message}
+        </div>
+      )}
+
+      {/* Pedidos / Clientes da Revista */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
         {/* Card Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F4F6]">
           <div>
-            <h2 className="text-sm font-semibold text-[#111827]">
-              Clientes da Revista
-            </h2>
+            <h2 className="text-sm font-semibold text-[#111827]">Clientes da Revista</h2>
             <p className="text-xs text-[#9CA3AF] mt-0.5">
-              Gerencie os clientes ativos e em prospecção
+              {total} {total === 1 ? "registro" : "registros"} encontrados
             </p>
           </div>
 
@@ -85,38 +97,190 @@ export default function RevistaAdmin() {
           </button>
         </div>
 
-        {/* Empty state */}
-        <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "#EEF2FF" }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#6366F1"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
+        {/* Table */}
+        {total > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#F9FAFB] border-b border-[#F3F4F6]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Nome
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Plano
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Data
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F3F4F6]">
+                {pedidos?.map((pedido: any) => (
+                  <tr
+                    key={pedido.id}
+                    className="hover:bg-[#F5F6FF] transition-colors duration-100"
+                  >
+                    {/* Avatar + Nome */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                          style={{ background: stringToColor(pedido.nome ?? "?") }}
+                        >
+                          {getInitials(pedido.nome)}
+                        </div>
+                        <span className="font-medium text-[#111827]">
+                          {pedido.nome ?? "—"}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Email */}
+                    <td className="px-6 py-4 text-[#374151]">{pedido.email ?? "—"}</td>
+
+                    {/* Plano */}
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#EEF2FF] text-[#4F46E5]">
+                        {pedido.plano ?? "—"}
+                      </span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-6 py-4">
+                      <StatusBadge status={pedido.status} />
+                    </td>
+
+                    {/* Data */}
+                    <td className="px-6 py-4 text-[#9CA3AF] text-xs">
+                      {pedido.created_at
+                        ? new Date(pedido.created_at).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <p className="text-sm font-medium text-[#374151] mb-1">
-            Nenhum cliente cadastrado
-          </p>
-          <p className="text-xs text-[#9CA3AF] max-w-xs">
-            Adicione o primeiro cliente da revista clicando em{" "}
-            <span className="text-[#6366F1] font-medium">Novo Cliente</span>.
-          </p>
-        </div>
+        ) : (
+          /* Empty state */
+          <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: "#EEF2FF" }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#6366F1"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-[#374151] mb-1">
+              Nenhum cliente cadastrado
+            </p>
+            <p className="text-xs text-[#9CA3AF] max-w-xs">
+              Adicione o primeiro cliente da revista clicando em{" "}
+              <span className="text-[#6366F1] font-medium">Novo Cliente</span>.
+            </p>
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+/* ─── Helpers ─────────────────────────────────────────── */
+
+function getInitials(name?: string) {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+}
+
+function stringToColor(str: string) {
+  const colors = [
+    "#6366F1", "#8B5CF6", "#EC4899", "#14B8A6",
+    "#F59E0B", "#10B981", "#3B82F6", "#F97316",
+  ];
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function StatusBadge({ status }: { status?: string }) {
+  const map: Record<string, { label: string; bg: string; text: string; dot: string }> = {
+    formulario_enviado: {
+      label: "Formulário Enviado",
+      bg: "#EEF2FF", text: "#4F46E5", dot: "#6366F1",
+    },
+    novo: {
+      label: "Novo",
+      bg: "#EEF2FF", text: "#4F46E5", dot: "#6366F1",
+    },
+    briefing: {
+      label: "Briefing",
+      bg: "#FFFBEB", text: "#92400E", dot: "#F59E0B",
+    },
+    producao: {
+      label: "Produção",
+      bg: "#EFF6FF", text: "#1D4ED8", dot: "#3B82F6",
+    },
+    publicado: {
+      label: "Publicado",
+      bg: "#ECFDF5", text: "#065F46", dot: "#10B981",
+    },
+    aprovado: {
+      label: "Aprovado",
+      bg: "#ECFDF5", text: "#065F46", dot: "#10B981",
+    },
+    cancelado: {
+      label: "Cancelado",
+      bg: "#FEF2F2", text: "#991B1B", dot: "#EF4444",
+    },
+  };
+
+  const cfg = status ? map[status] : undefined;
+
+  if (!cfg) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F3F4F6] text-[#6B7280]">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#9CA3AF]" />
+        {status ?? "—"}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+      style={{ background: cfg.bg, color: cfg.text }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.dot }} />
+      {cfg.label}
+    </span>
   );
 }
