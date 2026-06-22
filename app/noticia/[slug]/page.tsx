@@ -1,52 +1,36 @@
-
+// app/noticia/[slug]/page.tsx
 import { supabase } from "@/lib/supabase/client";
 import ArticleClient from "./ArticleClient";
+import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: any) {
-
+export async function generateMetadata(
+  { params }: { params: { slug: string } }
+): Promise<Metadata> {
   const { data: article } = await supabase
     .from("articles")
-    .select("*")
+    .select("title, excerpt, description, image_url, category, slug")
     .eq("slug", params.slug)
     .single();
 
   if (!article) {
-    return {
-      title: "Matéria | Monatiza",
-    };
+    return { title: "Artigo não encontrado" };
   }
 
-  return {
-    title: `${article.title} | Monatiza`,
-    description:
-      article.description || article.excerpt,
+  const desc = article.description || article.excerpt || "";
 
-    keywords: [
-      article.category,
-      "Monatiza",
-      "IA",
-      "Tecnologia",
-      "Negócios",
-      article.title,
-    ],
+  return {
+    // O layout.tsx tem template: "%s | Monatiza"
+    // então isso vira automaticamente "Título do Artigo | Monatiza" na aba
+    title: article.title,
+    description: desc,
+    keywords: [article.category, "Monatiza", "IA", "Tecnologia", "Negócios", article.title],
 
     openGraph: {
       title: article.title,
-      description:
-        article.description || article.excerpt,
-
+      description: desc,
       url: `https://monatiza.com/noticia/${article.slug}`,
-
       siteName: "Monatiza",
-
-      images: [
-        {
-          url: article.image_url,
-          width: 1200,
-          height: 630,
-        },
-      ],
-
+      images: [{ url: article.image_url, width: 1200, height: 630, alt: article.title }],
       locale: "pt_BR",
       type: "article",
     },
@@ -54,9 +38,7 @@ export async function generateMetadata({ params }: any) {
     twitter: {
       card: "summary_large_image",
       title: article.title,
-      description:
-        article.description || article.excerpt,
-
+      description: desc,
       images: [article.image_url],
     },
 
@@ -69,4 +51,3 @@ export async function generateMetadata({ params }: any) {
 export default function Page() {
   return <ArticleClient />;
 }
-
