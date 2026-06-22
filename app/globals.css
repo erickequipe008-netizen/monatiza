@@ -106,3 +106,8 @@ body {
   animation: marquee 22s linear infinite;
   width: max-content;
 }
+
+/* Remove botão flutuante CookieYes */
+.cky-btn-revisit-wrapper {
+  display: none !important;
+}
