@@ -1,37 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(
-  request: NextRequest
-) {
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get("sb-access-token");
+  const { pathname } = request.nextUrl;
 
-  const token =
-    request.cookies.get(
-      "sb-access-token"
-    );
+  const isProtected =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/editorial");
 
-  const isAdminRoute =
-    request.nextUrl.pathname.startsWith(
-      "/admin"
-    );
-
-  if (
-    isAdminRoute &&
-    !token
-  ) {
-
-    return NextResponse.redirect(
-      new URL(
-        "/login",
-        request.url
-      )
-    );
-
+  if (isProtected && !token) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/editorial/:path*"],
 };
