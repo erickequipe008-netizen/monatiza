@@ -4,8 +4,7 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ── 1. Rotas do Admin (jornalistas) ─────────────────────────
-  // Protegidas pelo cookie do Supabase Auth
+  // ── 1. Admin (jornalistas via Supabase Auth) ─────────────────
   if (pathname.startsWith("/admin")) {
     const token = request.cookies.get("sb-access-token");
     if (!token) {
@@ -13,16 +12,17 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // ── 2. Rotas do Editorial (equipe interna) ───────────────────
-  // Protegidas pelo cookie de senha fixa
-  // Deixa /editorial/login passar livremente
+  // ── 2. Editorial (senha fixa) ────────────────────────────────
+  // Deixa a página de login passar livremente
   if (
     pathname.startsWith("/editorial") &&
-    !pathname.startsWith("/editorial/login")
+    !pathname.startsWith("/editorial/revista/login")
   ) {
     const editorialToken = request.cookies.get("editorial-token");
     if (!editorialToken) {
-      return NextResponse.redirect(new URL("/editorial/login", request.url));
+      return NextResponse.redirect(
+        new URL("/editorial/revista/login", request.url)
+      );
     }
   }
 
