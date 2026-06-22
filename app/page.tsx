@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Menu, Search, X, Clock3 } from "lucide-react";
+import { Menu, X, Clock3 } from "lucide-react";
 import { supabase } from "@/services/supabase";
 
 // ─── DADOS DO MEGA MENU ────────────────────────────────────────────────
@@ -290,13 +290,6 @@ export default function Home() {
         {/* ── BARRA DE EDITORIAS — única barra de navegação ── */}
         <div className={`border-b sticky top-0 z-40 ${dark ? "bg-[#0d0d0d] border-zinc-800" : "bg-white border-zinc-200"}`}>
           <div className="max-w-[1280px] mx-auto px-3 md:px-4 flex items-center gap-0 overflow-x-auto scrollbar-hide">
-            <button
-              onClick={() => setMenuOpen(true)}
-              className={`flex items-center gap-1.5 shrink-0 h-[46px] px-3 md:px-4 text-[13px] font-bold uppercase tracking-wider border-r ${dark ? "border-zinc-800 hover:bg-zinc-900" : "border-zinc-200 hover:bg-zinc-50"} transition`}
-            >
-              <Menu size={16} />
-              <span className="hidden sm:inline text-[12px]">Todas</span>
-            </button>
             {NAV_EDITORIAS.map((ed) => (
               <button
                 key={ed}
@@ -306,28 +299,6 @@ export default function Home() {
                 <span className="nav-underline" />
               </button>
             ))}
-            <div className="ml-auto shrink-0 pl-2 flex items-center gap-1">
-              <button
-                onClick={() => setSearchOpen(true)}
-                aria-label="Buscar"
-                className={`h-[46px] px-3 md:px-4 hover:text-red-600 transition-colors ${dark ? "text-zinc-400" : "text-zinc-500"}`}
-              >
-                <Search size={17} />
-              </button>
-              <button
-                onClick={() => setDarkMode(!dark)}
-                aria-label="Alternar tema"
-                className={`h-[46px] px-3 text-[11px] font-bold uppercase tracking-wider hover:text-red-600 transition-colors ${dark ? "text-zinc-400" : "text-zinc-500"}`}
-              >
-                {dark ? "☀" : "☾"}
-              </button>
-              <button
-                onClick={() => setLoginOpen(true)}
-                className="h-[36px] px-4 bg-red-600 text-white text-[12px] font-bold uppercase tracking-wider hover:bg-red-700 transition-colors ml-1 shrink-0"
-              >
-                Assinar
-              </button>
-            </div>
           </div>
         </div>
 
