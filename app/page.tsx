@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Menu, Search, X, Clock3, ChevronDown } from "lucide-react";
+import { Menu, Search, X, Clock3 } from "lucide-react";
 import { supabase } from "@/services/supabase";
-
 
 // ─── DADOS DO MEGA MENU ────────────────────────────────────────────────
 const EDITORIAS = [
@@ -136,7 +135,6 @@ export default function Home() {
 
   return (
     <>
-
       <main
         className={`transition-colors duration-300 ${
           dark ? "bg-[#0d0d0d] text-white" : "bg-white text-black"
@@ -147,15 +145,15 @@ export default function Home() {
           <div className="fixed inset-0 z-50 flex">
             <div className="absolute inset-0 bg-black/60" onClick={() => setMenuOpen(false)} />
             <aside className="relative z-10 w-full max-w-[860px] h-full bg-[#111] text-white overflow-y-auto flex flex-col">
-              <div className="flex items-center justify-between px-10 py-7 border-b border-zinc-800">
+              <div className="flex items-center justify-between px-6 md:px-10 py-7 border-b border-zinc-800">
                 <Link href="/" onClick={() => setMenuOpen(false)}>
-                  <span className="text-[28px] font-serif font-black tracking-tight">monatiza</span>
+                  <span className="text-[24px] md:text-[28px] font-serif font-black tracking-tight">monatiza</span>
                 </Link>
                 <button aria-label="Fechar menu" onClick={() => setMenuOpen(false)} className="hover:opacity-60 transition p-1">
                   <X size={26} />
                 </button>
               </div>
-              <div className="px-10 py-6 border-b border-zinc-800">
+              <div className="px-6 md:px-10 py-6 border-b border-zinc-800">
                 <form onSubmit={handleSearch} className="flex items-center">
                   <input
                     type="text"
@@ -169,7 +167,7 @@ export default function Home() {
                   </button>
                 </form>
               </div>
-              <div className="px-10 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.1fr_1fr_1.1fr_0.8fr] gap-10 flex-1">
+              <div className="px-6 md:px-10 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.1fr_1fr_1.1fr_0.8fr] gap-8 md:gap-10 flex-1">
                 <div>
                   <h4 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-6">Editorias Monatiza</h4>
                   <ul className="flex flex-col gap-4">
@@ -234,7 +232,7 @@ export default function Home() {
           <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-5">
             <div className={`w-full max-w-[460px] p-8 ${dark ? "bg-[#111] text-white" : "bg-white text-black"}`}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[34px] font-serif font-bold">MONATIZA Assinar</h2>
+                <h2 className="text-[28px] md:text-[34px] font-serif font-bold">MONATIZA Assinar</h2>
                 <button aria-label="Fechar" onClick={() => setLoginOpen(false)} className="hover:opacity-60 transition"><X size={22} /></button>
               </div>
               <p className="text-[15px] leading-7 text-zinc-500 mb-7">Receba análises exclusivas, tendências do mercado, tecnologia, negócios, inteligência artificial e conteúdos reservados para assinantes.</p>
@@ -250,7 +248,7 @@ export default function Home() {
 
         {/* ── MODAL PESQUISA ── */}
         {searchOpen && (
-          <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-start pt-28 px-5">
+          <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-start pt-20 md:pt-28 px-5">
             <div className="w-full max-w-[720px]">
               <form onSubmit={(e) => { e.preventDefault(); if (searchQuery.trim()) { window.location.href = `/busca?q=${encodeURIComponent(searchQuery.trim())}`; }}}>
                 <div className="flex items-center gap-0">
@@ -260,9 +258,9 @@ export default function Home() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="O que você está procurando?"
-                    className="flex-1 h-[64px] px-6 bg-[#111] border border-zinc-700 outline-none text-[18px] text-white placeholder:text-zinc-500"
+                    className="flex-1 h-[56px] md:h-[64px] px-5 md:px-6 bg-[#111] border border-zinc-700 outline-none text-[16px] md:text-[18px] text-white placeholder:text-zinc-500"
                   />
-                  <button type="submit" className="h-[64px] px-8 bg-red-600 text-white font-bold text-[15px] hover:bg-red-700 transition-all">Buscar</button>
+                  <button type="submit" className="h-[56px] md:h-[64px] px-6 md:px-8 bg-red-600 text-white font-bold text-[14px] md:text-[15px] hover:bg-red-700 transition-all whitespace-nowrap">Buscar</button>
                 </div>
               </form>
               <button onClick={() => setSearchOpen(false)} className="mt-5 text-zinc-400 text-[13px] hover:text-white transition flex items-center gap-2">
@@ -285,34 +283,49 @@ export default function Home() {
           .nav-item { position: relative; }
           .nav-item:hover .nav-underline { width: 100%; }
           .nav-underline { display: block; height: 2px; background: #dc2626; width: 0; transition: width 0.2s ease; position: absolute; bottom: -2px; left: 0; }
+          .scrollbar-hide::-webkit-scrollbar { display: none; }
+          .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         `}</style>
 
-        {/* ── BARRA DE EDITORIAS ESTILO FOLHA ── */}
+        {/* ── BARRA DE EDITORIAS — única barra de navegação ── */}
         <div className={`border-b sticky top-0 z-40 ${dark ? "bg-[#0d0d0d] border-zinc-800" : "bg-white border-zinc-200"}`}>
-          <div className="max-w-[1280px] mx-auto px-4 flex items-center gap-0 overflow-x-auto scrollbar-hide">
+          <div className="max-w-[1280px] mx-auto px-3 md:px-4 flex items-center gap-0 overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setMenuOpen(true)}
-              className={`flex items-center gap-1.5 shrink-0 h-[46px] px-4 text-[13px] font-bold uppercase tracking-wider border-r ${dark ? "border-zinc-800 hover:bg-zinc-900" : "border-zinc-200 hover:bg-zinc-50"} transition`}
+              className={`flex items-center gap-1.5 shrink-0 h-[46px] px-3 md:px-4 text-[13px] font-bold uppercase tracking-wider border-r ${dark ? "border-zinc-800 hover:bg-zinc-900" : "border-zinc-200 hover:bg-zinc-50"} transition`}
             >
               <Menu size={16} />
-              <span className="hidden sm:inline">Todas</span>
+              <span className="hidden sm:inline text-[12px]">Todas</span>
             </button>
             {NAV_EDITORIAS.map((ed) => (
               <button
                 key={ed}
-                className={`nav-item shrink-0 h-[46px] px-4 text-[13px] font-semibold hover:text-red-600 transition-colors whitespace-nowrap ${dark ? "text-zinc-300" : "text-zinc-700"}`}
+                className={`nav-item shrink-0 h-[46px] px-3 md:px-4 text-[12px] md:text-[13px] font-semibold hover:text-red-600 transition-colors whitespace-nowrap ${dark ? "text-zinc-300" : "text-zinc-700"}`}
               >
                 {ed}
                 <span className="nav-underline" />
               </button>
             ))}
-            <div className="ml-auto shrink-0 pl-2">
+            <div className="ml-auto shrink-0 pl-2 flex items-center gap-1">
               <button
                 onClick={() => setSearchOpen(true)}
                 aria-label="Buscar"
-                className={`h-[46px] px-4 hover:text-red-600 transition-colors ${dark ? "text-zinc-400" : "text-zinc-500"}`}
+                className={`h-[46px] px-3 md:px-4 hover:text-red-600 transition-colors ${dark ? "text-zinc-400" : "text-zinc-500"}`}
               >
                 <Search size={17} />
+              </button>
+              <button
+                onClick={() => setDarkMode(!dark)}
+                aria-label="Alternar tema"
+                className={`h-[46px] px-3 text-[11px] font-bold uppercase tracking-wider hover:text-red-600 transition-colors ${dark ? "text-zinc-400" : "text-zinc-500"}`}
+              >
+                {dark ? "☀" : "☾"}
+              </button>
+              <button
+                onClick={() => setLoginOpen(true)}
+                className="h-[36px] px-4 bg-red-600 text-white text-[12px] font-bold uppercase tracking-wider hover:bg-red-700 transition-colors ml-1 shrink-0"
+              >
+                Assinar
               </button>
             </div>
           </div>
@@ -341,7 +354,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* ── HERO PRINCIPAL — layout Folha ── */}
+        {/* ── HERO PRINCIPAL ── */}
         {!loading && featured && (
           <section className="max-w-[1280px] mx-auto px-4 pt-6 pb-0 fade-up">
 
@@ -358,7 +371,7 @@ export default function Home() {
                 </div>
 
                 <Link href={`/noticia/${featured.slug}`} className="group block">
-                  <h1 className={`text-[28px] sm:text-[36px] md:text-[44px] leading-[1.08] font-serif font-black tracking-tight mb-4 group-hover:text-red-600 transition-colors`}>
+                  <h1 className={`text-[26px] sm:text-[34px] md:text-[44px] leading-[1.08] font-serif font-black tracking-tight mb-4 group-hover:text-red-600 transition-colors`}>
                     {featured.title}
                   </h1>
                 </Link>
@@ -368,7 +381,8 @@ export default function Home() {
                 </p>
 
                 <Link href={`/noticia/${featured.slug}`}>
-                  <div className="relative w-full h-[220px] md:h-[380px] overflow-hidden group">
+                  {/* Imagem hero com aspect ratio fixo */}
+                  <div className="relative w-full overflow-hidden group" style={{ aspectRatio: "16/9" }}>
                     <img
                       src={featured.image_url || "https://images.unsplash.com/photo-1498050108023-c5249f4df085"}
                       alt={featured.title}
@@ -394,7 +408,8 @@ export default function Home() {
                       {item.title}
                     </h3>
                     {item.image_url && (
-                      <div className="relative w-full h-[110px] overflow-hidden mt-1">
+                      /* Imagem lateral com aspect ratio fixo */
+                      <div className="relative w-full overflow-hidden mt-1" style={{ aspectRatio: "16/9" }}>
                         <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
                     )}
@@ -446,7 +461,8 @@ export default function Home() {
                       <p className={`text-[13px] leading-relaxed line-clamp-2 ${dark ? "text-zinc-400" : "text-zinc-500"}`}>{item.excerpt}</p>
                     )}
                     {item.image_url && (
-                      <div className="relative w-full h-[140px] overflow-hidden mt-auto">
+                      /* Aspect ratio fixo para todos os cards secundários */
+                      <div className="relative w-full overflow-hidden mt-auto" style={{ aspectRatio: "16/9" }}>
                         <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
                     )}
@@ -464,26 +480,27 @@ export default function Home() {
 
             {/* ── GRID 4 COLUNAS ── */}
             {gridArticles.length > 0 && (
-              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 divide-y sm:divide-y-0 border-b pb-8 ${dark ? "border-zinc-800" : "border-zinc-200"}`}>
+              <div className={`grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-0 divide-y sm:divide-y-0 border-b pb-8 ${dark ? "border-zinc-800" : "border-zinc-200"}`}>
                 {gridArticles.map((item, i) => (
                   <Link
                     href={`/noticia/${item.slug}`}
                     key={item.id}
-                    className={`group flex flex-col gap-3 pt-5 pb-6 px-5 ${
+                    className={`group flex flex-col gap-3 pt-5 pb-6 px-4 ${
                       i > 0 ? `border-l ${dark ? "border-zinc-800" : "border-zinc-200"}` : "pl-0"
                     } ${i === gridArticles.length - 1 ? "pr-0" : ""}`}
                   >
                     {item.image_url && (
-                      <div className="relative w-full h-[120px] overflow-hidden mb-1">
+                      /* Aspect ratio fixo para todos os cards do grid */
+                      <div className="relative w-full overflow-hidden mb-1" style={{ aspectRatio: "4/3" }}>
                         <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
                     )}
-                    <span className="text-red-600 text-[11px] font-black uppercase tracking-widest">{item.category}</span>
-                    <h3 className={`text-[15px] leading-[1.3] font-bold group-hover:text-red-600 transition-colors ${dark ? "text-white" : "text-zinc-900"}`}>
+                    <span className="text-red-600 text-[10px] md:text-[11px] font-black uppercase tracking-widest">{item.category}</span>
+                    <h3 className={`text-[13px] md:text-[15px] leading-[1.3] font-bold group-hover:text-red-600 transition-colors ${dark ? "text-white" : "text-zinc-900"}`}>
                       {item.title}
                     </h3>
-                    <span className={`text-[11px] flex items-center gap-1 mt-auto ${dark ? "text-zinc-500" : "text-zinc-400"}`}>
-                      <Clock3 size={11} /> {timeAgo(item.created_at)}
+                    <span className={`text-[10px] md:text-[11px] flex items-center gap-1 mt-auto ${dark ? "text-zinc-500" : "text-zinc-400"}`}>
+                      <Clock3 size={10} /> {timeAgo(item.created_at)}
                     </span>
                   </Link>
                 ))}
@@ -498,7 +515,7 @@ export default function Home() {
             <div className="max-w-[1280px] mx-auto px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <span className="text-red-600 text-[11px] font-black uppercase tracking-widest block mb-1">Newsletter</span>
-                <h3 className={`text-[22px] font-serif font-bold ${dark ? "text-white" : "text-zinc-900"}`}>O futuro dos negócios, direto no seu e-mail</h3>
+                <h3 className={`text-[20px] md:text-[22px] font-serif font-bold ${dark ? "text-white" : "text-zinc-900"}`}>O futuro dos negócios, direto no seu e-mail</h3>
                 <p className={`text-[14px] mt-1 ${dark ? "text-zinc-400" : "text-zinc-500"}`}>Inovação, IA e mercado — curadoria semanal sem ruído.</p>
               </div>
               <div className="flex items-center gap-0 w-full md:w-auto">
@@ -518,7 +535,7 @@ export default function Home() {
         {/* ── FAIXA INSTITUCIONAL ── */}
         {!loading && (
           <section className={`border-t ${dark ? "border-zinc-800" : "border-zinc-200"}`}>
-            <div className={`max-w-[1280px] mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x ${dark ? "divide-zinc-800" : "divide-zinc-200"}`}>
+            <div className={`max-w-[1280px] mx-auto px-4 py-10 md:py-12 grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x ${dark ? "divide-zinc-800" : "divide-zinc-200"}`}>
               {[
                 { label: "Nosso compromisso", title: "Inovação como editoria principal", desc: "Cobrimos o que está reescrevendo o mercado — IA, tecnologia e os negócios que vêm a seguir." },
                 { label: "Curadoria", title: "Relevância acima de volume", desc: "Cada matéria publicada passa por critério editorial — sem ruído, sem clickbait." },
