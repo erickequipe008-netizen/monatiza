@@ -67,17 +67,6 @@ export default function RootLayout({
       </head>
 
      <body>
-  <div
-    style={{
-      background: "red",
-      color: "white",
-      padding: "20px",
-      textAlign: "center",
-    }}
-  >
-    TESTE LAYOUT
-  </div>
-
   {children}
 
   <Footer />
