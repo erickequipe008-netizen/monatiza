@@ -1,17 +1,45 @@
-export default function Page() {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contato | Monatiza",
+  description: "Entre em contato com a equipe da Monatiza.",
+};
+
+export default function ContatoPage() {
   return (
-    <main className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-8">Contato</h1>
+    <main className="max-w-3xl mx-auto px-6 py-16">
+      <h1 className="text-3xl font-bold text-neutral-900 mb-8">Contato</h1>
 
-      <p className="mb-4">
-        Caso tenha dúvidas, sugestões ou necessite de suporte, entre em contato
-        conosco.
-      </p>
+      <div className="space-y-5 text-[1.05rem] leading-relaxed text-neutral-800">
+        <p>
+          A Monatiza é um projeto editorial da MMmidia. Para dúvidas,
+          sugestões, parcerias, envio de releases ou questões relacionadas a
+          privacidade, utilize o canal abaixo.
+        </p>
 
-      <div className="space-y-3">
-        <p><strong>E-mail:</strong> contato@monatiza.com</p>
-        <p><strong>Site:</strong> https://www.monatiza.com</p>
-        <p><strong>Horário de Atendimento:</strong> Segunda a Sexta-feira, das 09h às 18h.</p>
+        <div className="mt-8 space-y-6">
+          <div>
+            <p className="font-bold text-neutral-900">E-mail</p>
+            <p>
+              <a
+                href="mailto:contato@monatiza.com"
+                className="underline underline-offset-2 hover:text-neutral-600"
+              >
+                contato@monatiza.com
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <p className="font-bold text-neutral-900">Endereço</p>
+            <p>Av. Paulista, 508 — São Paulo, SP</p>
+          </div>
+
+          <div>
+            <p className="font-bold text-neutral-900">Razão social</p>
+            <p>MMmidia — CNPJ 49.908.875/0001-85</p>
+          </div>
+        </div>
       </div>
     </main>
   );
