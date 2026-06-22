@@ -169,12 +169,13 @@ function RichEditor({ value, onChange, hasError }: { value: string; onChange: (h
 
   function handleInput() { onChange(editorRef.current?.innerHTML || ""); updateActive(); }
 
-  const wordCount = (() => {
+  const [wordCount, setWordCount] = useState(0);
+  useEffect(() => {
     const d = document.createElement("div");
     d.innerHTML = value;
     const t = d.textContent?.trim() ?? "";
-    return t ? t.split(/\s+/).length : 0;
-  })();
+    setWordCount(t ? t.split(/\s+/).length : 0);
+  }, [value]);
 
   return (
     <>
@@ -348,8 +349,10 @@ export default function NewArticlePage() {
     const e: Record<string, string> = {};
     if (!title.trim()) e.title = "Obrigatório";
     if (!description.trim()) e.description = "Obrigatório";
-    const d = document.createElement("div"); d.innerHTML = content;
-    if (!d.textContent?.trim()) e.content = "Obrigatório";
+    if (typeof window !== "undefined") {
+      const d = document.createElement("div"); d.innerHTML = content;
+      if (!d.textContent?.trim()) e.content = "Obrigatório";
+    } else if (!content.trim()) { e.content = "Obrigatório"; }
     setErrors(e);
     return Object.keys(e).length === 0;
   }
