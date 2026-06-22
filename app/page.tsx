@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Menu, Search, X, Clock3, ChevronDown } from "lucide-react";
 import { supabase } from "@/services/supabase";
-import Header from "@/components/Header";
+
 
 // ─── DADOS DO MEGA MENU ────────────────────────────────────────────────
 const EDITORIAS = [
@@ -136,7 +136,6 @@ export default function Home() {
 
   return (
     <>
-      <Header />
 
       <main
         className={`transition-colors duration-300 ${
