@@ -1,21 +1,71 @@
-export default function Page() {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Política Editorial | Monatiza",
+  description: "Política Editorial da Monatiza.",
+};
+
+export default function PoliticaEditorialPage() {
   return (
-    <main className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-8">
+    <main className="max-w-3xl mx-auto px-6 py-16">
+      <h1 className="text-3xl font-bold text-neutral-900 mb-8">
         Política Editorial
       </h1>
 
-      <p className="mb-4">
-        A Monatiza está comprometida com a produção de conteúdo confiável,
-        transparente e relevante.
-      </p>
+      <div className="space-y-5 text-[1.05rem] leading-relaxed text-neutral-800">
+        <p>
+          A Monatiza, projeto editorial da MMmidia, pauta-se por princípios
+          de pluralismo, independência, isenção, rigor e objetividade na
+          produção e publicação de conteúdo.
+        </p>
 
-      <ul className="list-disc ml-6 space-y-2">
-        <li>Verificação das informações antes da publicação.</li>
-        <li>Correção de erros identificados posteriormente.</li>
-        <li>Transparência em conteúdos patrocinados.</li>
-        <li>Respeito às normas éticas e legais.</li>
-      </ul>
+        <p>
+          A Monatiza diferencia claramente os conteúdos informativos dos
+          opinativos. Matérias de caráter informativo seguem critérios de
+          apuração, contraditório e verificação de fontes, enquanto
+          conteúdos de opinião — como editoriais e artigos assinados —
+          são identificados como tal e refletem o ponto de vista de quem os
+          assina.
+        </p>
+
+        <p>
+          A Monatiza reserva-se o direito de emitir considerações sobre
+          fatos noticiados, em formato editorial, nos termos da legislação
+          aplicável em vigor.
+        </p>
+
+        <p>
+          Erros factuais identificados em matérias publicadas são corrigidos
+          com a maior brevidade possível, com indicação clara da correção
+          realizada, sempre que a alteração impactar o entendimento do
+          conteúdo original.
+        </p>
+
+        <p>
+          Conteúdos patrocinados, publicitários ou produzidos em parceria
+          comercial são identificados de forma explícita, distinguindo-se
+          claramente do conteúdo jornalístico independente.
+        </p>
+
+        <p>
+          A Monatiza compromete-se a respeitar a privacidade dos cidadãos,
+          recusando a devassa de factos da vida pessoal e familiar sem
+          interesse público legítimo, bem como a respeitar a legislação
+          aplicável em vigor.
+        </p>
+
+        <p>
+          Dúvidas, sugestões ou contestações sobre conteúdos publicados
+          podem ser enviadas para{" "}
+          <a
+            href="mailto:contato@monatiza.com"
+            className="underline underline-offset-2 hover:text-neutral-600"
+          >
+            contato@monatiza.com
+          </a>
+          .
+        </p>
+      </div>
     </main>
   );
 }

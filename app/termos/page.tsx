@@ -1,124 +1,115 @@
-export default function Page() {
-  return (
-    <main className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-8">Termos de Uso</h1>
+import type { Metadata } from "next";
 
-      <p className="mb-6 text-gray-600">
+export const metadata: Metadata = {
+  title: "Termos de Uso | Monatiza",
+  description: "Termos de Uso da Monatiza.",
+};
+
+export default function TermosPage() {
+  return (
+    <main className="max-w-3xl mx-auto px-6 py-16">
+      <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+        Termos de Uso
+      </h1>
+      <p className="text-sm text-neutral-500 mb-8">
         Última atualização: 22 de junho de 2026
       </p>
 
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            1. Aceitação dos Termos
-          </h2>
-          <p>
-            Ao acessar ou utilizar o portal Monatiza, você concorda com os
-            presentes Termos de Uso. Caso não concorde com qualquer disposição,
-            recomendamos que interrompa a utilização dos nossos serviços.
-          </p>
-        </div>
+      <div className="space-y-8 text-[1.05rem] leading-relaxed text-neutral-800">
+        <p>
+          Estes Termos de Uso regulam o acesso e a utilização do site
+          www.monatiza.com, projeto editorial da MMmidia (CNPJ
+          49.908.875/0001-85), com sede na Av. Paulista, 508, São Paulo,
+          SP. Ao acessar o site, o usuário concorda com os termos descritos
+          a seguir.
+        </p>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            2. Sobre a Plataforma
+        <section>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            1. Uso do conteúdo
           </h2>
           <p>
-            A Monatiza é uma plataforma de mídia digital, comunicação,
-            tecnologia, produção editorial e distribuição de conteúdo,
-            disponibilizando notícias, artigos, revistas digitais, ferramentas
-            e serviços voltados para empreendedores, profissionais e empresas.
+            Todo o conteúdo publicado na Monatiza — textos, imagens, vídeos e
+            demais materiais — é protegido por direitos de autor. A
+            reprodução total ou parcial sem autorização prévia é proibida,
+            salvo nos casos permitidos por lei, como citação com a devida
+            referência à fonte.
           </p>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            3. Cadastro de Usuários
+        <section>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            2. Conduta do usuário
           </h2>
           <p>
-            Alguns serviços podem exigir cadastro. O usuário compromete-se a
-            fornecer informações verdadeiras, atualizadas e completas, sendo
-            responsável pela segurança de suas credenciais de acesso.
+            O usuário compromete-se a utilizar o site de forma lícita,
+            respeitosa e em conformidade com a legislação aplicável,
+            abstendo-se de praticar atos que violem direitos de terceiros ou
+            comprometam a segurança e o funcionamento da plataforma.
           </p>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            4. Conteúdo Publicado
+        <section>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            3. Comentários e participação
           </h2>
           <p>
-            Os usuários são integralmente responsáveis pelos conteúdos enviados
-            para publicação. A Monatiza reserva-se o direito de remover
-            conteúdos que violem a legislação vigente, direitos autorais,
-            políticas internas ou que contenham informações falsas,
-            discriminatórias ou ofensivas.
+            Quando disponíveis, espaços de comentários e interação destinam-se
+            ao debate respeitoso. A Monatiza reserva-se o direito de
+            moderar, ocultar ou remover conteúdos que violem a lei, incitem
+            discurso de ódio, violência ou contenham informações falsas.
           </p>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            5. Direitos Autorais
+        <section>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            4. Links externos
           </h2>
           <p>
-            Todo o conteúdo presente no portal, incluindo textos, imagens,
-            logotipos, marcas, vídeos e materiais gráficos, é protegido pela
-            legislação de propriedade intelectual e não poderá ser reproduzido
-            sem autorização prévia.
+            O site pode conter links para páginas de terceiros. A Monatiza
+            não se responsabiliza pelo conteúdo, políticas ou práticas
+            adotadas por sites externos.
           </p>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            6. Limitação de Responsabilidade
+        <section>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            5. Limitação de responsabilidade
           </h2>
           <p>
-            A Monatiza não garante que o portal estará disponível de forma
-            ininterrupta ou livre de erros. Também não se responsabiliza por
-            danos decorrentes do uso indevido da plataforma por terceiros.
+            A Monatiza adota esforços razoáveis para garantir a precisão das
+            informações publicadas, mas não garante a ausência total de
+            erros, omissões ou indisponibilidades temporárias do site.
           </p>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            7. Publicidade e Parceiros
+        <section>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            6. Alterações destes termos
           </h2>
           <p>
-            O portal pode exibir anúncios, conteúdos patrocinados e links para
-            sites de terceiros. A Monatiza não possui responsabilidade pelas
-            práticas, políticas ou conteúdos mantidos por esses sites externos.
+            Estes Termos de Uso podem ser atualizados periodicamente, sem
+            aviso prévio. Recomenda-se a revisão regular desta página.
           </p>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            8. Proteção de Dados
+        <section>
+          <h2 className="text-xl font-bold text-neutral-900 mb-3">
+            7. Contato
           </h2>
           <p>
-            O tratamento de dados pessoais segue as diretrizes da Lei Geral de
-            Proteção de Dados (LGPD) e nossa Política de Privacidade.
+            Dúvidas sobre estes termos podem ser enviadas para{" "}
+            <a
+              href="mailto:contato@monatiza.com"
+              className="underline underline-offset-2 hover:text-neutral-600"
+            >
+              contato@monatiza.com
+            </a>
+            .
           </p>
-        </div>
+        </section>
 
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            9. Alterações dos Termos
-          </h2>
-          <p>
-            A Monatiza poderá atualizar estes Termos de Uso a qualquer momento,
-            sendo recomendada a consulta periódica desta página.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">
-            10. Contato
-          </h2>
-          <p>
-            Em caso de dúvidas sobre estes Termos de Uso, entre em contato pelo
-            e-mail: contato@monatiza.com
-          </p>
-        </div>
-      </section>
+      </div>
     </main>
   );
 }
