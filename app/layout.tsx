@@ -1,5 +1,6 @@
 import "./globals.css";
 import Script from "next/script";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata = {
@@ -66,9 +67,9 @@ export default function RootLayout({
         />
       </head>
 
-     <body>
+    <body>
+  <Header />
   {children}
-
   <Footer />
 </body>
     </html>
