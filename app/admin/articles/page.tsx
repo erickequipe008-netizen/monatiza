@@ -9,7 +9,7 @@ import { Plus, Search, Filter, MoreHorizontal, FileText } from "lucide-react";
 import PageHeader   from "@/components/layout/PageHeader";
 import { supabase } from "@/lib/supabase/client";
 
-const CATEGORIES = ["Todos", "Negócios", "Tecnologia", "IA", "Mercado", "Brasil", "Saúde"];
+const CATEGORIES = ["Todos", "Negócios", "Tecnologia", "IA", "Mercado", "Brasil", "Política", "Saúde", "Empreende", "Startups", "Carreira", "Revista"];
 
 export default function ArticlesPage() {
   const [articles,  setArticles]  = useState<any[]>([]);

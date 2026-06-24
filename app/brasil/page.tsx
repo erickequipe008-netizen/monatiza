@@ -1,14 +1,10 @@
+import CategoryFeed from "@/components/CategoryFeed";
 
 export const metadata = {
-  title: "Brasil | Monatiza",
-  description: "Últimas notícias do Brasil.",
+  title: "Brasil",
+  description: "Últimas notícias do Brasil — política, economia e os fatos que definem o país.",
 };
 
 export default function BrasilPage() {
-  return (
-    <main className="p-10">
-      <h1>Brasil</h1>
-    </main>
-  );
+  return <CategoryFeed slug="brasil" />;
 }
-

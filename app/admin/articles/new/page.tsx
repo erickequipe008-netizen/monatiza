@@ -6,7 +6,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 
-const CATEGORIES = ["Negócios","Tecnologia","IA","Brasil","Política","Mercado","Saúde"];
+const CATEGORIES = ["Negócios","Tecnologia","IA","Brasil","Política","Mercado","Saúde","Empreende","Startups","Carreira","Revista"];
 
 function generateSlug(text: string): string {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replaceAll(" ","-").replace(/[^\w-]+/g,"");
