@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase/client";
 import { Clock3, TrendingUp } from "lucide-react";
 
@@ -239,7 +238,6 @@ export default function MercadoPage() {
   if (loading) {
     return (
       <div className="bg-[#f5f5f5] min-h-screen text-black">
-        <Header />
         <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-8 md:py-12">
           <div className="flex items-center gap-3 mb-6">
             <Skeleton className="w-6 h-6 rounded-full" />
@@ -272,7 +270,6 @@ export default function MercadoPage() {
   if (articles.length === 0) {
     return (
       <div className="bg-[#f5f5f5] min-h-screen text-black">
-        <Header />
         <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-20 text-center">
           <TrendingUp size={40} className="mx-auto text-zinc-300 mb-4" />
           <h2 className="text-2xl font-bold text-zinc-400">
@@ -290,7 +287,6 @@ export default function MercadoPage() {
 
   return (
     <div className="bg-[#f5f5f5] min-h-screen text-black">
-      <Header />
 
       <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-8 md:py-12">
 
