@@ -153,69 +153,6 @@ export default function Header() {
       {/* ESPAÇO HEADER */}
       <div className="h-[108px] md:h-[128px]" />
 
-      {/* ANIMAÇÃO */}
-      <style>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-      `}</style>
-
-      {/* TICKER FINANCEIRO */}
-      <div
-        className={`border-b overflow-hidden ${
-          darkMode
-            ? "bg-[#111] border-zinc-800"
-            : "bg-[#f5f5f5] border-zinc-200"
-        }`}
-      >
-
-        <div className="overflow-hidden whitespace-nowrap">
-
-          <div
-            className="flex gap-16 py-3 text-[13px] font-semibold"
-            style={{
-              animation: "marquee 30s linear infinite",
-            }}
-          >
-
-            {[
-              { label: "IBOV ▲ 128.420 +1,22%", up: true },
-              { label: "DÓLAR ▼ R$5,42 -0,32%", up: false },
-              { label: "NASDAQ ▲ +0,88%", up: true },
-              { label: "BITCOIN ▲ US$108.220", up: true },
-              { label: "PETR4 ▼ -1,04%", up: false },
-              { label: "VALE3 ▲ +2,18%", up: true },
-              { label: "ETHEREUM ▲ US$4.180", up: true },
-              { label: "IBOV ▲ 128.420 +1,22%", up: true },
-              { label: "DÓLAR ▼ R$5,42 -0,32%", up: false },
-              { label: "NASDAQ ▲ +0,88%", up: true },
-            ].map((item, i) => (
-
-              <span
-                key={i}
-                className={
-                  item.up
-                    ? "text-green-500"
-                    : "text-red-500"
-                }
-              >
-                {item.label}
-              </span>
-
-            ))}
-
-          </div>
-
-        </div>
-
-      </div>
-
       {/* MENU */}
       {menuOpen && (
 
