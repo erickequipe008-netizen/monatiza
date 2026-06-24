@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ── 1. Admin (jornalistas via Supabase Auth) ─────────────────
+  // Admin
   if (pathname.startsWith("/admin")) {
     const token = request.cookies.get("sb-access-token");
 
@@ -13,12 +13,18 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // ── 2. Editorial (senha fixa) ────────────────────────────────
-  // Apenas produção e entregues exigem senha
-  if (
-    pathname.startsWith("/editorial/revista/producao") ||
-    pathname.startsWith("/editorial/revista/entregues")
-  ) {
+  // Formulário do cliente fica público
+  if (pathname.startsWith("/editorial/revista/formulario")) {
+    return NextResponse.next();
+  }
+
+  // Login fica público
+  if (pathname.startsWith("/editorial/revista/login")) {
+    return NextResponse.next();
+  }
+
+  // Todo o restante do editorial exige senha
+  if (pathname.startsWith("/editorial")) {
     const editorialToken = request.cookies.get("editorial-token");
 
     if (!editorialToken) {
