@@ -59,22 +59,12 @@ function AssinarForm() {
         session = signInData.session;
       }
 
-      // 3) inicia o checkout do Stripe
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ plano }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.url) {
-        setError(json.error || "Não foi possível iniciar o pagamento.");
+      // 3) vai para a nossa página de pagamento (checkout próprio no site)
+      if (!session) {
+        setError("Não foi possível iniciar a sessão.");
         return;
       }
-
-      window.location.href = json.url; // redireciona para o Stripe
+      window.location.href = `/assinar/pagamento?plano=${plano}`;
     } catch {
       setError("Erro inesperado. Tente novamente.");
     } finally {
