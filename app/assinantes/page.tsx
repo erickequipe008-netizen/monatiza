@@ -11,6 +11,7 @@ export const metadata = {
 const PLANS = [
   {
     name: "Digital",
+    plano: "mensal",
     price: "R$ 19,90",
     period: "/mês",
     highlight: false,
@@ -25,6 +26,7 @@ const PLANS = [
   },
   {
     name: "Anual",
+    plano: "anual",
     price: "R$ 199",
     period: "/ano",
     highlight: true,
@@ -124,7 +126,7 @@ export default function AssinantesPage() {
               </ul>
 
               <Link
-                href="/register"
+                href={`/assinar?plano=${plan.plano}`}
                 className={`block text-center mt-8 py-4 text-sm font-bold transition ${
                   plan.highlight
                     ? "bg-black text-white hover:opacity-80"
@@ -139,7 +141,7 @@ export default function AssinantesPage() {
 
         <p className="text-zinc-500 text-sm mt-8">
           Já é assinante?{" "}
-          <Link href="/login" className="text-black font-bold hover:text-red-600 transition">
+          <Link href="/painel/login" className="text-black font-bold hover:text-red-600 transition">
             Entrar
           </Link>
         </p>
