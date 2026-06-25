@@ -407,19 +407,6 @@ export default function NewArticlePage() {
   return (
     <div style={{ backgroundColor:"#F7F6F3", minHeight:"100vh", fontFamily:"sans-serif" }}>
 
-      {/* Top bar */}
-      <div style={{ background:"#0b0b0c", borderBottom:"1px solid rgba(255,255,255,0.08)", padding:"14px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:50 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <span style={{ color:"#fff", fontWeight:900, fontSize:16, letterSpacing:"-0.02em" }}>MONATIZA</span>
-          <span style={{ width:1, height:16, background:"rgba(255,255,255,0.2)" }} />
-          <span style={{ color:"#E0263B", fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.3em" }}>Nova Matéria</span>
-        </div>
-        <button type="button" onClick={() => router.push("/admin/dashboard")}
-          style={{ color:"rgba(255,255,255,0.6)", fontSize:13, background:"transparent", border:"1px solid rgba(255,255,255,0.15)", borderRadius:8, padding:"6px 16px", cursor:"pointer" }}>
-          ← Voltar
-        </button>
-      </div>
-
       <form onSubmit={handlePublish}>
         <div style={{ maxWidth:820, margin:"0 auto", padding:"32px 24px", display:"flex", flexDirection:"column", gap:20 }}>
 

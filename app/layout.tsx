@@ -1,7 +1,6 @@
 import "./globals.css";
 import Script from "next/script";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import SiteFrame from "@/components/SiteFrame";
 
 export const metadata = {
   metadataBase: new URL("https://monatiza.com"),
@@ -57,9 +56,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <Header />
-        {children}
-        <Footer />
+        <SiteFrame>{children}</SiteFrame>
       </body>
     </html>
   );

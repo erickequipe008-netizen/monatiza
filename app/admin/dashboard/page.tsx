@@ -47,28 +47,6 @@ export default function DashboardPage() {
   return (
     <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }} className="min-h-screen bg-[#F7F6F3]">
 
-      {/* ── Top bar ── */}
-      <div className="bg-[#0b0b0c] border-b border-white/5 px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-white font-black text-lg tracking-tight" style={{ fontFamily: "sans-serif" }}>
-            MONATIZA
-          </span>
-          <span className="h-4 w-px bg-white/20" />
-          <span className="text-[#E0263B] text-xs font-semibold uppercase tracking-[0.3em]" style={{ fontFamily: "sans-serif" }}>
-            Redação
-          </span>
-        </div>
-        <Link href="/admin/articles/new">
-          <button
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90 active:scale-95"
-            style={{ fontFamily: "sans-serif", background: "#E0263B", color: "#fff" }}
-          >
-            <Plus size={14} />
-            Nova matéria
-          </button>
-        </Link>
-      </div>
-
       <div className="px-8 py-10 max-w-6xl mx-auto space-y-10">
 
         {/* ── Saudação ── */}
