@@ -92,12 +92,21 @@ const { data: profile } =
     .from("profiles")
     .select("name, display_name")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
+const meta = (user.user_metadata ?? {}) as {
+  display_name?: string;
+  name?: string;
+  full_name?: string;
+};
+
+// nome de jornalismo do cadastro; nunca o e-mail
 const authorName =
+  meta.display_name ||
   profile?.display_name ||
   profile?.name ||
-  user.email ||
+  meta.name ||
+  meta.full_name ||
   "Redação Monatiza";
 
 

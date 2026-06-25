@@ -86,6 +86,10 @@ export default function ArticleClient() {
   const bodyContent = article.body || article.content || "";
   const isHtml = /<[a-z][\s\S]*>/i.test(bodyContent);
 
+  // assinatura: prefere o nome de jornalismo; ignora e-mails (matérias antigas)
+  const rawAuthor = article.journalist_name || article.author || "";
+  const authorName = rawAuthor && !String(rawAuthor).includes("@") ? rawAuthor : "Redação Monatiza";
+
   return (
     <div className="bg-white text-black min-h-screen">
 
@@ -141,17 +145,17 @@ export default function ArticleClient() {
               {article.author_avatar ? (
                 <img
                   src={article.author_avatar}
-                  alt={article.author}
+                  alt={authorName}
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white text-[12px] font-bold shrink-0">
-                  {(article.author || "M").charAt(0).toUpperCase()}
+                  {authorName.charAt(0).toUpperCase()}
                 </div>
               )}
               <div>
                 <p className="text-[13px] font-semibold text-zinc-800 leading-tight">
-                  {article.author || "Redação Monatiza"}
+                  Por {authorName}
                 </p>
                 <p className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5">
                   <Clock3 size={10} />

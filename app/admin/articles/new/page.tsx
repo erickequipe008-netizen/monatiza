@@ -384,12 +384,16 @@ export default function NewArticlePage() {
     const slug = generateSlug(title);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { alert("Usuário não autenticado"); setLoading(false); return; }
-    const { data: profile } = await supabase.from("journalists").select("name").eq("id", user.id).single();
+    const { data: profile } = await supabase.from("journalists").select("name, display_name").eq("id", user.id).maybeSingle();
+    const meta = (user.user_metadata ?? {}) as { display_name?: string; name?: string; full_name?: string };
+    // nome de jornalismo do cadastro; nunca o e-mail
+    const journalistName =
+      meta.display_name || profile?.display_name || profile?.name || meta.name || meta.full_name || "Redação Monatiza";
     const { error } = await supabase.from("articles").insert([{
       title, description, content, category,
       image_url: uploadedImage, slug,
-      author: profile?.name || user.email,
-      journalist_name: profile?.name || user.email,
+      author: journalistName,
+      journalist_name: journalistName,
       author_id: user.id,
     }]);
     if (error) { alert(error.message); setLoading(false); return; }
