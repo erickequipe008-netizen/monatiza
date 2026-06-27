@@ -150,7 +150,7 @@ export default function PerfilPage() {
 
   async function logout() {
     await supabase.auth.signOut();
-    router.push("/admin/login");
+    router.push("/login");
   }
 
   if (loading) {

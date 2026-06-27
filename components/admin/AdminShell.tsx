@@ -17,10 +17,11 @@ const NAV = [
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "";
   const router = useRouter();
-  const [name, setName] = useState("");
-
   // A página de login não recebe o shell.
   const bare = pathname === "/admin/login";
+
+  const [name, setName] = useState("");
+  const [checking, setChecking] = useState(!bare);
 
   useEffect(() => {
     if (bare) return;
@@ -28,24 +29,38 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return;
-      // jornalista (papel definido e diferente de admin) vai pro próprio dashboard
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      // SOMENTE admin acessa o painel. Qualquer outra conta vai pro próprio dashboard
+      // e nunca chega a ver a interface administrativa.
       const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-      if (prof && prof.role && prof.role !== "admin") {
+      const isAdmin = prof?.role === "admin" || user.email === "erickequipe008@gmail.com";
+      if (!isAdmin) {
         router.push("/dashboard");
         return;
       }
       const meta = (user.user_metadata ?? {}) as { display_name?: string; name?: string };
       setName(meta.display_name || meta.name || user.email || "");
+      setChecking(false);
     })();
   }, [bare, router]);
 
   async function logout() {
     await supabase.auth.signOut();
-    router.push("/admin/login");
+    router.push("/login");
   }
 
   if (bare) return <>{children}</>;
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#F7F6F3] flex items-center justify-center text-sm text-zinc-400">
+        Carregando…
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F6F3]">
