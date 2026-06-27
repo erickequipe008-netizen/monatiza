@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, FileText, User, Plus, LogOut } from "lucide-react";
+import { LayoutDashboard, ClipboardCheck, FileText, CreditCard, User, Plus, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 const NAV = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { label: "Aprovação", href: "/admin/aprovacao", icon: ClipboardCheck },
   { label: "Artigos", href: "/admin/articles", icon: FileText },
+  { label: "Créditos", href: "/admin/creditos", icon: CreditCard },
   { label: "Perfil", href: "/admin/settings", icon: User },
 ];
 
