@@ -30,7 +30,14 @@ export default function LoginPage() {
     }
 
     document.cookie = `sb-access-token=${data.session.access_token}; path=/`;
-    router.push("/admin/dashboard");
+
+    // roteia por papel: admin → painel admin; jornalista → dashboard próprio
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    router.push(prof?.role === "admin" ? "/admin/dashboard" : "/dashboard");
   }
 
   async function handleGoogleLogin() {
@@ -54,7 +61,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-[44%] relative flex-col justify-between bg-[#0b0b0c] text-white px-14 py-16 overflow-hidden">
         {/* Aspas decorativas */}
         <span className="pointer-events-none select-none absolute -top-10 -left-6 text-[#E0263B]/15 font-serif text-[420px] leading-none">
-          "
+          {"“"}
         </span>
 
         <div className="relative z-10">

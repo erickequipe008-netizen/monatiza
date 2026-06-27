@@ -31,7 +31,22 @@ export async function POST(req: Request) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const userId = session.client_reference_id || (session.metadata?.user_id ?? null);
-      if (userId) {
+
+      if (userId && session.metadata?.type === "credits") {
+        // compra de créditos BrandVoice
+        const credits = parseInt(session.metadata.credits || "0", 10);
+        if (credits > 0) {
+          await supabaseAdmin.rpc("add_journalist_credits", { p_journalist: userId, p_credits: credits });
+          await supabaseAdmin.from("credit_transactions").insert({
+            journalist_id: userId,
+            stripe_payment_id: typeof session.payment_intent === "string" ? session.payment_intent : session.id,
+            amount_paid: (session.amount_total ?? 0) / 100,
+            credits_added: credits,
+            status: "concluido",
+          });
+        }
+      } else if (userId) {
+        // assinatura
         await supabaseAdmin
           .from("subscribers")
           .update({

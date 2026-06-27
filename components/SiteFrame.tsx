@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 function isInternal(pathname: string): boolean {
   return (
     pathname.startsWith("/admin") ||
+    pathname.startsWith("/dashboard") ||
     pathname === "/login" ||
     pathname.startsWith("/login/") ||
     pathname === "/register" ||
