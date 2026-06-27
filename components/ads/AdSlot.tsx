@@ -48,16 +48,20 @@ export default function AdSlot({
     }
   }, [slot]);
 
-  // Sem slot configurado.
+  // Sem slot configurado: a caixa fica ATIVA (espaço reservado no layout),
+  // pronta para receber o anúncio assim que o slot for preenchido em lib/ads.ts.
   if (!slot) {
-    if (process.env.NODE_ENV === "production") return null;
     return (
-      <div
-        className={`w-full flex items-center justify-center border border-dashed border-zinc-300 bg-zinc-50 text-[11px] uppercase tracking-widest text-zinc-400 ${className}`}
-        style={{ minHeight }}
-        aria-hidden="true"
-      >
-        Espaço reservado · {placement}
+      <div className={`w-full text-center ${className}`} style={{ minHeight }} aria-hidden="true">
+        <span className="block text-[10px] uppercase tracking-[0.2em] text-zinc-400 mb-1 select-none">
+          Publicidade
+        </span>
+        <div
+          className="w-full flex items-center justify-center rounded-md border border-dashed border-zinc-200 bg-zinc-50/70 text-[10px] uppercase tracking-widest text-zinc-300"
+          style={{ minHeight: minHeight - 16 }}
+        >
+          {process.env.NODE_ENV === "production" ? "" : placement}
+        </div>
       </div>
     );
   }
