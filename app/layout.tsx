@@ -3,7 +3,7 @@ import Script from "next/script";
 import SiteFrame from "@/components/SiteFrame";
 
 export const metadata = {
-  metadataBase: new URL("https://monatiza.com"),
+  metadataBase: new URL("https://www.monatiza.com"),
 
   title: {
     default: "Monatiza - Notícias, IA, Negócios e Tecnologia",
@@ -21,15 +21,25 @@ export const metadata = {
     "google-adsense-account": "ca-pub-2575495674688917",
   },
 
+  alternates: {
+    canonical: "https://www.monatiza.com",
+  },
+
   openGraph: {
     title: "Monatiza",
     description:
       "Portal premium de notícias sobre IA, negócios, tecnologia e economia.",
-    url: "https://monatiza.com",
+    url: "https://www.monatiza.com",
     siteName: "Monatiza",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "pt_BR",
     type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Monatiza",
+    description:
+      "Portal premium de notícias sobre IA, negócios, tecnologia e economia.",
   },
 };
 
@@ -41,6 +51,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
+        <link
+          rel="preconnect"
+          href="https://cmfuphjxdhqslhvlvesu.supabase.co"
+          crossOrigin="anonymous"
+        />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+        <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         <Script
           id="cookieyes"
           src="https://cdn-cookieyes.com/client_data/e1fd1ac7ad976fb79e788aa18623b15c/script.js"

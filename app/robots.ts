@@ -10,8 +10,8 @@ export default function robots(): MetadataRoute.Robots {
     ],
 
     sitemap: [
-      "https://monatiza.com/sitemap.xml",
-      "https://monatiza.com/news-sitemap.xml",
+      "https://www.monatiza.com/sitemap.xml",
+      "https://www.monatiza.com/news-sitemap.xml",
     ],
   };
 }

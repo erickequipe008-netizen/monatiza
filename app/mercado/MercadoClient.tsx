@@ -1,14 +1,10 @@
 "use client";
 
-import { createElement, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Clock3 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import { getFeedCategory } from "@/lib/categories";
-import { iconFor } from "@/components/iconMap";
-import { toISO } from "@/lib/seo";
-import AdSlot from "@/components/ads/AdSlot";
+import { Clock3, TrendingUp } from "lucide-react";
 
 // ─── tipos ────────────────────────────────────────────────
 interface Article {
@@ -25,7 +21,7 @@ interface Article {
 
 // ─── helpers ──────────────────────────────────────────────
 function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(toISO(dateStr)).getTime();
+  const diff = Date.now() - new Date(dateStr).getTime();
   const h = Math.floor(diff / 3_600_000);
   if (h < 1) return "Agora mesmo";
   if (h < 24) return `${h}h atrás`;
@@ -33,16 +29,60 @@ function timeAgo(dateStr: string) {
   return `${d}d atrás`;
 }
 
-// ─── skeleton ────────────────────────────────────────────
+// ─── skeleton ─────────────────────────────────────────────
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`bg-zinc-200 animate-pulse rounded ${className ?? ""}`} />;
+  return (
+    <div className={`bg-zinc-200 animate-pulse rounded ${className ?? ""}`} />
+  );
 }
 
-// ─── card grande (hero) ───────────────────────────────────
+// ─── ticker financeiro inline ─────────────────────────────
+const TICKERS = [
+  { label: "IBOV ▲ 128.420", change: "+1,22%", up: true },
+  { label: "DÓLAR ▼ R$5,42", change: "-0,32%", up: false },
+  { label: "NASDAQ ▲", change: "+0,88%", up: true },
+  { label: "BITCOIN ▲ US$108.220", change: "+2,10%", up: true },
+  { label: "PETR4 ▼", change: "-1,04%", up: false },
+  { label: "VALE3 ▲", change: "+2,18%", up: true },
+  { label: "ETHEREUM ▲ US$4.180", change: "+3,42%", up: true },
+  { label: "SELIC", change: "10,50% a.a.", up: true },
+  { label: "S&P 500 ▲", change: "+0,61%", up: true },
+  { label: "OURO ▲ US$2.380", change: "+0,44%", up: true },
+];
+
+function MarketTicker() {
+  return (
+    <div className="bg-white border border-zinc-200 overflow-hidden mb-8">
+      <div className="overflow-hidden whitespace-nowrap">
+        <div
+          className="flex gap-12 py-3 px-4 text-[12px] font-semibold"
+          style={{ animation: "marquee 28s linear infinite" }}
+        >
+          {[...TICKERS, ...TICKERS].map((item, i) => (
+            <span key={i} className="shrink-0">
+              <span className="text-zinc-500">{item.label} </span>
+              <span className={item.up ? "text-green-600" : "text-red-500"}>
+                {item.change}
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ─── card hero ────────────────────────────────────────────
 function HeroCard({ article }: { article: Article }) {
   return (
     <Link href={`/noticia/${article.slug}`} className="group block">
-      <div className="relative w-full h-[340px] md:h-[480px] overflow-hidden rounded-none">
+      <div className="relative w-full h-[340px] md:h-[480px] overflow-hidden">
         <Image
           src={article.image_url}
           alt={article.title}
@@ -66,7 +106,9 @@ function HeroCard({ article }: { article: Article }) {
             <Clock3 size={13} />
             <span>{timeAgo(article.created_at)}</span>
             <span className="text-zinc-600">·</span>
-            <span>{article.journalist_name || article.author || "Redação Monatiza"}</span>
+            <span>
+              {article.journalist_name || article.author || "Redação Monatiza"}
+            </span>
           </div>
         </div>
       </div>
@@ -74,7 +116,7 @@ function HeroCard({ article }: { article: Article }) {
   );
 }
 
-// ─── card secundário (lista lateral) ─────────────────────
+// ─── card lateral compacto ────────────────────────────────
 function SecondaryCard({ article }: { article: Article }) {
   return (
     <Link
@@ -105,7 +147,7 @@ function SecondaryCard({ article }: { article: Article }) {
   );
 }
 
-// ─── card de grid (meio da página) ───────────────────────
+// ─── card de grid ─────────────────────────────────────────
 function GridCard({ article }: { article: Article }) {
   return (
     <Link href={`/noticia/${article.slug}`} className="group block">
@@ -137,7 +179,7 @@ function GridCard({ article }: { article: Article }) {
   );
 }
 
-// ─── card horizontal (lista final) ───────────────────────
+// ─── card lista numerada ──────────────────────────────────
 function ListCard({ article, index }: { article: Article; index: number }) {
   return (
     <Link
@@ -172,43 +214,32 @@ function ListCard({ article, index }: { article: Article; index: number }) {
   );
 }
 
-// ─── feed de categoria (compartilhado por todas as páginas) ─
-export default function CategoryFeed({
-  slug,
+// ─── página principal ─────────────────────────────────────
+export default function MercadoClient({
   initialArticles,
 }: {
-  slug: string;
   initialArticles?: Article[];
 }) {
-  const cat = getFeedCategory(slug);
-  // Se o servidor já trouxe os dados (SSR), usamos direto — sem skeleton nem refetch.
   const provided = Array.isArray(initialArticles);
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!provided);
 
   useEffect(() => {
-    if (provided || !cat) return;
-    let active = true;
-    const filter = cat.filter;
-    (async () => {
+    if (provided) return;
+    async function load() {
       const { data } = await supabase
         .from("articles")
         .select("*")
         .eq("status", "publicado")
-        .ilike("category", filter)
+        .ilike("category", "%Mercado%")
         .order("created_at", { ascending: false })
         .limit(20);
-      if (active) {
-        setArticles(data || []);
-        setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [cat, provided]);
 
-  if (!cat) return null;
+      setArticles(data || []);
+      setLoading(false);
+    }
+    load();
+  }, [provided]);
 
   // ── LOADING ──
   if (loading) {
@@ -219,6 +250,7 @@ export default function CategoryFeed({
             <Skeleton className="w-6 h-6 rounded-full" />
             <Skeleton className="h-8 w-48" />
           </div>
+          <Skeleton className="w-full h-10 mb-8" />
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-8">
               <Skeleton className="w-full h-[340px] md:h-[480px]" />
@@ -246,9 +278,9 @@ export default function CategoryFeed({
     return (
       <div className="bg-[#f5f5f5] min-h-screen text-black">
         <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-20 text-center">
-          {createElement(iconFor(cat.icon), { size: 40, className: "mx-auto text-zinc-300 mb-4" })}
+          <TrendingUp size={40} className="mx-auto text-zinc-300 mb-4" />
           <h2 className="text-2xl font-bold text-zinc-400">
-            Nenhuma matéria {cat.emptyLabel} publicada ainda.
+            Nenhuma matéria de Mercado publicada ainda.
           </h2>
         </main>
       </div>
@@ -262,28 +294,29 @@ export default function CategoryFeed({
 
   return (
     <div className="bg-[#f5f5f5] min-h-screen text-black">
+
       <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-8 md:py-12">
 
         {/* ── CABEÇALHO DA CATEGORIA ── */}
         <div className="flex items-center gap-3 mb-7 md:mb-9">
-          {createElement(iconFor(cat.icon), { size: 22, className: "text-red-600", strokeWidth: 2.5 })}
+          <TrendingUp size={22} className="text-red-600" strokeWidth={2.5} />
           <h1 className="text-[26px] md:text-[32px] font-black tracking-tight text-black">
-            {cat.title}
+            Mercado
           </h1>
           <div className="flex-1 h-px bg-zinc-300 ml-2" />
         </div>
 
-        {/* ── ANÚNCIO: topo da categoria ── */}
-        <AdSlot placement="categoryTop" format="horizontal" minHeight={110} className="mb-8" />
+        {/* ── TICKER ── */}
+        <MarketTicker />
 
-        {/* ── BLOCO HERO + DESTAQUES ── */}
+        {/* ── HERO + LATERAL ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-6 mb-12">
           <div className="lg:col-span-8">
             <HeroCard article={hero} />
           </div>
           <div className="lg:col-span-4 bg-white border border-zinc-200 p-5 md:p-6 mt-4 lg:mt-0 space-y-5">
             <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-200 pb-3">
-              Mais lidas em {cat.label}
+              Mais lidas em Mercado
             </h2>
             {secondary.map((a) => (
               <SecondaryCard key={a.id} article={a} />
@@ -291,7 +324,7 @@ export default function CategoryFeed({
           </div>
         </div>
 
-        {/* ── SEPARADOR + GRID ── */}
+        {/* ── GRID ── */}
         {grid.length > 0 && (
           <>
             <div className="flex items-center gap-3 mb-7">
@@ -308,7 +341,7 @@ export default function CategoryFeed({
           </>
         )}
 
-        {/* ── BLOCO INFERIOR: LISTA + NEWSLETTER ── */}
+        {/* ── LISTA + SIDEBAR ── */}
         {list.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
             <div className="lg:col-span-8 space-y-6">
@@ -323,15 +356,18 @@ export default function CategoryFeed({
               ))}
             </div>
 
+            {/* sidebar */}
             <aside className="lg:col-span-4">
               <div className="bg-white border border-zinc-200 p-6 md:p-8 sticky top-36">
                 <span className="text-red-600 text-[10px] font-black uppercase tracking-widest block mb-3">
                   Newsletter
                 </span>
                 <h3 className="text-[22px] font-black text-black leading-tight">
-                  {cat.title} no seu e-mail toda semana
+                  Mercado no seu e-mail
                 </h3>
-                <p className="text-zinc-500 text-sm mt-3 leading-relaxed">{cat.blurb}</p>
+                <p className="text-zinc-500 text-sm mt-3 leading-relaxed">
+                  Bolsa, câmbio, fundos e economia global — análises toda manhã antes do pregão.
+                </p>
                 <input
                   type="email"
                   placeholder="Seu melhor e-mail"
@@ -341,12 +377,22 @@ export default function CategoryFeed({
                   Assinar
                 </button>
 
+                {/* tags */}
                 <div className="mt-7 pt-6 border-t border-zinc-200">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 block mb-3">
-                    Tópicos em {cat.label}
+                    Tópicos em Mercado
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {cat.tags.map((tag) => (
+                    {[
+                      "Bolsa",
+                      "Dólar",
+                      "Selic",
+                      "FII",
+                      "Ações",
+                      "Criptomoedas",
+                      "Economia",
+                      "Investimentos",
+                    ].map((tag) => (
                       <span
                         key={tag}
                         className="border border-zinc-300 text-zinc-600 text-[11px] font-semibold px-3 py-1 hover:border-black hover:text-black transition cursor-pointer"
@@ -360,6 +406,7 @@ export default function CategoryFeed({
             </aside>
           </div>
         )}
+
       </main>
 
       {/* ── RODAPÉ DA CATEGORIA ── */}
@@ -367,9 +414,9 @@ export default function CategoryFeed({
         <Link href="/" className="hover:text-black transition font-bold">
           monatiza
         </Link>
-        {" · "}
-        {cat.footer}
+        {" · "}Cobertura completa de Mercado Financeiro
       </div>
+
     </div>
   );
 }

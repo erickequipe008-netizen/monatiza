@@ -1,13 +1,10 @@
 "use client";
 
-import { createElement, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Clock3 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import { getFeedCategory } from "@/lib/categories";
-import { iconFor } from "@/components/iconMap";
-import { toISO } from "@/lib/seo";
+import { Clock3, ChevronRight, Cpu } from "lucide-react";
 import AdSlot from "@/components/ads/AdSlot";
 
 // ─── tipos ────────────────────────────────────────────────
@@ -25,7 +22,7 @@ interface Article {
 
 // ─── helpers ──────────────────────────────────────────────
 function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(toISO(dateStr)).getTime();
+  const diff = Date.now() - new Date(dateStr).getTime();
   const h = Math.floor(diff / 3_600_000);
   if (h < 1) return "Agora mesmo";
   if (h < 24) return `${h}h atrás`;
@@ -35,7 +32,11 @@ function timeAgo(dateStr: string) {
 
 // ─── skeleton ────────────────────────────────────────────
 function Skeleton({ className }: { className?: string }) {
-  return <div className={`bg-zinc-200 animate-pulse rounded ${className ?? ""}`} />;
+  return (
+    <div
+      className={`bg-zinc-200 animate-pulse rounded ${className ?? ""}`}
+    />
+  );
 }
 
 // ─── card grande (hero) ───────────────────────────────────
@@ -51,7 +52,9 @@ function HeroCard({ article }: { article: Article }) {
           unoptimized
           priority
         />
+        {/* gradiente editorial */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
           <span className="text-red-500 font-bold uppercase text-[11px] tracking-widest mb-3 block">
             {article.category}
@@ -75,7 +78,7 @@ function HeroCard({ article }: { article: Article }) {
 }
 
 // ─── card secundário (lista lateral) ─────────────────────
-function SecondaryCard({ article }: { article: Article }) {
+function SecondaryCard({ article, idx }: { article: Article; idx: number }) {
   return (
     <Link
       href={`/noticia/${article.slug}`}
@@ -144,6 +147,7 @@ function ListCard({ article, index }: { article: Article; index: number }) {
       href={`/noticia/${article.slug}`}
       className="group flex gap-5 border-b border-zinc-200 pb-6 last:border-0"
     >
+      {/* número editorial */}
       <span className="text-[28px] font-black text-zinc-200 leading-none w-8 shrink-0 select-none">
         {String(index + 1).padStart(2, "0")}
       </span>
@@ -172,49 +176,39 @@ function ListCard({ article, index }: { article: Article; index: number }) {
   );
 }
 
-// ─── feed de categoria (compartilhado por todas as páginas) ─
-export default function CategoryFeed({
-  slug,
+// ─── página principal ─────────────────────────────────────
+export default function IAClient({
   initialArticles,
 }: {
-  slug: string;
   initialArticles?: Article[];
 }) {
-  const cat = getFeedCategory(slug);
-  // Se o servidor já trouxe os dados (SSR), usamos direto — sem skeleton nem refetch.
   const provided = Array.isArray(initialArticles);
   const [articles, setArticles] = useState<Article[]>(initialArticles ?? []);
   const [loading, setLoading] = useState(!provided);
 
   useEffect(() => {
-    if (provided || !cat) return;
-    let active = true;
-    const filter = cat.filter;
-    (async () => {
+    if (provided) return;
+    async function load() {
       const { data } = await supabase
         .from("articles")
         .select("*")
         .eq("status", "publicado")
-        .ilike("category", filter)
+        .ilike("category", "%IA%")
         .order("created_at", { ascending: false })
         .limit(20);
-      if (active) {
-        setArticles(data || []);
-        setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [cat, provided]);
 
-  if (!cat) return null;
+      setArticles(data || []);
+      setLoading(false);
+    }
+    load();
+  }, [provided]);
 
   // ── LOADING ──
   if (loading) {
     return (
       <div className="bg-[#f5f5f5] min-h-screen text-black">
         <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-8 md:py-12">
+          {/* cabeçalho skeleton */}
           <div className="flex items-center gap-3 mb-6">
             <Skeleton className="w-6 h-6 rounded-full" />
             <Skeleton className="h-8 w-48" />
@@ -246,9 +240,9 @@ export default function CategoryFeed({
     return (
       <div className="bg-[#f5f5f5] min-h-screen text-black">
         <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-20 text-center">
-          {createElement(iconFor(cat.icon), { size: 40, className: "mx-auto text-zinc-300 mb-4" })}
+          <Cpu size={40} className="mx-auto text-zinc-300 mb-4" />
           <h2 className="text-2xl font-bold text-zinc-400">
-            Nenhuma matéria {cat.emptyLabel} publicada ainda.
+            Nenhuma matéria de IA publicada ainda.
           </h2>
         </main>
       </div>
@@ -262,36 +256,39 @@ export default function CategoryFeed({
 
   return (
     <div className="bg-[#f5f5f5] min-h-screen text-black">
+
       <main className="max-w-[1400px] mx-auto px-4 md:px-5 py-8 md:py-12">
 
         {/* ── CABEÇALHO DA CATEGORIA ── */}
         <div className="flex items-center gap-3 mb-7 md:mb-9">
-          {createElement(iconFor(cat.icon), { size: 22, className: "text-red-600", strokeWidth: 2.5 })}
+          <Cpu size={22} className="text-red-600" strokeWidth={2.5} />
           <h1 className="text-[26px] md:text-[32px] font-black tracking-tight text-black">
-            {cat.title}
+            Inteligência Artificial
           </h1>
           <div className="flex-1 h-px bg-zinc-300 ml-2" />
         </div>
 
-        {/* ── ANÚNCIO: topo da categoria ── */}
-        <AdSlot placement="categoryTop" format="horizontal" minHeight={110} className="mb-8" />
-
         {/* ── BLOCO HERO + DESTAQUES ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-6 mb-12">
+
+          {/* hero */}
           <div className="lg:col-span-8">
             <HeroCard article={hero} />
           </div>
+
+          {/* lista lateral */}
           <div className="lg:col-span-4 bg-white border border-zinc-200 p-5 md:p-6 mt-4 lg:mt-0 space-y-5">
             <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-200 pb-3">
-              Mais lidas em {cat.label}
+              Mais lidas em IA
             </h2>
-            {secondary.map((a) => (
-              <SecondaryCard key={a.id} article={a} />
+            {secondary.map((a, i) => (
+              <SecondaryCard key={a.id} article={a} idx={i} />
             ))}
           </div>
+
         </div>
 
-        {/* ── SEPARADOR + GRID ── */}
+        {/* ── SEPARADOR ── */}
         {grid.length > 0 && (
           <>
             <div className="flex items-center gap-3 mb-7">
@@ -300,6 +297,8 @@ export default function CategoryFeed({
               </span>
               <div className="flex-1 h-px bg-zinc-300" />
             </div>
+
+            {/* ── GRID 3 COLUNAS ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12">
               {grid.map((a) => (
                 <GridCard key={a.id} article={a} />
@@ -311,6 +310,8 @@ export default function CategoryFeed({
         {/* ── BLOCO INFERIOR: LISTA + NEWSLETTER ── */}
         {list.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
+
+            {/* lista numerada */}
             <div className="lg:col-span-8 space-y-6">
               <div className="flex items-center gap-3 mb-1">
                 <span className="text-[11px] font-black uppercase tracking-widest text-zinc-400">
@@ -323,15 +324,18 @@ export default function CategoryFeed({
               ))}
             </div>
 
+            {/* sidebar newsletter */}
             <aside className="lg:col-span-4">
               <div className="bg-white border border-zinc-200 p-6 md:p-8 sticky top-36">
                 <span className="text-red-600 text-[10px] font-black uppercase tracking-widest block mb-3">
                   Newsletter
                 </span>
                 <h3 className="text-[22px] font-black text-black leading-tight">
-                  {cat.title} no seu e-mail toda semana
+                  IA no seu e-mail toda semana
                 </h3>
-                <p className="text-zinc-500 text-sm mt-3 leading-relaxed">{cat.blurb}</p>
+                <p className="text-zinc-500 text-sm mt-3 leading-relaxed">
+                  OpenAI, Claude, Gemini, modelos abertos e tendências — direto na sua caixa.
+                </p>
                 <input
                   type="email"
                   placeholder="Seu melhor e-mail"
@@ -341,12 +345,13 @@ export default function CategoryFeed({
                   Assinar
                 </button>
 
+                {/* tags de interesse */}
                 <div className="mt-7 pt-6 border-t border-zinc-200">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 block mb-3">
-                    Tópicos em {cat.label}
+                    Tópicos em IA
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {cat.tags.map((tag) => (
+                    {["OpenAI", "Claude", "Gemini", "LLMs", "Machine Learning", "Agentes", "GPT", "IA Generativa"].map((tag) => (
                       <span
                         key={tag}
                         className="border border-zinc-300 text-zinc-600 text-[11px] font-semibold px-3 py-1 hover:border-black hover:text-black transition cursor-pointer"
@@ -358,8 +363,10 @@ export default function CategoryFeed({
                 </div>
               </div>
             </aside>
+
           </div>
         )}
+
       </main>
 
       {/* ── RODAPÉ DA CATEGORIA ── */}
@@ -367,9 +374,9 @@ export default function CategoryFeed({
         <Link href="/" className="hover:text-black transition font-bold">
           monatiza
         </Link>
-        {" · "}
-        {cat.footer}
+        {" · "}Cobertura completa de Inteligência Artificial
       </div>
+
     </div>
   );
 }

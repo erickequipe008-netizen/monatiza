@@ -1,47 +1,56 @@
+import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { SITE_URL, toISO } from "@/lib/seo";
 
-export default async function sitemap() {
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL;
+export const revalidate = 3600;
 
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Páginas fixas / editorias do portal.
+const STATIC_PATHS = [
+  "",
+  "/negocios",
+  "/ia",
+  "/mercado",
+  "/brasil",
+  "/politica",
+  "/tech",
+  "/empreende",
+  "/startups",
+  "/carreira",
+  "/saude",
+  "/revista",
+  "/about",
+  "/contact",
+];
 
-  if (!supabaseUrl || !supabaseKey) {
-    return [
-      {
-        url: "https://monatiza.com",
-        lastModified: new Date(),
-      },
-    ];
-  }
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const supabase = createClient(
-    supabaseUrl,
-    supabaseKey
-  );
+  const staticUrls: MetadataRoute.Sitemap = STATIC_PATHS.map((path) => ({
+    url: `${SITE_URL}${path}`,
+    lastModified: new Date(),
+    changeFrequency: path === "" ? "hourly" : "daily",
+    priority: path === "" ? 1 : 0.7,
+  }));
 
-  const { data: articles } =
-    await supabase
-      .from("articles")
-      .select("slug, created_at");
+  if (!supabaseUrl || !supabaseKey) return staticUrls;
 
-  const articleUrls =
-    articles?.map((article) => ({
-      url: `https://monatiza.com/noticia/${article.slug}`,
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  const { data: articles } = await supabase
+    .from("articles")
+    .select("slug, created_at")
+    .eq("status", "publicado")
+    .order("created_at", { ascending: false })
+    .limit(5000);
 
-      // CORREÇÃO
-      lastModified: article.created_at
-        ? new Date(article.created_at)
-        : new Date(),
-    })) || [];
+  const articleUrls: MetadataRoute.Sitemap = (articles || [])
+    .filter((a) => a.slug)
+    .map((article) => ({
+      url: `${SITE_URL}/noticia/${article.slug}`,
+      lastModified: new Date(toISO(article.created_at)),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
 
-  return [
-    {
-      url: "https://monatiza.com",
-      lastModified: new Date(),
-    },
-
-    ...articleUrls,
-  ];
+  return [...staticUrls, ...articleUrls];
 }
