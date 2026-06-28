@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 import MercadoClient from "./MercadoClient";
 import { SITE_URL } from "@/lib/seo";
 
@@ -18,7 +19,7 @@ async function getArticles() {
   const supabase = createClient(url, key);
   const { data } = await supabase
     .from("articles")
-    .select("*")
+    .select(ARTICLE_LIST_COLUMNS)
     .eq("status", "publicado")
     .ilike("category", "%Mercado%")
     .order("created_at", { ascending: false })

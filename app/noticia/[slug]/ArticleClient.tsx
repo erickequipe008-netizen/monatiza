@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Clock3, ArrowLeft, Share2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Clock3, ArrowLeft, Share2, Crown } from "lucide-react";
 import AdSlot from "@/components/ads/AdSlot";
+import Paywall from "@/components/premium/Paywall";
+import { supabase } from "@/lib/supabase/client";
+import { useSubscriber } from "@/components/premium/SubscriberProvider";
 import { toISO } from "@/lib/seo";
 
 function timeAgo(dateStr?: string) {
@@ -25,10 +29,39 @@ type Article = Record<string, any>;
 export default function ArticleClient({
   article,
   related,
+  body: initialBody = null,
+  locked: initialLocked = false,
 }: {
   article: Article;
   related: Article[];
+  body?: string | null;
+  locked?: boolean;
 }) {
+  const { isSubscriber } = useSubscriber();
+  const [body, setBody] = useState<string | null>(initialBody);
+  const [locked, setLocked] = useState<boolean>(initialLocked);
+
+  // Matéria premium veio travada do servidor (SSR anônimo). No cliente,
+  // se houver sessão de assinante ativo / staff, busca o corpo via RPC e destrava.
+  useEffect(() => {
+    if (!initialLocked) return;
+    let active = true;
+    (async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return; // visitante: segue travado, mostrando o paywall
+      const { data } = await supabase.rpc("get_article_body", { p_slug: article.slug });
+      if (active && data) {
+        setBody(data as string);
+        setLocked(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [initialLocked, article.slug]);
+
   const handleShare = () => {
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator.share({ title: article.title, url: window.location.href });
@@ -37,8 +70,7 @@ export default function ArticleClient({
     }
   };
 
-  // Quebra o body em parágrafos pelo \n ou detecta HTML
-  const bodyContent = article.body || article.content || "";
+  const bodyContent = body || "";
   const isHtml = /<[a-z][\s\S]*>/i.test(bodyContent);
 
   // assinatura: prefere o nome de jornalismo; ignora e-mails (matérias antigas)
@@ -76,11 +108,16 @@ export default function ArticleClient({
         {/* ── COLUNA ARTIGO ── */}
         <article>
 
-          {/* Categoria */}
+          {/* Categoria + selo Premium */}
           <div className="flex items-center gap-3 mb-4">
             <span className="text-red-600 text-[11px] font-black uppercase tracking-widest">
               {article.category}
             </span>
+            {article.is_premium && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#0b0b0c] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-white">
+                <Crown size={11} className="text-[#E0263B]" /> Premium
+              </span>
+            )}
           </div>
 
           {/* Título */}
@@ -147,35 +184,42 @@ export default function ArticleClient({
           {/* ── ANÚNCIO: dentro da matéria, após a introdução ── */}
           <AdSlot placement="articleInline" format="auto" minHeight={120} className="my-8" />
 
-          {/* Corpo do artigo */}
-          <div className="article-body">
-            {isHtml ? (
-              <div dangerouslySetInnerHTML={{ __html: bodyContent }} />
-            ) : (
-              bodyContent
-                .split(/\n\n+/)
-                .filter(Boolean)
-                .map((para: string, i: number) => <p key={i}>{para.trim()}</p>)
-            )}
-          </div>
+          {locked ? (
+            /* Conteúdo premium bloqueado para o visitante */
+            <Paywall />
+          ) : (
+            <>
+              {/* Corpo do artigo */}
+              <div className="article-body">
+                {isHtml ? (
+                  <div dangerouslySetInnerHTML={{ __html: bodyContent }} />
+                ) : (
+                  bodyContent
+                    .split(/\n\n+/)
+                    .filter(Boolean)
+                    .map((para: string, i: number) => <p key={i}>{para.trim()}</p>)
+                )}
+              </div>
 
-          {/* ── ANÚNCIO: fim da matéria ── */}
-          <AdSlot placement="articleBottom" format="auto" minHeight={280} className="mt-10" />
+              {/* ── ANÚNCIO: fim da matéria ── */}
+              <AdSlot placement="articleBottom" format="auto" minHeight={280} className="mt-10" />
 
-          {/* Tags */}
-          {article.tags && article.tags.length > 0 && (
-            <div className="mt-10 pt-6 border-t border-zinc-100 flex flex-wrap gap-2">
-              {(Array.isArray(article.tags) ? article.tags : article.tags.split(",")).map(
-                (tag: string) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider bg-zinc-100 text-zinc-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
-                  >
-                    {tag.trim()}
-                  </span>
-                )
+              {/* Tags */}
+              {article.tags && article.tags.length > 0 && (
+                <div className="mt-10 pt-6 border-t border-zinc-100 flex flex-wrap gap-2">
+                  {(Array.isArray(article.tags) ? article.tags : article.tags.split(",")).map(
+                    (tag: string) => (
+                      <span
+                        key={tag}
+                        className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider bg-zinc-100 text-zinc-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                      >
+                        {tag.trim()}
+                      </span>
+                    )
+                  )}
+                </div>
               )}
-            </div>
+            </>
           )}
 
           {/* Compartilhar rodapé */}
@@ -267,8 +311,9 @@ export default function ArticleClient({
                         />
                       </div>
                     )}
-                    <span className="text-red-600 text-[10px] font-black uppercase tracking-widest mt-1">
+                    <span className="text-red-600 text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
                       {item.category}
+                      {item.is_premium && <Crown size={10} className="text-[#0b0b0c]" />}
                     </span>
                     <h3 className="text-[14px] leading-[1.35] font-bold text-zinc-900 group-hover:text-red-600 transition-colors">
                       {item.title}

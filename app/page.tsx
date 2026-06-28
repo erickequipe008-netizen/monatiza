@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import HomeClient from "@/components/home/HomeClient";
 import { SITE_URL, SITE_NAME, SITE_LOGO } from "@/lib/seo";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
 // ISR: home gerada no servidor e revalidada a cada 5 min (rápida + indexável).
 export const revalidate = 300;
@@ -12,7 +13,7 @@ async function getArticles() {
   const supabase = createClient(url, key);
   const { data } = await supabase
     .from("articles")
-    .select("*")
+    .select(ARTICLE_LIST_COLUMNS)
     .eq("status", "publicado")
     .order("created_at", { ascending: false })
     .limit(40);

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase/client";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 import { Clock3, Briefcase } from "lucide-react";
 
 // ─── tipos ────────────────────────────────────────────────
@@ -213,7 +214,7 @@ export default function NegociosClient({
     async function load() {
       const { data } = await supabase
         .from("articles")
-        .select("*")
+        .select(ARTICLE_LIST_COLUMNS)
         .eq("status", "publicado")
         .ilike("category", "%Negócios%")
         .order("created_at", { ascending: false })

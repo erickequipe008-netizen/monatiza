@@ -9,6 +9,7 @@ import { getFeedCategory } from "@/lib/categories";
 import { iconFor } from "@/components/iconMap";
 import { toISO } from "@/lib/seo";
 import AdSlot from "@/components/ads/AdSlot";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
 // ─── tipos ────────────────────────────────────────────────
 interface Article {
@@ -193,7 +194,7 @@ export default function CategoryFeed({
     (async () => {
       const { data } = await supabase
         .from("articles")
-        .select("*")
+        .select(ARTICLE_LIST_COLUMNS)
         .eq("status", "publicado")
         .ilike("category", filter)
         .order("created_at", { ascending: false })

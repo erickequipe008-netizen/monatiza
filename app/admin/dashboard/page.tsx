@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FileText, Eye, Users, Plus, ExternalLink, TrendingUp } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 import PageHeader from "@/components/layout/PageHeader";
 import StatCard from "@/components/dashboard/StatCard";
 
@@ -24,7 +25,7 @@ export default function DashboardPage() {
 
     const { data } = await supabase
       .from("articles")
-      .select("*")
+      .select(ARTICLE_LIST_COLUMNS)
       .order("created_at", { ascending: false });
 
     if (data) {

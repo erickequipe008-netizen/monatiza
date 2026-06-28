@@ -339,6 +339,7 @@ export default function NewArticlePage() {
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Negócios");
+  const [isPremium, setIsPremium] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -395,6 +396,7 @@ export default function NewArticlePage() {
       author: journalistName,
       journalist_name: journalistName,
       author_id: user.id,
+      is_premium: isPremium,
     }]);
     if (error) { alert(error.message); setLoading(false); return; }
     alert("Matéria publicada com sucesso!");
@@ -459,6 +461,15 @@ export default function NewArticlePage() {
                 <ImageDropZone imageFile={imageFile} imagePreview={imagePreview} onFileChange={handleImageChange} onClear={() => { setImageFile(null); setImagePreview(null); }} />
               </div>
             </div>
+
+            {/* Acesso: matéria premium (somente assinantes) */}
+            <label style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 20px", borderTop:"1.5px solid #e5e5e5", cursor:"pointer" }}>
+              <input type="checkbox" checked={isPremium} onChange={e => setIsPremium(e.target.checked)} style={{ width:18, height:18, accentColor:"#E0263B" }} />
+              <span style={{ display:"flex", flexDirection:"column" }}>
+                <span style={{ fontSize:13, fontWeight:700, color:"#0b0b0c" }}>Matéria premium (somente assinantes)</span>
+                <span style={{ fontSize:12, color:"#888" }}>Visitantes veem só a prévia + convite para assinar. Assinantes leem completa e sem anúncios.</span>
+              </span>
+            </label>
           </div>
 
           {/* ── Card: Conteúdo ── */}

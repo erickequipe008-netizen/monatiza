@@ -8,14 +8,19 @@ import { Menu, Search, Moon, Sun, X, ChevronRight } from "lucide-react";
 
 import { NAV_ITEMS } from "@/lib/categories";
 import { iconFor } from "@/components/iconMap";
+import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
 export default function Header() {
   const pathname = usePathname();
+  const { isSubscriber } = useSubscriber();
 
   const [darkMode, setDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const accountHref = isSubscriber ? "/app" : "/assinantes";
+  const accountLabel = isSubscriber ? "Minha conta" : "Assinar";
 
   return (
     <>
@@ -66,12 +71,12 @@ export default function Header() {
               {darkMode ? <Sun size={22} /> : <Moon size={22} />}
             </button>
 
-            <button
-              onClick={() => setLoginOpen(true)}
+            <Link
+              href={accountHref}
               className="border border-white px-5 py-3 text-[14px] font-semibold hover:bg-white hover:text-black transition"
             >
-              Assinar
-            </button>
+              {accountLabel}
+            </Link>
           </div>
         </div>
 
@@ -155,15 +160,13 @@ export default function Header() {
                 {darkMode ? <Sun size={18} /> : <Moon size={18} />}
                 Alterar tema
               </button>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  setLoginOpen(true);
-                }}
-                className="w-full bg-red-600 py-3.5 text-sm font-bold hover:bg-red-700 transition"
+              <Link
+                href={accountHref}
+                onClick={() => setMenuOpen(false)}
+                className="block w-full bg-red-600 py-3.5 text-center text-sm font-bold hover:bg-red-700 transition"
               >
-                Assinar
-              </button>
+                {accountLabel}
+              </Link>
             </div>
           </div>
         </div>
@@ -171,42 +174,36 @@ export default function Header() {
 
       {/* BUSCA */}
       {searchOpen && (
-        <div className="fixed inset-0 z-[999] bg-black/80 flex items-start justify-center pt-32 px-5">
-          <div className="w-full max-w-[700px]">
+        <div
+          className="fixed inset-0 z-[999] bg-black/80 flex items-start justify-center pt-32 px-5"
+          onClick={() => setSearchOpen(false)}
+        >
+          <form
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={(e) => {
+              e.preventDefault();
+              const q = searchQuery.trim();
+              if (q) window.location.href = `/busca?q=${encodeURIComponent(q)}`;
+            }}
+            className="w-full max-w-[700px]"
+          >
             <div className="flex gap-0">
               <input
                 type="text"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Pesquisar..."
                 className="flex-1 h-[60px] px-5 bg-[#111] border border-zinc-700 text-white outline-none"
               />
-              <button className="bg-red-600 px-8 text-white font-bold">Buscar</button>
-            </div>
-            <button onClick={() => setSearchOpen(false)} className="mt-5 text-zinc-400">
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* LOGIN */}
-      {loginOpen && (
-        <div className="fixed inset-0 z-[999] bg-black/70 flex items-center justify-center p-5">
-          <div className="w-full max-w-[420px] bg-white text-black p-8 rounded-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold">Assinar</h2>
-              <button onClick={() => setLoginOpen(false)}>
-                <X size={24} />
+              <button type="submit" className="bg-red-600 px-8 text-white font-bold">
+                Buscar
               </button>
             </div>
-
-            <input
-              type="email"
-              placeholder="Seu e-mail"
-              className="w-full border border-zinc-300 px-4 py-4 rounded-xl mb-4"
-            />
-
-            <button className="w-full bg-black text-white py-4 rounded-xl font-bold">Continuar</button>
-          </div>
+            <button type="button" onClick={() => setSearchOpen(false)} className="mt-5 text-zinc-400">
+              Fechar
+            </button>
+          </form>
         </div>
       )}
     </>

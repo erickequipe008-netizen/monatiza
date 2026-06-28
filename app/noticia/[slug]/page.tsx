@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ArticleClient from "./ArticleClient";
 import { SITE_URL, newsArticleJsonLd, plainText, toISO } from "@/lib/seo";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
 // ISR: a página é gerada no servidor e revalidada a cada 5 min.
 export const revalidate = 300;
@@ -20,18 +21,27 @@ async function getArticle(slug: string) {
   const supabase = getSupabase();
   const { data } = await supabase
     .from("articles")
-    .select("*")
+    .select(ARTICLE_LIST_COLUMNS)
     .eq("slug", slug)
     .eq("status", "publicado")
     .single();
   return data;
 }
 
+// Corpo da matéria com paywall aplicado no servidor.
+// Anônimo: recebe o corpo das matérias grátis; nas premium recebe null
+// (→ a página mostra a prévia + paywall). Assinante/staff destravam.
+async function getArticleBody(slug: string): Promise<string | null> {
+  const supabase = getSupabase();
+  const { data } = await supabase.rpc("get_article_body", { p_slug: slug });
+  return (data as string | null) ?? null;
+}
+
 async function getRelated(category: string, slug: string) {
   const supabase = getSupabase();
   const { data } = await supabase
     .from("articles")
-    .select("id, title, slug, category, image_url, created_at, excerpt")
+    .select("id, title, slug, category, image_url, created_at, excerpt, is_premium")
     .eq("category", category)
     .eq("status", "publicado")
     .neq("slug", slug)
@@ -55,7 +65,7 @@ export async function generateMetadata({
   const desc =
     plainText(article.description) ||
     plainText(article.excerpt) ||
-    plainText(article.content, 160);
+    "";
   const image = article.image_url || article.image || `${SITE_URL}/opengraph-image`;
   const url = `${SITE_URL}/noticia/${article.slug}`;
 
@@ -101,8 +111,28 @@ export default async function Page({
 
   if (!article) notFound();
 
-  const related = await getRelated(article.category, slug);
-  const jsonLd = newsArticleJsonLd(article);
+  const [related, body] = await Promise.all([
+    getRelated(article.category, slug),
+    getArticleBody(slug),
+  ]);
+
+  // Premium + sem corpo (visitante anônimo no SSR) → mostra prévia + paywall.
+  const locked = !!article.is_premium && !body;
+
+  // Para o Google: matéria premium é marcada como conteúdo de assinante.
+  const jsonLd = {
+    ...newsArticleJsonLd(article),
+    ...(article.is_premium
+      ? {
+          isAccessibleForFree: false,
+          hasPart: {
+            "@type": "WebPageElement",
+            isAccessibleForFree: false,
+            cssSelector: ".article-body",
+          },
+        }
+      : {}),
+  };
 
   return (
     <>
@@ -110,7 +140,7 @@ export default async function Page({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ArticleClient article={article} related={related} />
+      <ArticleClient article={article} related={related} body={body} locked={locked} />
     </>
   );
 }

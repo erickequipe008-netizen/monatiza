@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase/client";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 import { Clock3, ChevronRight, Cpu } from "lucide-react";
 import AdSlot from "@/components/ads/AdSlot";
 
@@ -191,7 +192,7 @@ export default function IAClient({
     async function load() {
       const { data } = await supabase
         .from("articles")
-        .select("*")
+        .select(ARTICLE_LIST_COLUMNS)
         .eq("status", "publicado")
         .ilike("category", "%IA%")
         .order("created_at", { ascending: false })

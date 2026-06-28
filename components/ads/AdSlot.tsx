@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { ADSENSE_CLIENT, AD_SLOTS, type AdPlacement } from "@/lib/ads";
+import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
 type AdSlotProps = {
   /** Posição definida em lib/ads.ts */
@@ -37,9 +38,10 @@ export default function AdSlot({
 }: AdSlotProps) {
   const slot = AD_SLOTS[placement];
   const pushed = useRef(false);
+  const { isSubscriber } = useSubscriber();
 
   useEffect(() => {
-    if (!slot || pushed.current) return;
+    if (!slot || pushed.current || isSubscriber) return;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
       pushed.current = true;
@@ -47,6 +49,9 @@ export default function AdSlot({
       /* AdSense ainda carregando — ignora silenciosamente */
     }
   }, [slot]);
+
+  // Assinante ativo não vê anúncios (nem o espaço reservado).
+  if (isSubscriber) return null;
 
   // Sem slot configurado: a caixa fica ATIVA (espaço reservado no layout),
   // pronta para receber o anúncio assim que o slot for preenchido em lib/ads.ts.

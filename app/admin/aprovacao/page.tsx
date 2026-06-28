@@ -14,7 +14,7 @@ interface Article {
   author: string;
   journalist_name: string;
   description: string;
-  content: string;
+  content?: string;
   created_at: string;
 }
 
@@ -23,11 +23,23 @@ export default function AprovacaoPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [open, setOpen] = useState<Article | null>(null);
   const [acting, setActing] = useState<number | null>(null);
+  const [openBody, setOpenBody] = useState("");
+  const [openLoading, setOpenLoading] = useState(false);
+
+  // Carrega o corpo só na hora de visualizar, via função protegida (staff).
+  async function openArticle(a: Article) {
+    setOpen(a);
+    setOpenBody("");
+    setOpenLoading(true);
+    const { data } = await supabase.rpc("get_article_body", { p_slug: a.slug });
+    setOpenBody((data as string) || "");
+    setOpenLoading(false);
+  }
 
   async function load() {
     const { data } = await supabase
       .from("articles")
-      .select("id, title, slug, category, author, journalist_name, description, content, created_at")
+      .select("id, title, slug, category, author, journalist_name, description, created_at")
       .eq("status", "em_analise")
       .order("created_at", { ascending: true });
     setArticles((data as Article[]) || []);
@@ -79,7 +91,7 @@ export default function AprovacaoPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mt-4">
                   <button
-                    onClick={() => setOpen(a)}
+                    onClick={() => openArticle(a)}
                     className="flex items-center gap-1.5 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[13px] font-semibold hover:border-gray-400 transition"
                   >
                     <Eye size={14} /> Ver conteúdo
@@ -129,7 +141,7 @@ export default function AprovacaoPage() {
             </div>
             {open.description && <p className="text-gray-600 italic border-l-2 border-[#E0263B] pl-3 mb-4">{open.description}</p>}
             <div className="text-[15px] leading-relaxed text-gray-800 whitespace-pre-wrap max-h-[50vh] overflow-y-auto">
-              {open.content}
+              {openLoading ? "Carregando…" : openBody}
             </div>
             <div className="flex items-center gap-2 mt-6 pt-4 border-t border-gray-100">
               <button

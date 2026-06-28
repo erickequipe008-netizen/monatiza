@@ -26,7 +26,10 @@ export default function PainelLoginPage() {
       setLoading(false);
       return;
     }
-    router.push("/painel");
+    // Respeita ?next= (ex.: vindo do /app); senão vai para /painel, que
+    // encaminha assinantes ativos direto para o ambiente premium (/app).
+    const next = new URLSearchParams(window.location.search).get("next");
+    router.push(next || "/painel");
   }
 
   return (

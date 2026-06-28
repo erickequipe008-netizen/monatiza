@@ -29,6 +29,7 @@ export default function NovaPublicacao() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Negócios");
+  const [isPremium, setIsPremium] = useState(false);
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -93,7 +94,7 @@ export default function NovaPublicacao() {
     const res = await fetch("/api/journalist/articles", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ title, description, content, category, image_url: imageUrl }),
+      body: JSON.stringify({ title, description, content, category, image_url: imageUrl, is_premium: isPremium }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -163,6 +164,21 @@ export default function NovaPublicacao() {
             ))}
           </select>
         </div>
+
+        <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPremium}
+            onChange={(e) => setIsPremium(e.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-[#E0263B]"
+          />
+          <span>
+            <span className="block text-[13px] font-bold text-[#0b0b0c]">Matéria premium (somente assinantes)</span>
+            <span className="block text-[12px] text-gray-500">
+              Visitantes veem só a prévia + convite para assinar; assinantes leem completa e sem anúncios.
+            </span>
+          </span>
+        </label>
 
         <div>
           <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Imagem de destaque</label>

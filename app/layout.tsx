@@ -1,6 +1,8 @@
 import "./globals.css";
 import Script from "next/script";
 import SiteFrame from "@/components/SiteFrame";
+import SubscriberProvider from "@/components/premium/SubscriberProvider";
+import AdScripts from "@/components/ads/AdScripts";
 
 export const metadata = {
   metadataBase: new URL("https://www.monatiza.com"),
@@ -63,17 +65,14 @@ export default function RootLayout({
           src="https://cdn-cookieyes.com/client_data/e1fd1ac7ad976fb79e788aa18623b15c/script.js"
           strategy="beforeInteractive"
         />
-        <Script
-          id="adsense-script"
-          async
-          strategy="afterInteractive"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2575495674688917"
-          crossOrigin="anonymous"
-        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <SiteFrame>{children}</SiteFrame>
+        {/* O AdSense (script + anúncios) só carrega para quem NÃO é assinante. */}
+        <SubscriberProvider>
+          <AdScripts />
+          <SiteFrame>{children}</SiteFrame>
+        </SubscriberProvider>
       </body>
     </html>
   );

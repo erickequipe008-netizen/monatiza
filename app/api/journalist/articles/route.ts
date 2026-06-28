@@ -18,8 +18,15 @@ function slugify(t: string) {
 // Envio de artigo BrandVoice pelo jornalista: consome 1 crédito e entra "em_analise".
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as Record<string, string | undefined>;
-    const { title, description, content, category, image_url } = body;
+    const body = (await req.json()) as Record<string, string | boolean | undefined>;
+    const { title, description, content, category, image_url, is_premium } = body as {
+      title?: string;
+      description?: string;
+      content?: string;
+      category?: string;
+      image_url?: string;
+      is_premium?: boolean;
+    };
 
     if (!title?.trim() || !content?.trim()) {
       return NextResponse.json({ error: "Título e conteúdo são obrigatórios." }, { status: 400 });
@@ -58,6 +65,7 @@ export async function POST(req: Request) {
       author_id: user.id,
       status: "em_analise",
       credit_used: true,
+      is_premium: is_premium === true,
     });
 
     if (insErr) {

@@ -9,6 +9,8 @@ function isInternal(pathname: string): boolean {
   return (
     pathname.startsWith("/admin") ||
     pathname.startsWith("/dashboard") ||
+    pathname === "/app" ||
+    pathname.startsWith("/app/") ||
     pathname === "/login" ||
     pathname.startsWith("/login/") ||
     pathname === "/register" ||

@@ -39,7 +39,13 @@ export default function PainelPage() {
   const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    let tries = 0;
+    const justPaid =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("sucesso") === "1";
+
+    async function check() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -54,6 +60,14 @@ export default function PainelPage() {
         .select("status, plan, current_period_end, name")
         .eq("id", session.user.id)
         .maybeSingle();
+      if (cancelled) return;
+
+      // Assinante ativo entra direto no ambiente premium.
+      if ((subData as Subscriber | null)?.status === "active") {
+        router.replace("/app");
+        return;
+      }
+
       setSub(subData as Subscriber | null);
 
       const { data: arts } = await supabase
@@ -61,10 +75,21 @@ export default function PainelPage() {
         .select("id, slug, title, image_url, category, created_at")
         .order("created_at", { ascending: false })
         .limit(6);
+      if (cancelled) return;
       setArticles((arts as Article[]) || []);
-
       setChecking(false);
-    })();
+
+      // Acabou de pagar mas o webhook do Stripe ainda não confirmou → re-tenta.
+      if (justPaid && tries < 8) {
+        tries++;
+        setTimeout(check, 3000);
+      }
+    }
+
+    check();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   async function openPortal() {

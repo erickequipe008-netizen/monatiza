@@ -14,6 +14,7 @@ import { NewsletterBanner } from "@/components/home/NewsletterBanner";
 import { InstitutionalStrip } from "@/components/home/InstitutionalStrip";
 import { Skeleton } from "@/components/ui/Skeleton";
 import AdSlot from "@/components/ads/AdSlot";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
 export default function HomeClient({
   initialArticles = [],
@@ -34,7 +35,7 @@ export default function HomeClient({
     async function loadArticles() {
       const { data } = await supabase
         .from("articles")
-        .select("*")
+        .select(ARTICLE_LIST_COLUMNS)
         .eq("status", "publicado")
         .order("created_at", { ascending: false });
       if (data) setArticles(data);

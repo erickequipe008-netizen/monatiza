@@ -8,6 +8,7 @@ import { Plus, Search, Filter, MoreHorizontal, FileText } from "lucide-react";
 
 import PageHeader   from "@/components/layout/PageHeader";
 import { supabase } from "@/lib/supabase/client";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
 const CATEGORIES = ["Todos", "Negócios", "Tecnologia", "IA", "Mercado", "Brasil", "Política", "Saúde", "Empreende", "Startups", "Carreira", "Revista"];
 
@@ -30,7 +31,7 @@ export default function ArticlesPage() {
   async function load() {
     const { data } = await supabase
       .from("articles")
-      .select("*")
+      .select(ARTICLE_LIST_COLUMNS)
       .order("created_at", { ascending: false });
 
     setArticles(data || []);
