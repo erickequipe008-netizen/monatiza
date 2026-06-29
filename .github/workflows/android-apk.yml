@@ -40,6 +40,14 @@ jobs:
           cp ../pubspec.bak pubspec.yaml
           rm -rf lib && cp -r ../lib.bak lib
 
+      # IMPORTANTE: o APK release precisa da permissão de Internet no manifesto principal
+      - name: Garantir permissão de Internet
+        run: |
+          MAN="android/app/src/main/AndroidManifest.xml"
+          grep -q 'android.permission.INTERNET' "$MAN" || \
+            sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <application|' "$MAN"
+          echo "----- AndroidManifest -----"; cat "$MAN"
+
       - run: flutter pub get
       - run: flutter build apk --release
 

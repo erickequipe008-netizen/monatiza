@@ -23,9 +23,19 @@ class _LoginScreenState extends State<LoginScreen> {
       await Supabase.instance.client.auth
           .signInWithPassword(email: _email.text.trim(), password: _password.text);
     } on AuthException catch (e) {
-      setState(() => _error = e.message);
-    } catch (_) {
-      setState(() => _error = 'Não foi possível entrar.');
+      final m = e.message;
+      final network = m.contains('SocketException') ||
+          m.contains('Failed host lookup') ||
+          m.contains('Failed to fetch');
+      setState(() => _error = network
+          ? 'Sem conexão com a internet. Verifique sua rede e tente novamente.'
+          : m);
+    } catch (e) {
+      final s = e.toString();
+      final network = s.contains('SocketException') || s.contains('Failed host lookup');
+      setState(() => _error = network
+          ? 'Sem conexão com a internet. Verifique sua rede.'
+          : 'Não foi possível entrar.');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
