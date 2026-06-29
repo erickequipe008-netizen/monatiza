@@ -68,7 +68,7 @@ export default function PostComposer({
   }
 
   return (
-    <div className="flex gap-3 border-b border-zinc-200 px-1 py-4">
+    <div className="flex gap-3 border-b border-white/10 px-1 py-4">
       <Avatar name={myProfile?.display_name} url={myProfile?.avatar_url} />
       <div className="flex-1">
         <textarea
@@ -76,13 +76,13 @@ export default function PostComposer({
           onChange={(e) => setText(e.target.value.slice(0, MAX))}
           placeholder={placeholder}
           rows={parentId ? 2 : 3}
-          className="w-full resize-none border-0 bg-transparent text-[16px] leading-relaxed outline-none placeholder:text-zinc-400"
+          className="w-full resize-none border-0 bg-transparent text-[16px] leading-relaxed text-zinc-100 outline-none placeholder:text-zinc-500"
         />
 
         {preview && (
           <div className="relative mt-1 w-fit">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="prévia" className="max-h-72 rounded-xl border border-zinc-200" />
+            <img src={preview} alt="prévia" className="max-h-72 rounded-xl border border-white/10" />
             <button
               onClick={clearImage}
               className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-black"

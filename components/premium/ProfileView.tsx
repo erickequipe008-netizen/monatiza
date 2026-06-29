@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Pencil, X, ImagePlus, Loader2, CreditCard, Camera } from "lucide-react";
+import { Pencil, X, Loader2, CreditCard, Camera } from "lucide-react";
 import {
   getMyProfile,
   updateProfile,
@@ -25,7 +25,7 @@ import { useSubscriber } from "@/components/premium/SubscriberProvider";
 type Tab = "posts" | "followers" | "following";
 
 const inputCls =
-  "w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-[#1f1f24] outline-none transition focus:border-[#9B72CB] focus:bg-white";
+  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-[#9B72CB]";
 
 export default function ProfileView({
   profile: initial,
@@ -44,13 +44,7 @@ export default function ProfileView({
   const [loadingTab, setLoadingTab] = useState(true);
   const [editing, setEditing] = useState(false);
 
-  const [form, setForm] = useState({
-    display_name: "",
-    handle: "",
-    bio: "",
-    avatar_url: "",
-    cover_url: "",
-  });
+  const [form, setForm] = useState({ display_name: "", handle: "", bio: "", avatar_url: "", cover_url: "" });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
   const [upAvatar, setUpAvatar] = useState(false);
@@ -145,72 +139,50 @@ export default function ProfileView({
 
   const TABS: { key: Tab; label: string }[] = [
     { key: "posts", label: "Publicações" },
-    { key: "followers", label: `Seguidores` },
-    { key: "following", label: `Seguindo` },
+    { key: "followers", label: "Seguidores" },
+    { key: "following", label: "Seguindo" },
   ];
 
   return (
-    <div className="mx-auto max-w-[640px] pro-pop">
+    <div className="pro-pop mx-auto max-w-[640px]">
       {/* Capa */}
-      <div className="relative h-36 w-full overflow-hidden rounded-3xl sm:h-48">
+      <div className="relative h-36 w-full overflow-hidden rounded-3xl ring-1 ring-white/10 sm:h-48">
         {coverShown ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverShown} alt="" className="h-full w-full object-cover" />
         ) : (
-          <div className="pro-gradient h-full w-full opacity-90" />
+          <div className="pro-gradient h-full w-full opacity-80" />
         )}
         {editing && (
           <button
             onClick={() => coverRef.current?.click()}
-            className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-[12px] font-semibold text-white backdrop-blur hover:bg-black/70"
+            className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[12px] font-semibold text-white backdrop-blur hover:bg-black/80"
           >
             {upCover ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />} Capa
           </button>
         )}
-        <input
-          ref={coverRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) pickCover(f);
-          }}
-        />
+        <input ref={coverRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) pickCover(f); }} />
       </div>
 
       {/* Avatar + ações */}
       <div className="flex items-end justify-between px-1">
         <div className="relative -mt-10 ml-1">
-          <span className="block rounded-full bg-[#f6f7f9] p-1">
+          <span className="block rounded-full bg-[#0a0a0c] p-1">
             <Avatar name={form.display_name || name} url={avatarShown} size={84} />
           </span>
           {editing && (
-            <button
-              onClick={() => avatarRef.current?.click()}
-              className="absolute bottom-1 right-1 rounded-full bg-[#1f1f24] p-1.5 text-white shadow"
-              aria-label="Trocar foto"
-            >
+            <button onClick={() => avatarRef.current?.click()} className="absolute bottom-1 right-1 rounded-full bg-white/15 p-1.5 text-white shadow backdrop-blur" aria-label="Trocar foto">
               {upAvatar ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />}
             </button>
           )}
-          <input
-            ref={avatarRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) pickAvatar(f);
-            }}
-          />
+          <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) pickAvatar(f); }} />
         </div>
 
         <div className="mb-1 flex items-center gap-2">
           {isMe ? (
             <button
               onClick={() => setEditing((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-zinc-300 px-4 py-2 text-[13px] font-bold text-zinc-700 transition hover:border-zinc-500"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-2 text-[13px] font-bold text-zinc-200 transition hover:border-white/30"
             >
               {editing ? <X size={14} /> : <Pencil size={14} />}
               {editing ? "Cancelar" : "Editar perfil"}
@@ -220,7 +192,7 @@ export default function ProfileView({
               onClick={toggleFollow}
               className={`rounded-full px-5 py-2 text-[13px] font-bold transition ${
                 following
-                  ? "border border-zinc-300 text-zinc-700 hover:border-[#E0263B] hover:text-[#E0263B]"
+                  ? "border border-white/15 text-zinc-200 hover:border-[#E0263B] hover:text-[#E0263B]"
                   : "pro-gradient text-white hover:opacity-90"
               }`}
             >
@@ -232,21 +204,19 @@ export default function ProfileView({
 
       {/* Identidade */}
       <div className="mt-2 px-1">
-        <h1 className="text-[22px] font-extrabold leading-tight tracking-tight">{name}</h1>
-        <p className="text-[14px] text-zinc-400">@{profile.handle}</p>
-        {profile.bio && !editing && (
-          <p className="mt-2 text-[14px] leading-relaxed text-zinc-700">{profile.bio}</p>
-        )}
+        <h1 className="text-[22px] font-extrabold leading-tight tracking-tight text-white">{name}</h1>
+        <p className="text-[14px] text-zinc-500">@{profile.handle}</p>
+        {profile.bio && !editing && <p className="mt-2 text-[14px] leading-relaxed text-zinc-300">{profile.bio}</p>}
 
         <div className="mt-3 flex items-center gap-5 text-[14px]">
           <button onClick={() => setTab("followers")} className="hover:underline">
-            <b className="font-extrabold">{counts.followers}</b> <span className="text-zinc-500">seguidores</span>
+            <b className="font-extrabold text-white">{counts.followers}</b> <span className="text-zinc-500">seguidores</span>
           </button>
           <button onClick={() => setTab("following")} className="hover:underline">
-            <b className="font-extrabold">{counts.following}</b> <span className="text-zinc-500">seguindo</span>
+            <b className="font-extrabold text-white">{counts.following}</b> <span className="text-zinc-500">seguindo</span>
           </button>
           {isMe && (
-            <Link href="/app/conta" className="ml-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-zinc-400 hover:text-[#1f1f24]">
+            <Link href="/app/conta" className="ml-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-zinc-500 hover:text-white">
               <CreditCard size={14} /> Conta
             </Link>
           )}
@@ -255,8 +225,8 @@ export default function ProfileView({
 
       {/* Form de edição */}
       {editing && (
-        <div className="mt-5 space-y-4 rounded-2xl border border-zinc-200 bg-white p-5">
-          {err && <p className="rounded-xl border border-red-100 bg-red-50 px-4 py-2.5 text-sm text-red-600">{err}</p>}
+        <div className="mt-5 space-y-4 rounded-2xl border border-white/10 bg-white/5 p-5">
+          {err && <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-300">{err}</p>}
           <div>
             <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-zinc-400">Nome</label>
             <input value={form.display_name} maxLength={40} onChange={(e) => setForm({ ...form, display_name: e.target.value })} className={inputCls} />
@@ -276,13 +246,13 @@ export default function ProfileView({
       )}
 
       {/* Abas */}
-      <div className="sticky top-16 z-10 mt-6 flex border-b border-zinc-200 bg-[#f6f7f9]/80 backdrop-blur">
+      <div className="sticky top-16 z-10 mt-6 flex border-b border-white/10 bg-[#0a0a0c]/80 backdrop-blur">
         {TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`relative flex-1 py-3 text-[13.5px] font-bold transition ${
-              tab === t.key ? "text-[#1f1f24]" : "text-zinc-400 hover:text-zinc-600"
+              tab === t.key ? "text-white" : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
             {t.label}
@@ -291,37 +261,28 @@ export default function ProfileView({
         ))}
       </div>
 
-      {/* Conteúdo da aba */}
       <div className="mt-2">
         {loadingTab ? (
           <Spinner />
         ) : tab === "posts" ? (
           posts.length ? (
-            posts.map((p) => (
-              <PostCard key={p.id} post={p} myId={user?.id} onDeleted={(id) => setPosts((prev) => prev.filter((x) => x.id !== id))} />
-            ))
+            posts.map((p) => <PostCard key={p.id} post={p} myId={user?.id} onDeleted={(id) => setPosts((prev) => prev.filter((x) => x.id !== id))} />)
           ) : (
-            <p className="py-10 text-center text-sm text-zinc-400">Nenhuma publicação ainda.</p>
+            <p className="py-10 text-center text-sm text-zinc-500">Nenhuma publicação ainda.</p>
           )
         ) : people.length ? (
           people.map((p) => (
-            <Link
-              key={p.user_id}
-              href={`/app/perfil/${p.handle}`}
-              className="flex items-center gap-3 rounded-2xl px-2 py-3 transition hover:bg-white"
-            >
+            <Link key={p.user_id} href={`/app/perfil/${p.handle}`} className="flex items-center gap-3 rounded-2xl px-2 py-3 transition hover:bg-white/5">
               <Avatar name={p.display_name || p.handle} url={p.avatar_url} size={46} />
               <div className="min-w-0">
-                <p className="truncate font-bold text-[#1f1f24]">{p.display_name || p.handle}</p>
-                <p className="truncate text-[13px] text-zinc-400">@{p.handle}</p>
+                <p className="truncate font-bold text-zinc-100">{p.display_name || p.handle}</p>
+                <p className="truncate text-[13px] text-zinc-500">@{p.handle}</p>
                 {p.bio && <p className="line-clamp-1 text-[13px] text-zinc-500">{p.bio}</p>}
               </div>
             </Link>
           ))
         ) : (
-          <p className="py-10 text-center text-sm text-zinc-400">
-            {tab === "followers" ? "Ainda sem seguidores." : "Ainda não segue ninguém."}
-          </p>
+          <p className="py-10 text-center text-sm text-zinc-500">{tab === "followers" ? "Ainda sem seguidores." : "Ainda não segue ninguém."}</p>
         )}
       </div>
     </div>

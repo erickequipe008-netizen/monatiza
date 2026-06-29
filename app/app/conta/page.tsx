@@ -60,7 +60,7 @@ export default function ContaPage() {
     <div className="mx-auto max-w-[760px]">
       <PageHeader eyebrow={<><Crown size={14} /> Minha conta</>} title="Sua assinatura" />
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 md:p-8">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-black uppercase tracking-widest text-zinc-400">Assinante</p>
@@ -78,16 +78,16 @@ export default function ContaPage() {
           <button
             onClick={openPortal}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0b0b0c] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#E0263B] disabled:opacity-60"
+            className="pro-gradient inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60"
           >
             <CreditCard size={16} />
             {loading ? "Abrindo…" : "Gerenciar assinatura"}
           </button>
         </div>
 
-        <ul className="mt-7 grid gap-2.5 border-t border-zinc-100 pt-6 sm:grid-cols-2">
+        <ul className="mt-7 grid gap-2.5 border-t border-white/10 pt-6 sm:grid-cols-2">
           {PERKS.map((p) => (
-            <li key={p} className="flex items-start gap-2.5 text-[14px] text-zinc-700">
+            <li key={p} className="flex items-start gap-2.5 text-[14px] text-zinc-300">
               <Check size={17} strokeWidth={3} className="mt-[1px] shrink-0 text-[#E0263B]" /> {p}
             </li>
           ))}
@@ -95,7 +95,7 @@ export default function ContaPage() {
       </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <Link href="/" className="text-[13px] font-semibold text-zinc-500 hover:text-black">
+        <Link href="/" className="text-[13px] font-semibold text-zinc-500 hover:text-white">
           Ver site público
         </Link>
         <button

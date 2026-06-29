@@ -62,7 +62,7 @@ export default function BibliotecaPage() {
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`rounded-full px-4 py-2 text-[13px] font-bold transition ${
-              tab === t.key ? "bg-[#0b0b0c] text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              tab === t.key ? "pro-gradient text-white" : "bg-white/5 text-zinc-400 hover:bg-white/10"
             }`}
           >
             {t.label}

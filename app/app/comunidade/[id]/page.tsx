@@ -64,7 +64,7 @@ export default function PostDetailPage() {
 
       <PostCard post={post} myId={user?.id} clickable={false} onDeleted={() => history.back()} />
 
-      <div className="border-b border-zinc-200 py-2 text-[12px] font-black uppercase tracking-widest text-zinc-400">
+      <div className="border-b border-white/10 py-2 text-[12px] font-black uppercase tracking-widest text-zinc-400">
         Respostas
       </div>
 

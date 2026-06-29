@@ -44,7 +44,7 @@ export default function DashboardPage() {
         {cards.map((c) => {
           const Icon = c.icon;
           return (
-            <div key={c.label} className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <div key={c.label} className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <Icon size={20} className="text-[#E0263B]" />
               <p className="mt-4 text-[26px] font-black leading-none tracking-tight">{c.value}</p>
               <p className="mt-1.5 text-[12px] font-semibold text-zinc-500">{c.label}</p>
@@ -53,7 +53,7 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div className="mt-10 rounded-2xl border border-zinc-200 bg-white p-6">
+      <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6">
         <h2 className="text-[12px] font-black uppercase tracking-widest text-zinc-400">
           Categorias favoritas
         </h2>
@@ -61,8 +61,8 @@ export default function DashboardPage() {
           <div className="mt-5 space-y-3">
             {stats.topCategories.map((c) => (
               <div key={c.category} className="flex items-center gap-3">
-                <span className="w-28 shrink-0 text-[13px] font-semibold text-zinc-700">{c.category}</span>
-                <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-zinc-100">
+                <span className="w-28 shrink-0 text-[13px] font-semibold text-zinc-300">{c.category}</span>
+                <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-white/10">
                   <div
                     className="h-full rounded-full bg-[#E0263B]"
                     style={{ width: `${(c.count / maxCat) * 100}%` }}

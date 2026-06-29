@@ -78,8 +78,8 @@ export default function PostCard({
   return (
     <article
       onClick={clickable ? () => router.push(`/app/comunidade/${post.id}`) : undefined}
-      className={`flex gap-3 border-b border-zinc-200/70 px-1 py-4 ${
-        clickable ? "cursor-pointer hover:bg-zinc-50/70" : ""
+      className={`flex gap-3 border-b border-white/10 px-1 py-4 ${
+        clickable ? "cursor-pointer hover:bg-white/5" : ""
       }`}
     >
       <Link href={`/app/perfil/${handle}`} onClick={(e) => e.stopPropagation()} className="shrink-0">
@@ -90,7 +90,7 @@ export default function PostCard({
           <Link
             href={`/app/perfil/${handle}`}
             onClick={(e) => e.stopPropagation()}
-            className="font-bold text-[#0b0b0c] hover:underline"
+            className="font-bold text-zinc-100 hover:underline"
           >
             {name}
           </Link>
@@ -98,18 +98,18 @@ export default function PostCard({
           <span className="text-zinc-300">·</span>
           <span className="shrink-0 text-zinc-400">{timeAgo(post.created_at)}</span>
           {isMine && (
-            <button onClick={del} className="ml-auto shrink-0 text-zinc-300 hover:text-[#E0263B]" title="Excluir">
+            <button onClick={del} className="ml-auto shrink-0 text-zinc-600 hover:text-[#E0263B]" title="Excluir">
               <Trash2 size={15} />
             </button>
           )}
         </div>
         {post.content && (
-          <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-zinc-800">
+          <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-zinc-200">
             {post.content}
           </p>
         )}
         {post.image_url && (
-          <div className="mt-2 overflow-hidden rounded-xl border border-zinc-200">
+          <div className="mt-2 overflow-hidden rounded-xl border border-white/10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={post.image_url} alt="" className="max-h-[520px] w-full object-cover" />
           </div>

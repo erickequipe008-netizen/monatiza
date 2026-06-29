@@ -16,10 +16,10 @@ const PAGE = 12;
 function SectionTitle({ children, href }: { children: React.ReactNode; href?: string }) {
   return (
     <div className="mb-5 flex items-center gap-3">
-      <h2 className="text-[13px] font-black uppercase tracking-[0.18em] text-zinc-900">{children}</h2>
-      <div className="h-px flex-1 bg-zinc-200" />
+      <h2 className="text-[13px] font-black uppercase tracking-[0.18em] text-zinc-100">{children}</h2>
+      <div className="h-px flex-1 bg-white/10" />
       {href && (
-        <Link href={href} className="flex items-center gap-1 text-[12px] font-bold text-zinc-500 hover:text-[#E0263B]">
+        <Link href={href} className="flex items-center gap-1 text-[12px] font-bold text-zinc-400 hover:text-[#c79bff]">
           Ver tudo <ArrowRight size={13} />
         </Link>
       )}
@@ -31,10 +31,10 @@ function HomeSkeleton() {
   return (
     <div className="animate-pulse">
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="aspect-[16/10] rounded-2xl bg-zinc-200" />
+        <div className="aspect-[16/10] rounded-2xl bg-white/10" />
         <div className="space-y-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-16 rounded-lg bg-zinc-200" />
+            <div key={i} className="h-16 rounded-lg bg-white/10" />
           ))}
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function PremiumHome() {
             <MessagesSquare size={14} className="text-[#E0263B]" /> Comunidade
           </span>
         </SectionTitle>
-        <div className="rounded-2xl border border-zinc-200 bg-white px-4">
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-4">
           {me !== null && (
             <PostComposer
               myProfile={me}
@@ -149,8 +149,8 @@ export default function PremiumHome() {
       {hero && (
         <section className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
           <HeroCard a={hero} />
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-            <h2 className="mb-3 border-b border-zinc-200 pb-3 text-[11px] font-black uppercase tracking-widest text-zinc-400">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <h2 className="mb-3 border-b border-white/10 pb-3 text-[11px] font-black uppercase tracking-widest text-zinc-400">
               Em destaque
             </h2>
             {side.map((a, i) => (

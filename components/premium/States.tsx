@@ -21,10 +21,10 @@ export function EmptyState({
   hint?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-300 py-16 text-center">
-      {Icon && <Icon size={34} className="mx-auto mb-3 text-zinc-300" />}
-      <p className="font-bold text-zinc-500">{title}</p>
-      {hint && <p className="mt-1 text-sm text-zinc-400">{hint}</p>}
+    <div className="rounded-2xl border border-dashed border-white/15 py-16 text-center">
+      {Icon && <Icon size={34} className="mx-auto mb-3 text-zinc-600" />}
+      <p className="font-bold text-zinc-300">{title}</p>
+      {hint && <p className="mt-1 text-sm text-zinc-500">{hint}</p>}
     </div>
   );
 }
@@ -44,7 +44,7 @@ export function PageHeader({
         {eyebrow}
       </p>
       <h1 className="mt-1 text-[28px] font-extrabold tracking-tight md:text-[34px]">{title}</h1>
-      {subtitle && <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-zinc-500">{subtitle}</p>}
+      {subtitle && <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-zinc-400">{subtitle}</p>}
     </header>
   );
 }

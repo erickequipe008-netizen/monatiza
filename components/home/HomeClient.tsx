@@ -14,6 +14,7 @@ import { NewsletterBanner } from "@/components/home/NewsletterBanner";
 import { InstitutionalStrip } from "@/components/home/InstitutionalStrip";
 import { Skeleton } from "@/components/ui/Skeleton";
 import AdSlot from "@/components/ads/AdSlot";
+import { ExclusiveSection } from "@/components/home/ExclusiveSection";
 import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
 export default function HomeClient({
@@ -139,6 +140,9 @@ export default function HomeClient({
             <AdSlot placement="homeTop" format="horizontal" minHeight={120} className="my-8" />
 
             <SecondaryGrid dark={dark} articles={secondaryArticles} />
+
+            {/* ── CONTEÚDO EXCLUSIVO (premium) ── */}
+            <ExclusiveSection dark={dark} articles={articles} />
 
             {/* ── ANÚNCIO: meio do feed ── */}
             <AdSlot placement="homeInFeed" format="auto" minHeight={280} className="my-10" />

@@ -37,6 +37,13 @@ async function getArticleBody(slug: string): Promise<string | null> {
   return (data as string | null) ?? null;
 }
 
+// Prévia (teaser) das matérias premium para o visitante: primeiros caracteres.
+async function getArticlePreview(slug: string): Promise<string | null> {
+  const supabase = getSupabase();
+  const { data } = await supabase.rpc("get_article_preview", { p_slug: slug, p_chars: 800 });
+  return (data as string | null) ?? null;
+}
+
 async function getRelated(category: string, slug: string) {
   const supabase = getSupabase();
   const { data } = await supabase
@@ -118,6 +125,7 @@ export default async function Page({
 
   // Premium + sem corpo (visitante anônimo no SSR) → mostra prévia + paywall.
   const locked = !!article.is_premium && !body;
+  const preview = locked ? await getArticlePreview(slug) : null;
 
   // Para o Google: matéria premium é marcada como conteúdo de assinante.
   const jsonLd = {
@@ -140,7 +148,7 @@ export default async function Page({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ArticleClient article={article} related={related} body={body} locked={locked} />
+      <ArticleClient article={article} related={related} body={body} locked={locked} preview={preview} />
     </>
   );
 }

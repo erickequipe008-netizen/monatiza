@@ -31,11 +31,13 @@ export default function ArticleClient({
   related,
   body: initialBody = null,
   locked: initialLocked = false,
+  preview = null,
 }: {
   article: Article;
   related: Article[];
   body?: string | null;
   locked?: boolean;
+  preview?: string | null;
 }) {
   const { isSubscriber } = useSubscriber();
   const [body, setBody] = useState<string | null>(initialBody);
@@ -72,6 +74,10 @@ export default function ArticleClient({
 
   const bodyContent = body || "";
   const isHtml = /<[a-z][\s\S]*>/i.test(bodyContent);
+  const teaserParas = (preview || "")
+    .split(/\n\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   // assinatura: prefere o nome de jornalismo; ignora e-mails (matérias antigas)
   const rawAuthor = article.journalist_name || article.author || "";
@@ -185,8 +191,20 @@ export default function ArticleClient({
           <AdSlot placement="articleInline" format="auto" minHeight={120} className="my-8" />
 
           {locked ? (
-            /* Conteúdo premium bloqueado para o visitante */
-            <Paywall />
+            /* Prévia (teaser) + paywall elegante para o visitante */
+            <>
+              {teaserParas.length > 0 && (
+                <div className="article-body">
+                  {teaserParas.map((p, i) => (
+                    <p key={i}>
+                      {p}
+                      {i === teaserParas.length - 1 ? "…" : ""}
+                    </p>
+                  ))}
+                </div>
+              )}
+              <Paywall />
+            </>
           ) : (
             <>
               {/* Corpo do artigo */}

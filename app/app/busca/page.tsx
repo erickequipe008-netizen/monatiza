@@ -40,11 +40,11 @@ export default function BuscaPage() {
           onChange={(e) => setQ(e.target.value)}
           autoFocus
           placeholder="O que você quer ler hoje?"
-          className="w-full rounded-full border border-zinc-300 bg-white py-3.5 pl-12 pr-28 text-[15px] outline-none transition focus:border-zinc-500"
+          className="w-full rounded-full border border-white/10 bg-white/5 py-3.5 pl-12 pr-28 text-[15px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#9B72CB]"
         />
         <button
           type="submit"
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full bg-[#0b0b0c] px-5 py-2 text-sm font-bold text-white hover:bg-[#E0263B]"
+          className="pro-gradient absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full px-5 py-2 text-sm font-bold text-white hover:opacity-90"
         >
           Buscar
         </button>

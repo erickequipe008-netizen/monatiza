@@ -148,19 +148,19 @@ export default function Reader() {
       </h1>
 
       {article.excerpt && (
-        <p className="mt-4 border-l-2 border-[#E0263B] pl-4 text-[18px] leading-relaxed text-zinc-500">
+        <p className="mt-4 border-l-2 border-[#9B72CB] pl-4 text-[18px] leading-relaxed text-zinc-300">
           {article.excerpt}
         </p>
       )}
 
       {/* meta + ações */}
-      <div className="mt-6 flex items-center justify-between gap-4 border-y border-zinc-200 py-4">
+      <div className="mt-6 flex items-center justify-between gap-4 border-y border-white/10 py-4">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E0263B] text-[13px] font-bold text-white">
             {author.charAt(0).toUpperCase()}
           </span>
           <div>
-            <p className="text-[13px] font-semibold text-zinc-800">Por {author}</p>
+            <p className="text-[13px] font-semibold text-zinc-200">Por {author}</p>
             <p className="mt-0.5 flex items-center gap-1 text-[11px] text-zinc-400">
               <Clock3 size={10} /> {timeAgo(article.created_at)}
             </p>
@@ -171,7 +171,7 @@ export default function Reader() {
             onClick={onSave}
             title={saved ? "Remover dos salvos" : "Salvar"}
             className={`rounded-full border p-2.5 transition ${
-              saved ? "border-[#E0263B] bg-[#E0263B]/10 text-[#E0263B]" : "border-zinc-200 text-zinc-500 hover:border-zinc-400"
+              saved ? "border-[#E0263B] bg-[#E0263B]/10 text-[#E0263B]" : "border-white/15 text-zinc-300 hover:border-white/30"
             }`}
           >
             <Bookmark size={17} fill={saved ? "currentColor" : "none"} />
@@ -180,7 +180,7 @@ export default function Reader() {
             onClick={onLike}
             title={liked ? "Remover curtida" : "Curtir"}
             className={`rounded-full border p-2.5 transition ${
-              liked ? "border-[#E0263B] bg-[#E0263B]/10 text-[#E0263B]" : "border-zinc-200 text-zinc-500 hover:border-zinc-400"
+              liked ? "border-[#E0263B] bg-[#E0263B]/10 text-[#E0263B]" : "border-white/15 text-zinc-300 hover:border-white/30"
             }`}
           >
             <Heart size={17} fill={liked ? "currentColor" : "none"} />
@@ -188,7 +188,7 @@ export default function Reader() {
           <button
             onClick={onShare}
             title="Compartilhar"
-            className="rounded-full border border-zinc-200 p-2.5 text-zinc-500 transition hover:border-zinc-400"
+            className="rounded-full border border-white/15 p-2.5 text-zinc-300 transition hover:border-white/30"
           >
             <Share2 size={17} />
           </button>
@@ -221,17 +221,17 @@ export default function Reader() {
       )}
 
       <style>{`
-        .reader-body { font-family: Georgia, 'Times New Roman', serif; font-size: 19px; line-height: 1.9; color: #1a1a1a; }
+        .reader-body { font-family: Georgia, 'Times New Roman', serif; font-size: 19px; line-height: 1.9; color: #d4d4d8; }
         .reader-body p { margin-bottom: 1.5em; }
-        .reader-body h2 { font-size: 27px; font-weight: 800; line-height: 1.2; color: #0a0a0a; margin: 2em 0 .7em; font-family: Georgia, serif; }
-        .reader-body h3 { font-size: 21px; font-weight: 700; line-height: 1.3; color: #111; margin: 1.7em 0 .6em; font-family: Georgia, serif; }
-        .reader-body blockquote { border-left: 3px solid #E0263B; padding-left: 1.25rem; margin: 2em 0; color: #444; font-style: italic; font-size: 20px; }
-        .reader-body a { color: #E0263B; text-decoration: underline; text-underline-offset: 3px; }
-        .reader-body strong { font-weight: 700; color: #0a0a0a; }
+        .reader-body h2 { font-size: 27px; font-weight: 800; line-height: 1.2; color: #fafafa; margin: 2em 0 .7em; font-family: Georgia, serif; }
+        .reader-body h3 { font-size: 21px; font-weight: 700; line-height: 1.3; color: #f4f4f5; margin: 1.7em 0 .6em; font-family: Georgia, serif; }
+        .reader-body blockquote { border-left: 3px solid #9B72CB; padding-left: 1.25rem; margin: 2em 0; color: #a1a1aa; font-style: italic; font-size: 20px; }
+        .reader-body a { color: #ff8db0; text-decoration: underline; text-underline-offset: 3px; }
+        .reader-body strong { font-weight: 700; color: #ffffff; }
         .reader-body ul, .reader-body ol { padding-left: 1.5rem; margin-bottom: 1.5em; }
         .reader-body li { margin-bottom: .5em; }
         .reader-body img { width: 100%; height: auto; margin: 2em 0; border-radius: 12px; }
-        .reader-body hr { border: none; border-top: 1px solid #e5e7eb; margin: 2.5em 0; }
+        .reader-body hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 2.5em 0; }
       `}</style>
     </article>
   );

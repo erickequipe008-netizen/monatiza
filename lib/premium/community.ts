@@ -301,3 +301,21 @@ export async function listFollowing(userId: string): Promise<CommunityProfile[]>
     .limit(100);
   return profilesByIds((data || []).map((r: any) => r.following_id));
 }
+
+// Perfis recomendados para seguir: exclui você e quem você já segue.
+export async function getRecommendedProfiles(limit = 40): Promise<CommunityProfile[]> {
+  const me = await uid();
+  let exclude: string[] = [];
+  if (me) {
+    const { data } = await supabase.from("follows").select("following_id").eq("follower_id", me);
+    exclude = [me, ...(data || []).map((r: any) => r.following_id)];
+  }
+  let q = supabase
+    .from("community_profiles")
+    .select("user_id, handle, display_name, avatar_url, bio")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (exclude.length) q = q.not("user_id", "in", `(${exclude.join(",")})`);
+  const { data } = await q;
+  return (data as CommunityProfile[]) || [];
+}

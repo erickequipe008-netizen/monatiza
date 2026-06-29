@@ -75,7 +75,7 @@ export default function NewsletterPage() {
         subtitle="Escolha os temas e a frequência. Enviamos as melhores pautas direto no seu e-mail."
       />
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 md:p-8">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8">
         <h2 className="text-[12px] font-black uppercase tracking-widest text-zinc-400">Temas</h2>
         <div className="mt-4 flex flex-wrap gap-2">
           {CATEGORIES.map((c) => {
@@ -87,7 +87,7 @@ export default function NewsletterPage() {
                 className={`rounded-full border px-4 py-2 text-[13px] font-semibold transition ${
                   on
                     ? "border-[#E0263B] bg-[#E0263B] text-white"
-                    : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
+                    : "border-white/15 text-zinc-300 hover:border-white/30"
                 }`}
               >
                 {c}
@@ -107,7 +107,7 @@ export default function NewsletterPage() {
               }}
               className={`rounded-full border px-5 py-2 text-[13px] font-semibold transition ${
                 freq === f.key
-                  ? "border-[#0b0b0c] bg-[#0b0b0c] text-white"
+                  ? "pro-gradient text-white"
                   : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
               }`}
             >
@@ -120,7 +120,7 @@ export default function NewsletterPage() {
           <button
             onClick={save}
             disabled={saving}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#0b0b0c] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#E0263B] disabled:opacity-60"
+            className="pro-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60"
           >
             {saving ? "Salvando…" : "Salvar preferências"}
           </button>
@@ -132,7 +132,7 @@ export default function NewsletterPage() {
         </div>
       </div>
 
-      <h2 className="mt-12 mb-4 text-[13px] font-black uppercase tracking-[0.18em] text-zinc-900">
+      <h2 className="mt-12 mb-4 text-[13px] font-black uppercase tracking-[0.18em] text-zinc-100">
         Edições anteriores
       </h2>
       <EmptyState icon={Mail} title="Em breve" hint="As edições enviadas vão aparecer aqui para releitura." />
