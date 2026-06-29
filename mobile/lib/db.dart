@@ -313,3 +313,65 @@ Future<Map<String, dynamic>> getVerification() async {
   final req = await _sb.from('verification_requests').select('status').eq('user_id', me).maybeSingle();
   return {'verified': prof?['verified'] == true, 'status': req?['status']};
 }
+
+// ── Comentários (respostas a posts) ──
+Future<List<Map<String, dynamic>>> fetchReplies(int postId) async {
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('posts')
+      .select('id, user_id, content, image_url, created_at')
+      .eq('parent_id', postId)
+      .order('created_at', ascending: true));
+  if (rows.isNotEmpty) await _enrich(rows);
+  return rows;
+}
+
+Future<void> createReply(int postId, String content) async {
+  final me = myId;
+  if (me == null || content.trim().isEmpty) return;
+  await _sb.from('posts').insert({'user_id': me, 'content': content.trim(), 'parent_id': postId});
+}
+
+// ── Mensagens diretas (DM) ──
+Future<List<Map<String, dynamic>>> listConversations() async {
+  final me = myId;
+  if (me == null) return [];
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('direct_messages')
+      .select('sender_id, recipient_id, content, created_at')
+      .or('sender_id.eq.$me,recipient_id.eq.$me')
+      .order('created_at', ascending: false)
+      .limit(300));
+  final latest = <String, Map<String, dynamic>>{};
+  for (final r in rows) {
+    final other = (r['sender_id'] == me ? r['recipient_id'] : r['sender_id']) as String;
+    latest.putIfAbsent(other, () => {'other': other, 'content': r['content'], 'created_at': r['created_at']});
+  }
+  if (latest.isEmpty) return [];
+  final profs = List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, verified')
+      .inFilter('user_id', latest.keys.toList()));
+  final pmap = {for (final p in profs) p['user_id']: p};
+  return latest.values.map((c) {
+    c['profile'] = pmap[c['other']];
+    return c;
+  }).toList();
+}
+
+Future<List<Map<String, dynamic>>> fetchMessages(String otherId) async {
+  final me = myId;
+  if (me == null) return [];
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('direct_messages')
+      .select('id, sender_id, recipient_id, content, created_at')
+      .or('and(sender_id.eq.$me,recipient_id.eq.$otherId),and(sender_id.eq.$otherId,recipient_id.eq.$me)')
+      .order('created_at', ascending: true)
+      .limit(300));
+  return rows;
+}
+
+Future<void> sendMessage(String otherId, String content) async {
+  final me = myId;
+  if (me == null || content.trim().isEmpty) return;
+  await _sb.from('direct_messages').insert({'sender_id': me, 'recipient_id': otherId, 'content': content.trim()});
+}

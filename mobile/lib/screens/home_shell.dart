@@ -5,6 +5,7 @@ import 'community_screen.dart';
 import 'reels_screen.dart';
 import 'discover_screen.dart';
 import 'profile_screen.dart';
+import 'messages_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -24,6 +25,12 @@ class _HomeShellState extends State<HomeShell> {
         title: Text(_titles[_i], style: const TextStyle(fontWeight: FontWeight.w800)),
         actions: [
           IconButton(
+            tooltip: "Mensagens",
+            icon: const Icon(Icons.mail_outline),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesScreen())),
+          ),
+          IconButton(
+            tooltip: "Sair",
             icon: const Icon(Icons.logout),
             onPressed: () => Supabase.instance.client.auth.signOut(),
           ),

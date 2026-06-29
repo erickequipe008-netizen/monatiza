@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
+import '../widgets/ui.dart';
 import 'biblioteca_screen.dart';
 import 'article_list_screen.dart';
 import 'newsletter_screen.dart';
@@ -17,6 +18,7 @@ class ProfileBody extends StatefulWidget {
 class _ProfileBodyState extends State<ProfileBody> {
   Map<String, dynamic>? _profile;
   List<Map<String, dynamic>> _posts = [];
+  Map<String, int> _counts = {'followers': 0, 'following': 0};
   bool _loading = true;
 
   @override
@@ -28,8 +30,12 @@ class _ProfileBodyState extends State<ProfileBody> {
   Future<void> _load() async {
     final prof = await ensureProfile();
     List<Map<String, dynamic>> posts = [];
-    if (prof != null) posts = await fetchUserPosts(prof['user_id']);
-    if (mounted) setState(() { _profile = prof; _posts = posts; _loading = false; });
+    Map<String, int> counts = {'followers': 0, 'following': 0};
+    if (prof != null) {
+      posts = await fetchUserPosts(prof['user_id']);
+      counts = await followCounts(prof['user_id']);
+    }
+    if (mounted) setState(() { _profile = prof; _posts = posts; _counts = counts; _loading = false; });
   }
 
   Widget _tile(BuildContext c, IconData icon, String label, Widget screen) => ListTile(
@@ -49,26 +55,50 @@ class _ProfileBodyState extends State<ProfileBody> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Row(
-            children: [
-              memberAvatar(p, 36),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                colors: [const Color(0xFF9B72CB).withValues(alpha: 0.18), Colors.white.withValues(alpha: 0.03)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(children: [
-                      Flexible(child: Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
-                      if (p?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18)),
-                    ]),
-                    Text("@${p?['handle'] ?? ''}", style: const TextStyle(color: Colors.white38)),
+                    GradientAvatarRing(child: memberAvatar(p, 34)),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(children: [
+                            Flexible(child: Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
+                            if (p?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18)),
+                          ]),
+                          Text("@${p?['handle'] ?? ''}", style: const TextStyle(color: Colors.white60)),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
+                if ((p?['bio'] ?? '').toString().isNotEmpty)
+                  Padding(padding: const EdgeInsets.only(top: 12), child: Text(p!['bio'], style: const TextStyle(color: Colors.white70, height: 1.4))),
+                const SizedBox(height: 14),
+                Row(children: [
+                  Text("${_counts['followers']} ", style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("seguidores     ", style: TextStyle(color: Colors.white54)),
+                  Text("${_counts['following']} ", style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("seguindo", style: TextStyle(color: Colors.white54)),
+                ]),
+              ],
+            ),
           ),
-          if ((p?['bio'] ?? '').toString().isNotEmpty)
-            Padding(padding: const EdgeInsets.only(top: 12), child: Text(p!['bio'], style: const TextStyle(color: Colors.white70, height: 1.4))),
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(16)),

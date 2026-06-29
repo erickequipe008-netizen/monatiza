@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
+import '../widgets/ui.dart';
+import 'chat_screen.dart';
 
 class MemberProfileScreen extends StatefulWidget {
   final Map<String, dynamic> profile;
@@ -87,14 +89,21 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                 ]),
                 const SizedBox(height: 14),
                 if (!_isMe)
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: _busy ? null : _toggleFollow,
-                      style: FilledButton.styleFrom(backgroundColor: _following ? Colors.white24 : const Color(0xFF9B72CB)),
-                      child: Text(_following ? "Seguindo" : "Seguir"),
+                  Row(children: [
+                    Expanded(
+                      child: _following
+                          ? OutlinedButton(onPressed: _busy ? null : _toggleFollow, child: const Text("Seguindo"))
+                          : GradientButton(label: "Seguir", onPressed: _busy ? null : _toggleFollow),
                     ),
-                  ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(other: widget.profile))),
+                        icon: const Icon(Icons.mail_outline, size: 18),
+                        label: const Text("Mensagem"),
+                      ),
+                    ),
+                  ]),
                 const SizedBox(height: 22),
                 const Text("PUBLICAÇÕES", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white54, letterSpacing: 1.2)),
                 const SizedBox(height: 10),

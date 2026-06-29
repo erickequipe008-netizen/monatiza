@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
+import '../widgets/ui.dart';
+import 'package:share_plus/share_plus.dart';
 import 'member_profile_screen.dart';
+import 'post_detail_screen.dart';
 
 class CommunityBody extends StatefulWidget {
   const CommunityBody({super.key});
@@ -43,21 +46,18 @@ class _CommunityBodyState extends State<CommunityBody> {
         Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
                 child: TextField(
                   controller: _ctrl,
                   minLines: 1,
                   maxLines: 4,
-                  decoration: const InputDecoration(hintText: "Compartilhe sua opinião…", border: OutlineInputBorder()),
+                  decoration: const InputDecoration(hintText: "Compartilhe sua opinião…"),
                 ),
               ),
               const SizedBox(width: 8),
-              FilledButton(
-                onPressed: _posting ? null : _publish,
-                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF9B72CB)),
-                child: Text(_posting ? "…" : "Publicar"),
-              ),
+              GradientButton(label: _posting ? "…" : "Publicar", onPressed: _posting ? null : _publish, expand: false),
             ],
           ),
         ),
@@ -98,6 +98,11 @@ class _PostTileState extends State<_PostTile> {
     await togglePostLike(widget.post['id'], n);
   }
 
+  void _openDetail() =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailScreen(post: widget.post)));
+
+  void _share() => Share.share('"${widget.post['content'] ?? ''}" · MonatizaPro');
+
   @override
   Widget build(BuildContext context) {
     final p = widget.post;
@@ -136,17 +141,22 @@ class _PostTileState extends State<_PostTile> {
               padding: const EdgeInsets.only(top: 10),
               child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(p['image_url'], errorBuilder: (_, __, ___) => const SizedBox())),
             ),
-          const SizedBox(height: 8),
-          InkWell(
-            onTap: _like,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(_liked ? Icons.favorite : Icons.favorite_border, size: 18, color: _liked ? const Color(0xFFE0263B) : Colors.white38),
-                const SizedBox(width: 6),
-                Text("$_count", style: const TextStyle(color: Colors.white54)),
-              ],
-            ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              InkWell(onTap: _openDetail, child: const Icon(Icons.mode_comment_outlined, size: 18, color: Colors.white38)),
+              const SizedBox(width: 24),
+              InkWell(
+                onTap: _like,
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(_liked ? Icons.favorite : Icons.favorite_border, size: 18, color: _liked ? const Color(0xFFE0263B) : Colors.white38),
+                  const SizedBox(width: 6),
+                  Text("$_count", style: const TextStyle(color: Colors.white54)),
+                ]),
+              ),
+              const SizedBox(width: 24),
+              InkWell(onTap: _share, child: const Icon(Icons.share_outlined, size: 18, color: Colors.white38)),
+            ],
           ),
         ],
       ),
