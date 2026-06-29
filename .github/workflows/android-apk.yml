@@ -48,7 +48,19 @@ jobs:
             sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <application|' "$MAN"
           echo "----- AndroidManifest -----"; cat "$MAN"
 
+      # Máxima compatibilidade: Android 5.0+ (minSdk 21)
+      - name: Ajustar minSdk
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/' android/app/build.gradle.kts
+          fi
+          if [ -f android/app/build.gradle ]; then
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' android/app/build.gradle
+            sed -i 's/minSdkVersion = flutter.minSdkVersion/minSdkVersion = 21/' android/app/build.gradle
+          fi
+
       - run: flutter pub get
+      # APK único universal (todas as arquiteturas) — instala em qualquer celular
       - run: flutter build apk --release
 
       - name: Publicar APK como artefato
