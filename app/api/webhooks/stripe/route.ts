@@ -45,6 +45,17 @@ export async function POST(req: Request) {
             status: "concluido",
           });
         }
+      } else if (userId && session.metadata?.type === "verification") {
+        // pagamento do selo de verificado → marca o pedido como pago (análise manual)
+        await supabaseAdmin
+          .from("verification_requests")
+          .update({
+            status: "paid",
+            stripe_payment_id:
+              typeof session.payment_intent === "string" ? session.payment_intent : session.id,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId);
       } else if (userId) {
         // assinatura
         await supabaseAdmin

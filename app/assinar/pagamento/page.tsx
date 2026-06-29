@@ -60,7 +60,9 @@ function PaymentForm() {
 
   return (
     <form onSubmit={handlePay} className="space-y-5">
-      <PaymentElement />
+      {/* Apple Pay / Google Pay aparecem aqui automaticamente (carteira do aparelho)
+          quando habilitados no painel do Stripe e o domínio estiver verificado. */}
+      <PaymentElement options={{ wallets: { applePay: "auto", googlePay: "auto" } }} />
       {msg && (
         <p className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">{msg}</p>
       )}

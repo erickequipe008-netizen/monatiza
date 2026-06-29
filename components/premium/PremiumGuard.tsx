@@ -15,6 +15,7 @@ import {
   Mail,
   LayoutDashboard,
   CreditCard,
+  ShieldCheck,
   Search,
   LogOut,
   Loader2,
@@ -33,6 +34,7 @@ const PRIMARY = [
 
 const MORE = [
   { href: "/app/perfil", label: "Meu perfil", icon: User },
+  { href: "/app/verificacao", label: "Verificação", icon: ShieldCheck },
   { href: "/app/exclusivo", label: "Exclusivo", icon: Sparkles },
   { href: "/app/revistas", label: "Revistas", icon: BookOpen },
   { href: "/app/newsletter", label: "Newsletter", icon: Mail },

@@ -27,3 +27,26 @@ export async function uploadMedia(
   } = supabase.storage.from("community").getPublicUrl(path);
   return { url: publicUrl, error: null };
 }
+
+// Upload PRIVADO (documento/selfie de verificação) — bucket não público.
+// Retorna o caminho (não a URL); só o dono e o admin conseguem ler.
+export async function uploadVerification(
+  file: File,
+  kind: "doc" | "selfie"
+): Promise<{ path: string | null; error: string | null }> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const uid = session?.user.id;
+  if (!uid) return { path: null, error: "Não autenticado" };
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = `${uid}/${kind}-${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from("verification").upload(path, file, {
+    upsert: true,
+    contentType: file.type || undefined,
+  });
+  if (error) return { path: null, error: error.message };
+  return { path, error: null };
+}
+

@@ -28,7 +28,7 @@ async function enrich(rows: any[]): Promise<Reel[]> {
   const [{ data: profs }, { data: likes }] = await Promise.all([
     supabase
       .from("community_profiles")
-      .select("user_id, handle, display_name, avatar_url")
+      .select("user_id, handle, display_name, avatar_url, verified")
       .in("user_id", authorIds),
     supabase.from("reel_likes").select("reel_id, user_id").in("reel_id", ids),
   ]);

@@ -12,6 +12,7 @@ export interface CommunityProfile {
   bio: string | null;
   avatar_url: string | null;
   cover_url?: string | null;
+  verified?: boolean | null;
   created_at?: string;
 }
 
@@ -124,7 +125,7 @@ async function enrich(rows: any[]): Promise<Post[]> {
   const [{ data: profs }, { data: likes }, { data: replies }] = await Promise.all([
     supabase
       .from("community_profiles")
-      .select("user_id, handle, display_name, avatar_url")
+      .select("user_id, handle, display_name, avatar_url, verified")
       .in("user_id", authorIds),
     supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
     supabase.from("posts").select("parent_id").in("parent_id", ids),
@@ -276,7 +277,7 @@ async function profilesByIds(ids: string[]): Promise<CommunityProfile[]> {
   if (!ids.length) return [];
   const { data } = await supabase
     .from("community_profiles")
-    .select("user_id, handle, display_name, avatar_url, bio")
+    .select("user_id, handle, display_name, avatar_url, bio, verified")
     .in("user_id", ids);
   const map = new Map((data || []).map((p: any) => [p.user_id, p]));
   return ids.map((id) => map.get(id)).filter(Boolean) as CommunityProfile[];
@@ -312,7 +313,7 @@ export async function getRecommendedProfiles(limit = 40): Promise<CommunityProfi
   }
   let q = supabase
     .from("community_profiles")
-    .select("user_id, handle, display_name, avatar_url, bio")
+    .select("user_id, handle, display_name, avatar_url, bio, verified")
     .order("created_at", { ascending: false })
     .limit(limit);
   if (exclude.length) q = q.not("user_id", "in", `(${exclude.join(",")})`);

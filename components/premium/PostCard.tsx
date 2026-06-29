@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Heart, MessageCircle, Trash2 } from "lucide-react";
 import { togglePostLike, deletePost, type Post } from "@/lib/premium/community";
 import { timeAgo } from "@/components/premium/PremiumCards";
+import VerifiedBadge from "@/components/premium/VerifiedBadge";
 
 export function Avatar({
   name,
@@ -94,6 +95,7 @@ export default function PostCard({
           >
             {name}
           </Link>
+          {post.author?.verified && <VerifiedBadge size={15} />}
           <span className="truncate text-zinc-400">@{handle}</span>
           <span className="text-zinc-300">·</span>
           <span className="shrink-0 text-zinc-400">{timeAgo(post.created_at)}</span>

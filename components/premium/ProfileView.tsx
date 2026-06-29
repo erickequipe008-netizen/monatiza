@@ -19,6 +19,7 @@ import {
 } from "@/lib/premium/community";
 import { uploadMedia } from "@/lib/premium/upload";
 import PostCard, { Avatar } from "@/components/premium/PostCard";
+import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import { Spinner } from "@/components/premium/States";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
@@ -204,7 +205,10 @@ export default function ProfileView({
 
       {/* Identidade */}
       <div className="mt-2 px-1">
-        <h1 className="text-[22px] font-extrabold leading-tight tracking-tight text-white">{name}</h1>
+        <div className="flex items-center gap-1.5">
+          <h1 className="text-[22px] font-extrabold leading-tight tracking-tight text-white">{name}</h1>
+          {profile.verified && <VerifiedBadge size={20} />}
+        </div>
         <p className="text-[14px] text-zinc-500">@{profile.handle}</p>
         {profile.bio && !editing && <p className="mt-2 text-[14px] leading-relaxed text-zinc-300">{profile.bio}</p>}
 
@@ -221,6 +225,12 @@ export default function ProfileView({
             </Link>
           )}
         </div>
+
+        {isMe && !profile.verified && (
+          <Link href="/app/verificacao" className="pro-gradient-text mt-3 inline-flex items-center gap-1 text-[13px] font-bold">
+            ✦ Obter selo de verificado
+          </Link>
+        )}
       </div>
 
       {/* Form de edição */}

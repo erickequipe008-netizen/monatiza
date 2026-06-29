@@ -10,6 +10,7 @@ import {
   type CommunityProfile,
 } from "@/lib/premium/community";
 import { Avatar } from "@/components/premium/PostCard";
+import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import { Spinner, EmptyState, PageHeader } from "@/components/premium/States";
 
 function Row({ p }: { p: CommunityProfile }) {
@@ -30,7 +31,10 @@ function Row({ p }: { p: CommunityProfile }) {
       <Link href={`/app/perfil/${p.handle}`} className="flex min-w-0 flex-1 items-center gap-3">
         <Avatar name={p.display_name || p.handle} url={p.avatar_url} size={48} />
         <div className="min-w-0">
-          <p className="truncate font-bold text-zinc-100">{p.display_name || p.handle}</p>
+          <p className="flex items-center gap-1 truncate font-bold text-zinc-100">
+            {p.display_name || p.handle}
+            {p.verified && <VerifiedBadge size={14} />}
+          </p>
           <p className="truncate text-[13px] text-zinc-500">@{p.handle}</p>
           {p.bio && <p className="line-clamp-1 text-[13px] text-zinc-500">{p.bio}</p>}
         </div>
