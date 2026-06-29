@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Crown, Sparkles, BookOpen, BellRing, Ban } from "lucide-react";
+import { Check, Crown, Sparkles, BookOpen, Ban, Zap, Users, ShieldCheck } from "lucide-react";
 
 export const metadata = {
   title: "Assinantes",
@@ -18,9 +18,10 @@ const PLANS = [
     badge: "",
     cta: "Assinar mensal",
     features: [
-      "Acesso ilimitado a todas as matérias",
+      "Conteúdos sempre em primeiro lugar",
+      "Acesso ilimitado e sem anúncios",
+      "Mais alcance do seu perfil na comunidade",
       "Newsletter premium",
-      "Navegação sem anúncios",
       "Cancele quando quiser",
     ],
   },
@@ -37,16 +38,19 @@ const PLANS = [
       "2 meses grátis no plano anual",
       "Acesso à Revista Monatiza",
       "Conteúdo e séries exclusivas",
+      "Selo de verificado disponível",
       "Suporte prioritário",
     ],
   },
 ];
 
 const BENEFITS = [
-  { icon: Ban, title: "Sem anúncios", desc: "Leia com foco total, sem banners no caminho." },
+  { icon: Zap, title: "Conteúdos sempre em primeiro", desc: "Acesso antecipado e prioridade nas grandes reportagens." },
+  { icon: Ban, title: "Sem anúncios", desc: "Leitura limpa, com foco total — sem banners no caminho." },
   { icon: Sparkles, title: "Conteúdo exclusivo", desc: "Análises, séries e bastidores só para assinantes." },
-  { icon: BellRing, title: "Newsletter premium", desc: "As pautas que importam, direto no seu e-mail." },
-  { icon: BookOpen, title: "Acesso à Revista", desc: "Reportagens especiais e grandes perfis da Monatiza." },
+  { icon: Users, title: "Mais alcance de perfil", desc: "Sua voz na comunidade: publique, ganhe seguidores e apareça mais." },
+  { icon: ShieldCheck, title: "Mais segurança", desc: "Conta confiável, selo de verificado e seus dados protegidos." },
+  { icon: BookOpen, title: "Revista + Newsletter", desc: "A Revista Monatiza e a newsletter premium no seu e-mail." },
 ];
 
 export default function AssinantesPage() {
@@ -77,10 +81,19 @@ export default function AssinantesPage() {
 
       {/* ── BENEFÍCIOS ── */}
       <section className="max-w-[1100px] mx-auto px-4 md:px-5 py-14 md:py-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex items-center gap-3 mb-9">
+          <h2 className="text-[24px] md:text-[30px] font-black tracking-tight">O que você recebe ao assinar</h2>
+          <div className="flex-1 h-px bg-zinc-300" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {BENEFITS.map((b) => (
-            <div key={b.title} className="bg-white border border-zinc-200 p-6">
-              <b.icon size={26} className="text-red-600" strokeWidth={2.2} />
+            <div
+              key={b.title}
+              className="bg-white border border-zinc-200 rounded-2xl p-6 transition hover:shadow-md hover:-translate-y-0.5"
+            >
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                <b.icon size={22} strokeWidth={2.2} />
+              </span>
               <h3 className="text-[17px] font-black mt-4">{b.title}</h3>
               <p className="text-zinc-500 text-sm mt-2 leading-relaxed">{b.desc}</p>
             </div>

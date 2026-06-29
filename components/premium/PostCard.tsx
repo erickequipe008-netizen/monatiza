@@ -95,7 +95,7 @@ export default function PostCard({
           >
             {name}
           </Link>
-          {post.author?.verified && <VerifiedBadge size={15} />}
+          {post.author?.verified && <VerifiedBadge size={14} />}
           <span className="truncate text-zinc-400">@{handle}</span>
           <span className="text-zinc-300">·</span>
           <span className="shrink-0 text-zinc-400">{timeAgo(post.created_at)}</span>

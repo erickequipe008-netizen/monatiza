@@ -33,7 +33,7 @@ function Row({ p }: { p: CommunityProfile }) {
         <div className="min-w-0">
           <p className="flex items-center gap-1 truncate font-bold text-zinc-100">
             {p.display_name || p.handle}
-            {p.verified && <VerifiedBadge size={14} />}
+            {p.verified && <VerifiedBadge size={13} />}
           </p>
           <p className="truncate text-[13px] text-zinc-500">@{p.handle}</p>
           {p.bio && <p className="line-clamp-1 text-[13px] text-zinc-500">{p.bio}</p>}

@@ -207,7 +207,7 @@ export default function ProfileView({
       <div className="mt-2 px-1">
         <div className="flex items-center gap-1.5">
           <h1 className="text-[22px] font-extrabold leading-tight tracking-tight text-white">{name}</h1>
-          {profile.verified && <VerifiedBadge size={20} />}
+          {profile.verified && <VerifiedBadge size={17} />}
         </div>
         <p className="text-[14px] text-zinc-500">@{profile.handle}</p>
         {profile.bio && !editing && <p className="mt-2 text-[14px] leading-relaxed text-zinc-300">{profile.bio}</p>}
