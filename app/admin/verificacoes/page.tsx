@@ -19,6 +19,9 @@ export default function AdminVerificacoesPage() {
   const [reqs, setReqs] = useState<Req[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
+  const [handle, setHandle] = useState("");
+  const [manualMsg, setManualMsg] = useState("");
+  const [manualBusy, setManualBusy] = useState(false);
 
   async function load() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -44,6 +47,28 @@ export default function AdminVerificacoesPage() {
     });
     await load();
     setActing(null);
+  }
+
+  async function manualVerify(action: "grant" | "revoke") {
+    const h = handle.trim().replace(/^@/, "");
+    if (!h) return;
+    setManualBusy(true);
+    setManualMsg("");
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch("/api/admin/verifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ handle: h, action }),
+    });
+    const json = await res.json();
+    setManualBusy(false);
+    if (json.ok) {
+      setManualMsg(action === "grant" ? `✓ @${h} verificado!` : `Selo removido de @${h}.`);
+      setHandle("");
+      load();
+    } else {
+      setManualMsg(json.error || "Erro");
+    }
   }
 
   const cards = stats
@@ -73,6 +98,40 @@ export default function AdminVerificacoesPage() {
                   <p className="text-[12px] text-gray-500">{c.label}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Verificação manual por @ */}
+            <div className="rounded-2xl border border-gray-100 bg-white p-5">
+              <h2 className="text-sm font-bold text-[#0b0b0c]">Verificar manualmente</h2>
+              <p className="mb-3 mt-0.5 text-xs text-gray-500">
+                Libere (ou remova) o selo dourado para qualquer @ — sem precisar do pagamento.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative min-w-[200px] flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@</span>
+                  <input
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value.replace(/^@/, ""))}
+                    placeholder="usuario"
+                    className="w-full rounded-lg border border-gray-200 py-2 pl-7 pr-3 text-sm outline-none focus:border-[#0b0b0c]"
+                  />
+                </div>
+                <button
+                  onClick={() => manualVerify("grant")}
+                  disabled={manualBusy}
+                  className="rounded-lg bg-[#0b0b0c] px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-[#E0263B] disabled:opacity-50"
+                >
+                  Verificar
+                </button>
+                <button
+                  onClick={() => manualVerify("revoke")}
+                  disabled={manualBusy}
+                  className="rounded-lg border border-gray-200 px-4 py-2 text-[13px] font-semibold text-gray-600 transition hover:border-gray-400 disabled:opacity-50"
+                >
+                  Remover
+                </button>
+              </div>
+              {manualMsg && <p className="mt-2 text-[13px] font-semibold text-gray-700">{manualMsg}</p>}
             </div>
 
             <div>
