@@ -26,8 +26,20 @@ jobs:
         with:
           channel: stable
 
-      # Gera as pastas android/ios a partir do esqueleto e compila
-      - run: flutter create .
+      # Preserva o código real (lib/ e pubspec) antes de gerar as plataformas
+      - name: Backup do código
+        run: |
+          cp pubspec.yaml ../pubspec.bak
+          cp -r lib ../lib.bak
+
+      - name: Gerar plataforma Android
+        run: flutter create --org com.monatiza --platforms=android .
+
+      - name: Restaurar código real
+        run: |
+          cp ../pubspec.bak pubspec.yaml
+          rm -rf lib && cp -r ../lib.bak lib
+
       - run: flutter pub get
       - run: flutter build apk --release
 
