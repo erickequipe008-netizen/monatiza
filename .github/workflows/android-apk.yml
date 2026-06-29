@@ -1,0 +1,39 @@
+name: Build Android APK (Monatiza)
+
+# Roda manualmente (botão "Run workflow") ou quando o app mobile mudar.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/android-apk.yml"
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # Gera as pastas android/ios a partir do esqueleto e compila
+      - run: flutter create .
+      - run: flutter pub get
+      - run: flutter build apk --release
+
+      - name: Publicar APK como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: monatiza-apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

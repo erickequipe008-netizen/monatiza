@@ -136,7 +136,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
 
           {/* Coluna principal */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Gráfico por categoria */}
             <div className="rounded-2xl border border-[#E8E6E1] bg-white p-6 shadow-sm">
               <h2 className="text-base font-bold text-[#0b0b0c]">Matérias por categoria</h2>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Ações rápidas */}
             <div className="space-y-3">
               <Link href="/admin/articles/new" className="group flex items-center justify-between rounded-2xl bg-[#0b0b0c] px-5 py-4 transition hover:bg-[#E0263B]">
