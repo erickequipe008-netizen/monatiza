@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
+import 'member_profile_screen.dart';
 
 class DiscoverBody extends StatefulWidget {
   const DiscoverBody({super.key});
@@ -71,17 +72,21 @@ class _ProfileRowState extends State<_ProfileRow> {
           memberAvatar(p, 24),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
-                  if (p['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13)),
-                ]),
-                Text("@${p['handle'] ?? ''}", style: const TextStyle(color: Colors.white38, fontSize: 13)),
-                if ((p['bio'] ?? '').toString().isNotEmpty)
-                  Text(p['bio'], maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white54, fontSize: 13)),
-              ],
+            child: GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => MemberProfileScreen(profile: p))),
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
+                    if (p['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13)),
+                  ]),
+                  Text("@${p['handle'] ?? ''}", style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                  if ((p['bio'] ?? '').toString().isNotEmpty)
+                    Text(p['bio'], maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 8),

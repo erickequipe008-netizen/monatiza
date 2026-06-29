@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
+import 'member_profile_screen.dart';
 
 class CommunityBody extends StatefulWidget {
   const CommunityBody({super.key});
@@ -111,15 +112,21 @@ class _PostTileState extends State<_PostTile> {
         children: [
           Row(
             children: [
-              memberAvatar(author, 18),
-              const SizedBox(width: 8),
-              Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
-              if (author?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
-              const SizedBox(width: 6),
               Expanded(
-                child: Text("@${author?['handle'] ?? ''} · ${timeAgo(p['created_at'])}",
-                    overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                child: GestureDetector(
+                  onTap: author == null
+                      ? null
+                      : () => Navigator.push(context, MaterialPageRoute(builder: (_) => MemberProfileScreen(profile: author))),
+                  child: Row(children: [
+                    memberAvatar(author, 18),
+                    const SizedBox(width: 8),
+                    Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
+                    if (author?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
+                  ]),
+                ),
               ),
+              const SizedBox(width: 6),
+              Text(timeAgo(p['created_at']), style: const TextStyle(color: Colors.white38, fontSize: 12)),
             ],
           ),
           if ((p['content'] ?? '').toString().isNotEmpty)

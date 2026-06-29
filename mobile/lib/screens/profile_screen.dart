@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
+import 'biblioteca_screen.dart';
+import 'article_list_screen.dart';
+import 'newsletter_screen.dart';
+import 'verificacao_screen.dart';
+import 'conta_screen.dart';
 
 class ProfileBody extends StatefulWidget {
   const ProfileBody({super.key});
@@ -27,6 +31,13 @@ class _ProfileBodyState extends State<ProfileBody> {
     if (prof != null) posts = await fetchUserPosts(prof['user_id']);
     if (mounted) setState(() { _profile = prof; _posts = posts; _loading = false; });
   }
+
+  Widget _tile(BuildContext c, IconData icon, String label, Widget screen) => ListTile(
+        leading: Icon(icon, color: Colors.white70),
+        title: Text(label),
+        trailing: const Icon(Icons.chevron_right, color: Colors.white24),
+        onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => screen)),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +70,16 @@ class _ProfileBodyState extends State<ProfileBody> {
           if ((p?['bio'] ?? '').toString().isNotEmpty)
             Padding(padding: const EdgeInsets.only(top: 12), child: Text(p!['bio'], style: const TextStyle(color: Colors.white70, height: 1.4))),
           const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: () => Supabase.instance.client.auth.signOut(),
-            icon: const Icon(Icons.logout, size: 18),
-            label: const Text("Sair"),
+          Container(
+            decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(16)),
+            child: Column(children: [
+              _tile(context, Icons.bookmark_border, "Biblioteca", const BibliotecaScreen()),
+              _tile(context, Icons.menu_book_outlined, "Revistas", ArticleListScreen(title: "Revistas", load: () => fetchByCategory("%Revista%"))),
+              _tile(context, Icons.workspace_premium_outlined, "Exclusivo", ArticleListScreen(title: "Exclusivo", load: fetchPremium)),
+              _tile(context, Icons.mail_outline, "Newsletter", const NewsletterScreen()),
+              _tile(context, Icons.verified_outlined, "Verificação", const VerificacaoScreen()),
+              _tile(context, Icons.account_circle_outlined, "Minha conta", const ContaScreen()),
+            ]),
           ),
           const SizedBox(height: 22),
           const Text("MINHAS PUBLICAÇÕES",

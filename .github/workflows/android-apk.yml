@@ -46,6 +46,9 @@ jobs:
           MAN="android/app/src/main/AndroidManifest.xml"
           grep -q 'android.permission.INTERNET' "$MAN" || \
             sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <application|' "$MAN"
+          # Permite abrir links externos (url_launcher) no Android 11+
+          grep -q 'android.intent.action.VIEW' "$MAN" || \
+            sed -i 's|</manifest>|  <queries>\n    <intent>\n      <action android:name="android.intent.action.VIEW"/>\n      <data android:scheme="https"/>\n    </intent>\n  </queries>\n</manifest>|' "$MAN"
           echo "----- AndroidManifest -----"; cat "$MAN"
 
       # Máxima compatibilidade: Android 5.0+ (minSdk 21)
