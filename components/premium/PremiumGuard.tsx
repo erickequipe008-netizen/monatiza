@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
+import { countUnread, markMessagesSeen } from "@/lib/premium/messages";
 
 const PRIMARY = [
   { href: "/app", label: "Início", icon: Home },
@@ -63,6 +64,36 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname() || "/app";
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const onMensagens = pathname.startsWith("/app/mensagens");
+
+  // não lidas: zera ao entrar em Mensagens, senão conta
+  useEffect(() => {
+    if (!user?.id) return;
+    if (onMensagens) {
+      markMessagesSeen();
+      setUnread(0);
+      return;
+    }
+    countUnread().then(setUnread);
+  }, [user?.id, onMensagens]);
+
+  // tempo real: nova mensagem recebida fora da aba → +1 no badge
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch = supabase
+      .channel("dm-unread")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (payload) => {
+        const m = payload.new as { recipient_id: string };
+        if (m.recipient_id === user.id && !window.location.pathname.startsWith("/app/mensagens")) {
+          setUnread((n) => n + 1);
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (loading) return;
@@ -140,7 +171,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
             </Link>
             <Link
               href="/app/mensagens"
-              className={`rounded-full p-2.5 transition ${
+              className={`relative rounded-full p-2.5 transition ${
                 isActive(pathname, "/app/mensagens")
                   ? "pro-gradient text-white"
                   : "text-zinc-400 hover:bg-white/5 hover:text-white"
@@ -148,6 +179,11 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
               aria-label="Mensagens"
             >
               <MessageCircle size={19} />
+              {unread > 0 && (
+                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
+                  {unread > 99 ? "99+" : unread}
+                </span>
+              )}
             </Link>
 
             <div className="relative">

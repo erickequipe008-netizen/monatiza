@@ -7,6 +7,7 @@ import { fetchLatest, fetchPremium, type ArticleCard } from "@/lib/premium/artic
 import { getRecommended } from "@/lib/premium/recommend";
 import { ensureProfile, listPosts, type Post, type CommunityProfile } from "@/lib/premium/community";
 import { HeroCard, BigCard, RowCard, SmallCard } from "@/components/premium/PremiumCards";
+import QuoteOfDay from "@/components/premium/QuoteOfDay";
 import PostCard from "@/components/premium/PostCard";
 import PostComposer from "@/components/premium/PostComposer";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
@@ -112,6 +113,9 @@ export default function PremiumHome() {
           Sua leitura de hoje
         </h1>
       </div>
+
+      {/* Frase do dia */}
+      <QuoteOfDay />
 
       {/* Comunidade — publique e veja o que os assinantes estão dizendo */}
       <section>

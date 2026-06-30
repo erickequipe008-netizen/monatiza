@@ -19,6 +19,7 @@ export interface Conversation {
   content: string;
   created_at: string;
   profile?: CommunityProfile;
+  unread?: number;
 }
 
 async function uid(): Promise<string | null> {
@@ -26,6 +27,29 @@ async function uid(): Promise<string | null> {
     data: { session },
   } = await supabase.auth.getSession();
   return session?.user.id ?? null;
+}
+
+// ── Não lidas (estilo WhatsApp/Instagram), via marcador local ──
+const SEEN_KEY = "dm_last_seen";
+
+function lastSeenISO(): string {
+  if (typeof window === "undefined") return "1970-01-01T00:00:00Z";
+  return localStorage.getItem(SEEN_KEY) || "1970-01-01T00:00:00Z";
+}
+
+export function markMessagesSeen() {
+  if (typeof window !== "undefined") localStorage.setItem(SEEN_KEY, new Date().toISOString());
+}
+
+export async function countUnread(): Promise<number> {
+  const me = await uid();
+  if (!me) return 0;
+  const { count } = await supabase
+    .from("direct_messages")
+    .select("id", { count: "exact", head: true })
+    .eq("recipient_id", me)
+    .gt("created_at", lastSeenISO());
+  return count ?? 0;
 }
 
 export async function listConversations(): Promise<Conversation[]> {
@@ -38,10 +62,13 @@ export async function listConversations(): Promise<Conversation[]> {
     .order("created_at", { ascending: false })
     .limit(300);
 
+  const since = lastSeenISO();
   const latest = new Map<string, Conversation>();
+  const unread: Record<string, number> = {};
   (data || []).forEach((r: any) => {
     const other = r.sender_id === me ? r.recipient_id : r.sender_id;
     if (!latest.has(other)) latest.set(other, { other, content: r.content, created_at: r.created_at });
+    if (r.recipient_id === me && r.created_at > since) unread[other] = (unread[other] || 0) + 1;
   });
   const ids = [...latest.keys()];
   if (!ids.length) return [];
@@ -51,7 +78,7 @@ export async function listConversations(): Promise<Conversation[]> {
     .select("user_id, handle, display_name, avatar_url, verified")
     .in("user_id", ids);
   const pmap = new Map((profs || []).map((p: any) => [p.user_id, p]));
-  return [...latest.values()].map((c) => ({ ...c, profile: pmap.get(c.other) }));
+  return [...latest.values()].map((c) => ({ ...c, profile: pmap.get(c.other), unread: unread[c.other] || 0 }));
 }
 
 export async function fetchMessages(otherId: string): Promise<DirectMessage[]> {

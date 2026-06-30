@@ -83,22 +83,34 @@ export default function MensagensPage() {
 
           {convs.length ? (
             <div className="divide-y divide-white/5">
-              {convs.map((c) => (
-                <Link
-                  key={c.other}
-                  href={`/app/mensagens/${c.other}`}
-                  className="flex items-center gap-3 rounded-2xl px-2 py-3 transition hover:bg-white/5"
-                >
-                  <Avatar name={c.profile?.display_name || c.profile?.handle} url={c.profile?.avatar_url} size={48} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <p className="truncate font-bold text-zinc-100">{c.profile?.display_name || c.profile?.handle || "Membro"}</p>
-                      {c.profile?.verified && <VerifiedBadge size={14} />}
+              {convs.map((c) => {
+                const hasUnread = (c.unread ?? 0) > 0;
+                return (
+                  <Link
+                    key={c.other}
+                    href={`/app/mensagens/${c.other}`}
+                    className="flex items-center gap-3 rounded-2xl px-2 py-3 transition hover:bg-white/5"
+                  >
+                    <span className={hasUnread ? "pro-ring rounded-full p-[2px]" : ""}>
+                      <Avatar name={c.profile?.display_name || c.profile?.handle} url={c.profile?.avatar_url} size={48} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className={`truncate ${hasUnread ? "font-extrabold text-white" : "font-bold text-zinc-100"}`}>
+                          {c.profile?.display_name || c.profile?.handle || "Membro"}
+                        </p>
+                        {c.profile?.verified && <VerifiedBadge size={14} />}
+                      </div>
+                      <p className={`truncate text-[13px] ${hasUnread ? "text-zinc-200" : "text-zinc-500"}`}>{c.content}</p>
                     </div>
-                    <p className="truncate text-[13px] text-zinc-500">{c.content}</p>
-                  </div>
-                </Link>
-              ))}
+                    {hasUnread && (
+                      <span className="pro-badge pro-gradient ml-2 flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full px-1.5 text-[11px] font-extrabold text-white">
+                        {c.unread! > 99 ? "99+" : c.unread}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           ) : startable.length === 0 ? (
             <EmptyState

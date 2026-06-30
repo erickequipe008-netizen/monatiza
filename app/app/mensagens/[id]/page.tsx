@@ -99,10 +99,13 @@ export default function ChatPage() {
           msgs.map((m) => {
             const mine = m.sender_id === me;
             return (
-              <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+              <div key={m.id} className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"}`}>
+                {!mine && <Avatar name={name} url={other?.avatar_url} size={26} />}
                 <div
-                  className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-[14px] leading-relaxed ${
-                    mine ? "pro-gradient text-white" : "bg-white/10 text-zinc-100"
+                  className={`max-w-[74%] px-4 py-2.5 text-[14px] leading-relaxed shadow-sm ${
+                    mine
+                      ? "pro-gradient rounded-2xl rounded-br-md text-white"
+                      : "rounded-2xl rounded-bl-md bg-white/10 text-zinc-100"
                   }`}
                 >
                   {m.content}
@@ -117,23 +120,23 @@ export default function ChatPage() {
       </div>
 
       {/* compositor */}
-      <div className="flex items-center gap-2 border-t border-white/10 pt-3">
+      <div className="flex items-center gap-2.5 pt-3">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") send();
           }}
-          placeholder="Mensagem…"
-          className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-[#9B72CB]"
+          placeholder="Escreva uma mensagem…"
+          className="pro-glass flex-1 rounded-full px-5 py-3.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-[#9B72CB]"
         />
         <button
           onClick={send}
           disabled={sending || !text.trim()}
-          className="pro-gradient inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition hover:opacity-90 disabled:opacity-50"
+          className="pro-gradient pro-glow inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white transition hover:opacity-90 active:scale-95 disabled:opacity-50"
           aria-label="Enviar"
         >
-          {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+          {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
         </button>
       </div>
     </div>

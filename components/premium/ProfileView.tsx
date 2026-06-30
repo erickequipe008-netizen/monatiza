@@ -183,7 +183,7 @@ export default function ProfileView({
           {isMe ? (
             <button
               onClick={() => setEditing((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-2 text-[13px] font-bold text-zinc-200 transition hover:border-white/30"
+              className="pro-glass inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold text-zinc-200"
             >
               {editing ? <X size={14} /> : <Pencil size={14} />}
               {editing ? "Cancelar" : "Editar perfil"}
@@ -192,7 +192,7 @@ export default function ProfileView({
             <>
               <Link
                 href={`/app/mensagens/${profile.user_id}`}
-                className="rounded-full border border-white/15 px-4 py-2 text-[13px] font-bold text-zinc-200 transition hover:border-white/30"
+                className="pro-glass rounded-full px-4 py-2 text-[13px] font-bold text-zinc-200"
               >
                 Mensagem
               </Link>
@@ -257,7 +257,7 @@ export default function ProfileView({
             <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-zinc-400">Bio</label>
             <textarea value={form.bio} maxLength={160} rows={3} onChange={(e) => setForm({ ...form, bio: e.target.value })} className={`${inputCls} resize-none`} />
           </div>
-          <button onClick={save} disabled={saving} className="pro-gradient inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60">
+          <button onClick={save} disabled={saving} className="pro-gradient pro-glow inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60">
             {saving && <Loader2 size={14} className="animate-spin" />} Salvar perfil
           </button>
         </div>
