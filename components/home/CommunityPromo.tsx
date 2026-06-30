@@ -14,9 +14,51 @@ const PEOPLE = [
   { n: "C", g: "linear-gradient(120deg,#6D5BFF,#C56CFF)" },
 ];
 
-export default function CommunityPromo({ className = "" }: { className?: string }) {
+export default function CommunityPromo({
+  className = "",
+  variant = "full",
+}: {
+  className?: string;
+  variant?: "full" | "bar";
+}) {
   const { isSubscriber, loading } = useSubscriber();
   if (loading || isSubscriber) return null;
+
+  if (variant === "bar") {
+    return (
+      <div className={className}>
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0f] px-5 py-4">
+          <div className="pointer-events-none absolute -left-16 top-0 h-32 w-32 rounded-full bg-[#9B72CB]/30 blur-2xl" />
+          <div className="pointer-events-none absolute -right-12 bottom-0 h-32 w-32 rounded-full bg-[#FF2D87]/25 blur-2xl" />
+          <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[16px] font-black text-white"
+              style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
+            >
+              m
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-black leading-tight text-white">
+                Junte-se à{" "}
+                <span style={{ backgroundImage: "linear-gradient(120deg,#C56CFF,#FF2D87)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+                  Comunidade
+                </span>{" "}
+                de assinantes
+              </p>
+              <p className="text-[12.5px] text-zinc-400">Publique, debata e tenha mais alcance no MonatizaPlus.</p>
+            </div>
+            <Link
+              href="/assinantes"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-bold text-white"
+              style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
+            >
+              Assinar <Rocket size={14} />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>

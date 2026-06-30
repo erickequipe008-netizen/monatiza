@@ -243,7 +243,7 @@ export default function ProfileView({
             href={normalizeLink(profile.link) || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="pro-gradient-text mt-2 inline-flex items-center gap-1.5 text-[13.5px] font-bold"
+            className="mt-2 inline-flex items-center gap-1.5 text-[13.5px] font-bold text-sky-400 hover:text-sky-300 hover:underline"
           >
             <Link2 size={13} /> {prettyLink(profile.link)}
           </a>
