@@ -14,6 +14,7 @@ import { NewsletterBanner } from "@/components/home/NewsletterBanner";
 import { InstitutionalStrip } from "@/components/home/InstitutionalStrip";
 import { Skeleton } from "@/components/ui/Skeleton";
 import AdSlot from "@/components/ads/AdSlot";
+import CommunityPromo from "@/components/home/CommunityPromo";
 import { ExclusiveSection } from "@/components/home/ExclusiveSection";
 import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
@@ -144,7 +145,9 @@ export default function HomeClient({
             {/* ── CONTEÚDO EXCLUSIVO (premium) ── */}
             <ExclusiveSection dark={dark} articles={articles} />
 
-            {/* ── ANÚNCIO: meio do feed ── */}
+            {/* ── ANÚNCIO DA CASA: convite para a comunidade (só visitantes) ── */}
+            <CommunityPromo className="my-10" />
+            {/* anúncio normal do feed (assinante não vê nenhum dos dois) ── */}
             <AdSlot placement="homeInFeed" format="auto" minHeight={280} className="my-10" />
 
             <ArticleGrid dark={dark} articles={gridArticles} />
