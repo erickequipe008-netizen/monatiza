@@ -18,6 +18,7 @@ export interface Conversation {
   other: string;
   content: string;
   created_at: string;
+  fromMe: boolean;
   profile?: CommunityProfile;
   unread?: number;
 }
@@ -67,7 +68,8 @@ export async function listConversations(): Promise<Conversation[]> {
   const unread: Record<string, number> = {};
   (data || []).forEach((r: any) => {
     const other = r.sender_id === me ? r.recipient_id : r.sender_id;
-    if (!latest.has(other)) latest.set(other, { other, content: r.content, created_at: r.created_at });
+    if (!latest.has(other))
+      latest.set(other, { other, content: r.content, created_at: r.created_at, fromMe: r.sender_id === me });
     if (r.recipient_id === me && r.created_at > since) unread[other] = (unread[other] || 0) + 1;
   });
   const ids = [...latest.keys()];

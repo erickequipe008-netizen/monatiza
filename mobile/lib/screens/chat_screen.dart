@@ -105,18 +105,31 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemBuilder: (c, i) {
                           final m = _msgs[i];
                           final mine = m['sender_id'] == me;
-                          return Align(
-                            alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
-                              decoration: BoxDecoration(
-                                gradient: mine ? kProGradient : null,
-                                color: mine ? null : Colors.white10,
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: Text(m['content'] ?? '', style: const TextStyle(color: Colors.white)),
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: Row(
+                              mainAxisAlignment: mine ? MainAxisAlignment.end : MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                if (!mine) Padding(padding: const EdgeInsets.only(right: 6), child: memberAvatar(widget.other, 12)),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      gradient: mine ? kProGradient : null,
+                                      color: mine ? null : Colors.white10,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: const Radius.circular(18),
+                                        topRight: const Radius.circular(18),
+                                        bottomLeft: Radius.circular(mine ? 18 : 4),
+                                        bottomRight: Radius.circular(mine ? 4 : 18),
+                                      ),
+                                    ),
+                                    child: Text(m['content'] ?? '', style: const TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -124,7 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+              padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
               child: Row(
                 children: [
                   Expanded(
@@ -132,14 +145,25 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: _ctrl,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
-                      decoration: const InputDecoration(hintText: "Mensagem…"),
+                      decoration: InputDecoration(
+                        hintText: "Escreva uma mensagem…",
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.06),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(26), borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(26), borderSide: BorderSide.none),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  IconButton.filled(
-                    onPressed: _send,
-                    icon: const Icon(Icons.send),
-                    style: IconButton.styleFrom(backgroundColor: const Color(0xFF9B72CB)),
+                  GestureDetector(
+                    onTap: _send,
+                    child: Container(
+                      height: 48,
+                      width: 48,
+                      decoration: const BoxDecoration(shape: BoxShape.circle, gradient: kProGradient),
+                      child: const Icon(Icons.send, color: Colors.white, size: 20),
+                    ),
                   ),
                 ],
               ),

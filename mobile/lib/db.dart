@@ -344,7 +344,7 @@ Future<List<Map<String, dynamic>>> listConversations() async {
   final latest = <String, Map<String, dynamic>>{};
   for (final r in rows) {
     final other = (r['sender_id'] == me ? r['recipient_id'] : r['sender_id']) as String;
-    latest.putIfAbsent(other, () => {'other': other, 'content': r['content'], 'created_at': r['created_at']});
+    latest.putIfAbsent(other, () => {'other': other, 'content': r['content'], 'created_at': r['created_at'], 'fromMe': r['sender_id'] == me});
   }
   if (latest.isEmpty) return [];
   final profs = List<Map<String, dynamic>>.from(await _sb
@@ -374,4 +374,21 @@ Future<void> sendMessage(String otherId, String content) async {
   final me = myId;
   if (me == null || content.trim().isEmpty) return;
   await _sb.from('direct_messages').insert({'sender_id': me, 'recipient_id': otherId, 'content': content.trim()});
+}
+
+Future<List<Map<String, dynamic>>> listFollowing([String? userId]) async {
+  final uid = userId ?? myId;
+  if (uid == null) return [];
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', uid)
+      .order('created_at', ascending: false)
+      .limit(50));
+  if (rows.isEmpty) return [];
+  final ids = rows.map((r) => r['following_id']).toList();
+  return List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, verified')
+      .inFilter('user_id', ids));
 }

@@ -82,11 +82,14 @@ export default function ChatPage() {
         <Link href="/app/mensagens" className="text-zinc-400 transition hover:text-white">
           <ArrowLeft size={18} />
         </Link>
-        <Link href={other?.handle ? `/app/perfil/${other.handle}` : "#"} className="flex items-center gap-2.5">
-          <Avatar name={name} url={other?.avatar_url} size={36} />
-          <span className="flex items-center gap-1.5 font-bold text-white">
-            {name}
-            {other?.verified && <VerifiedBadge size={14} />}
+        <Link href={other?.handle ? `/app/perfil/${other.handle}` : "#"} className="flex min-w-0 items-center gap-2.5">
+          <Avatar name={name} url={other?.avatar_url} size={38} />
+          <span className="min-w-0 leading-tight">
+            <span className="flex items-center gap-1.5 font-bold text-white">
+              <span className="truncate">{name}</span>
+              {other?.verified && <VerifiedBadge size={14} />}
+            </span>
+            {other?.handle && <span className="block truncate text-[12px] text-zinc-500">@{other.handle}</span>}
           </span>
         </Link>
       </div>
