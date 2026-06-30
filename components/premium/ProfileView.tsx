@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Pencil, X, Loader2, CreditCard, Camera } from "lucide-react";
+import { Pencil, X, Loader2, CreditCard, Camera, Link2 } from "lucide-react";
 import {
   getMyProfile,
   updateProfile,
@@ -28,6 +28,15 @@ type Tab = "posts" | "followers" | "following";
 const inputCls =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-[#9B72CB]";
 
+function normalizeLink(v: string): string | null {
+  const t = v.trim();
+  if (!t) return null;
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
+function prettyLink(v: string): string {
+  return v.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+}
+
 export default function ProfileView({
   profile: initial,
   isMe,
@@ -45,7 +54,7 @@ export default function ProfileView({
   const [loadingTab, setLoadingTab] = useState(true);
   const [editing, setEditing] = useState(false);
 
-  const [form, setForm] = useState({ display_name: "", handle: "", bio: "", avatar_url: "", cover_url: "" });
+  const [form, setForm] = useState({ display_name: "", handle: "", bio: "", avatar_url: "", cover_url: "", link: "" });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
   const [upAvatar, setUpAvatar] = useState(false);
@@ -61,6 +70,7 @@ export default function ProfileView({
       bio: initial.bio || "",
       avatar_url: initial.avatar_url || "",
       cover_url: initial.cover_url || "",
+      link: initial.link || "",
     });
   }, [initial]);
 
@@ -110,6 +120,7 @@ export default function ProfileView({
       bio: form.bio.trim() || null,
       avatar_url: form.avatar_url || null,
       cover_url: form.cover_url || null,
+      link: normalizeLink(form.link),
     });
     setSaving(false);
     if (error) {
@@ -181,13 +192,21 @@ export default function ProfileView({
 
         <div className="mb-1 flex items-center gap-2">
           {isMe ? (
-            <button
-              onClick={() => setEditing((v) => !v)}
-              className="pro-glass inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold text-zinc-200"
-            >
-              {editing ? <X size={14} /> : <Pencil size={14} />}
-              {editing ? "Cancelar" : "Editar perfil"}
-            </button>
+            <>
+              <Link
+                href="/app/conta"
+                className="pro-glass inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold text-zinc-200"
+              >
+                <CreditCard size={14} /> Conta
+              </Link>
+              <button
+                onClick={() => setEditing((v) => !v)}
+                className="pro-glass inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold text-zinc-200"
+              >
+                {editing ? <X size={14} /> : <Pencil size={14} />}
+                {editing ? "Cancelar" : "Editar perfil"}
+              </button>
+            </>
           ) : (
             <>
               <Link
@@ -219,6 +238,16 @@ export default function ProfileView({
         </div>
         <p className="text-[14px] text-zinc-500">@{profile.handle}</p>
         {profile.bio && !editing && <p className="mt-2 text-[14px] leading-relaxed text-zinc-300">{profile.bio}</p>}
+        {profile.link && !editing && (
+          <a
+            href={normalizeLink(profile.link) || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pro-gradient-text mt-2 inline-flex items-center gap-1.5 text-[13.5px] font-bold"
+          >
+            <Link2 size={13} /> {prettyLink(profile.link)}
+          </a>
+        )}
 
         <div className="mt-3 flex items-center gap-5 text-[14px]">
           <button onClick={() => setTab("followers")} className="hover:underline">
@@ -227,11 +256,6 @@ export default function ProfileView({
           <button onClick={() => setTab("following")} className="hover:underline">
             <b className="font-extrabold text-white">{counts.following}</b> <span className="text-zinc-500">seguindo</span>
           </button>
-          {isMe && (
-            <Link href="/app/conta" className="ml-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-zinc-500 hover:text-white">
-              <CreditCard size={14} /> Conta
-            </Link>
-          )}
         </div>
 
         {isMe && !profile.verified && (
@@ -256,6 +280,10 @@ export default function ProfileView({
           <div>
             <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-zinc-400">Bio</label>
             <textarea value={form.bio} maxLength={160} rows={3} onChange={(e) => setForm({ ...form, bio: e.target.value })} className={`${inputCls} resize-none`} />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-zinc-400">Link (site)</label>
+            <input value={form.link} maxLength={120} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="https://seusite.com" className={inputCls} />
           </div>
           <button onClick={save} disabled={saving} className="pro-gradient pro-glow inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60">
             {saving && <Loader2 size={14} className="animate-spin" />} Salvar perfil

@@ -12,6 +12,7 @@ export interface CommunityProfile {
   bio: string | null;
   avatar_url: string | null;
   cover_url?: string | null;
+  link?: string | null;
   verified?: boolean | null;
   created_at?: string;
 }
@@ -104,6 +105,7 @@ export async function updateProfile(
       bio: p.bio,
       avatar_url: p.avatar_url,
       cover_url: p.cover_url,
+      link: p.link,
       handle: p.handle,
       updated_at: new Date().toISOString(),
     })

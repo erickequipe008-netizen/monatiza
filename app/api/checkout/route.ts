@@ -38,20 +38,23 @@ export async function POST(req: Request) {
 
     const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.monatiza.com";
 
-    // ui_mode: "elements" → checkout próprio no site (Payment Element), em vez da
-    // tela hospedada do Stripe. O client_secret é consumido pelo CheckoutElementsProvider.
+    // Checkout hospedado pela Stripe (página segura): cartão + Apple/Google Pay,
+    // sempre carrega (sem depender do Stripe.js no nosso domínio). Volta para /painel.
     const session = await getStripe().checkout.sessions.create({
-      ui_mode: "elements",
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
       metadata: { user_id: user.id, plano: planKey },
       subscription_data: { metadata: { user_id: user.id, plano: planKey } },
-      return_url: `${origin}/painel?sucesso=1`,
+      allow_promotion_codes: true,
+      locale: "pt-BR",
+      billing_address_collection: "auto",
+      success_url: `${origin}/painel?sucesso=1`,
+      cancel_url: `${origin}/assinantes`,
     });
 
-    return NextResponse.json({ clientSecret: session.client_secret });
+    return NextResponse.json({ url: session.url });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Erro ao iniciar o checkout";
     return NextResponse.json({ error: msg }, { status: 500 });

@@ -25,6 +25,7 @@ import {
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 import { countUnread, markMessagesSeen } from "@/lib/premium/messages";
+import { getMyProfile, type CommunityProfile } from "@/lib/premium/community";
 
 const PRIMARY = [
   { href: "/app", label: "Início", icon: Home },
@@ -65,6 +66,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const pathname = usePathname() || "/app";
   const [menuOpen, setMenuOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const onMensagens = pathname.startsWith("/app/mensagens");
 
   // não lidas: zera ao entrar em Mensagens, senão conta
@@ -93,6 +95,10 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
     return () => {
       supabase.removeChannel(ch);
     };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) getMyProfile().then(setProfile);
   }, [user?.id]);
 
   useEffect(() => {
@@ -131,7 +137,9 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   }
 
   const firstName = (user.name || user.email || "Assinante").split(" ")[0];
-  const initial = firstName.charAt(0).toUpperCase();
+  const displayName = profile?.display_name || firstName;
+  const initial = (displayName || "A").charAt(0).toUpperCase();
+  const avatarUrl = profile?.avatar_url || null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0">
@@ -192,9 +200,14 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                 className="pro-ring rounded-full p-[2px] transition hover:opacity-90"
                 aria-label="Menu da conta"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0a0a0c] text-[13px] font-bold text-white">
-                  {initial}
-                </span>
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+                ) : (
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0a0a0c] text-[13px] font-bold text-white">
+                    {initial}
+                  </span>
+                )}
               </button>
 
               {menuOpen && (
@@ -203,12 +216,17 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                   <div className="pro-pop absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-white/10 bg-[#15151b] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)]">
                     <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
                       <span className="pro-ring rounded-full p-[2px]">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#15151b] text-[13px] font-bold text-white">
-                          {initial}
-                        </span>
+                        {avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+                        ) : (
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#15151b] text-[13px] font-bold text-white">
+                            {initial}
+                          </span>
+                        )}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-[14px] font-bold text-white">{firstName}</p>
+                        <p className="truncate text-[14px] font-bold text-white">{displayName}</p>
                         <p className="truncate text-[12px] text-zinc-500">{user.email}</p>
                       </div>
                     </div>
