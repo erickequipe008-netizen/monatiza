@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-// Pagamento único de R$ 39,90 pelo selo de verificado (Checkout hospedado).
+// Assinatura mensal de R$ 39,90 pelo selo de verificado (Checkout hospedado, cancele quando quiser).
 export async function POST(req: Request) {
   try {
     const token = (req.headers.get("authorization") || "").replace("Bearer ", "").trim();
@@ -19,13 +19,14 @@ export async function POST(req: Request) {
     const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.monatiza.com";
 
     const session = await getStripe().checkout.sessions.create({
-      mode: "payment",
+      mode: "subscription",
       line_items: [
         {
           quantity: 1,
           price_data: {
             currency: "brl",
-            unit_amount: 3990, // R$ 39,90
+            unit_amount: 3990, // R$ 39,90/mês
+            recurring: { interval: "month" },
             product_data: { name: "Selo de verificado — Monatiza" },
           },
         },
@@ -33,6 +34,8 @@ export async function POST(req: Request) {
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
       metadata: { user_id: user.id, type: "verification" },
+      subscription_data: { metadata: { user_id: user.id, type: "verification" } },
+      locale: "pt-BR",
       success_url: `${origin}/app/verificacao?pago=1`,
       cancel_url: `${origin}/app/verificacao`,
     });

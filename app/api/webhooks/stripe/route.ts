@@ -73,6 +73,24 @@ export async function POST(req: Request) {
       event.type === "customer.subscription.deleted"
     ) {
       const sub = event.data.object as Stripe.Subscription;
+
+      // Assinatura do SELO de verificado: ao cancelar/expirar, remove o selo.
+      if (sub.metadata?.type === "verification") {
+        const uid = sub.metadata.user_id;
+        const active = sub.status === "active" || sub.status === "trialing";
+        if (uid && !active) {
+          await supabaseAdmin
+            .from("community_profiles")
+            .update({ verified: false, updated_at: new Date().toISOString() })
+            .eq("user_id", uid);
+          await supabaseAdmin
+            .from("verification_requests")
+            .update({ status: "canceled", updated_at: new Date().toISOString() })
+            .eq("user_id", uid);
+        }
+        return NextResponse.json({ received: true });
+      }
+
       const status =
         event.type === "customer.subscription.deleted"
           ? "canceled"

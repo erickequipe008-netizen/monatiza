@@ -20,10 +20,13 @@ export async function POST(req: Request) {
     }
     const user = userData.user;
 
-    const priceId = planKey === "anual" ? process.env.STRIPE_PRICE_ANUAL : process.env.STRIPE_PRICE_MENSAL;
-    if (!priceId) {
-      return NextResponse.json({ error: "Plano não configurado no servidor" }, { status: 500 });
-    }
+    // Preço recorrente criado na hora — evita depender de price IDs avulsos
+    // (one-time) mal configurados, que quebram o modo "subscription".
+    const PRICE = {
+      mensal: { unit_amount: 1990, interval: "month" as const, label: "MonatizaPlus · Mensal" },
+      anual: { unit_amount: 19900, interval: "year" as const, label: "MonatizaPlus · Anual" },
+    };
+    const price = PRICE[planKey];
 
     // garante a linha do assinante; status fica 'inactive' até o webhook confirmar o pagamento
     await supabaseAdmin.from("subscribers").upsert(
@@ -42,7 +45,17 @@ export async function POST(req: Request) {
     // sempre carrega (sem depender do Stripe.js no nosso domínio). Volta para /painel.
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: "brl",
+            unit_amount: price.unit_amount,
+            recurring: { interval: price.interval },
+            product_data: { name: price.label },
+          },
+        },
+      ],
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
       metadata: { user_id: user.id, plano: planKey },

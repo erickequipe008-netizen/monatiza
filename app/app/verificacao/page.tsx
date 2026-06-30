@@ -185,11 +185,11 @@ export default function VerificacaoPage() {
               className="pro-gradient pro-glow mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
             >
               {busy ? <Loader2 size={16} className="animate-spin" /> : null}
-              {busy ? "Abrindo…" : "Quero o selo · R$ 39,90"}
+              {busy ? "Abrindo…" : "Quero o selo · R$ 39,90/mês"}
               {!busy && <ArrowRight size={16} />}
             </button>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
-              <Lock size={11} /> Pagamento único e seguro • sem mensalidade
+              <Lock size={11} /> Assinatura mensal e segura • cancele quando quiser
             </p>
           </div>
         </div>
