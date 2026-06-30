@@ -85,7 +85,7 @@ function PagamentoInner() {
         <div className="relative z-10 flex items-center gap-4 border-t border-white/10 pt-6 text-xs text-zinc-500">
           <span className="uppercase tracking-[0.3em]">Cancele quando quiser</span>
           <span className="h-px flex-1 bg-white/10" />
-          <span className="pro-gradient-text uppercase tracking-[0.3em]">via Stripe</span>
+          <span className="pro-gradient-text uppercase tracking-[0.3em]">monatiza</span>
         </div>
       </div>
 
@@ -133,8 +133,8 @@ function PagamentoInner() {
               <ShieldCheck size={13} /> Como funciona a cobrança
             </p>
             <p className="text-[11.5px] leading-relaxed text-zinc-500">
-              O pagamento é processado pela <b className="text-zinc-300">Stripe</b> em ambiente
-              criptografado — não armazenamos os dados do seu cartão. A assinatura
+              O pagamento é processado em ambiente seguro e criptografado — não armazenamos os dados
+              do seu cartão. A assinatura
               {plano === "anual" ? " anual" : " mensal"} é renovada automaticamente e você pode
               cancelar quando quiser em <span className="text-zinc-300">Minha conta</span>. Ao
               continuar, você concorda com os{" "}
@@ -144,7 +144,7 @@ function PagamentoInner() {
           </div>
 
           <p className="flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
-            <Lock size={12} /> Pagamento 100% seguro processado pela Stripe.
+            <Lock size={12} /> Pagamento 100% seguro e criptografado.
           </p>
 
           <Link href="/assinantes" className="block text-center text-sm font-semibold text-zinc-400 hover:text-white">

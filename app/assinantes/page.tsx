@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Crown, Sparkles, BookOpen, Ban, Zap, Users, ShieldCheck, Rocket, ArrowRight } from "lucide-react";
+import { Check, Crown, Sparkles, BookOpen, Ban, Zap, Users, ShieldCheck, ArrowRight } from "lucide-react";
 
 export const metadata = {
   title: "MonatizaPlus",
@@ -56,69 +56,65 @@ const BENEFITS = [
 
 export default function AssinantesPage() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#08080b] text-white">
-      {/* brilhos de fundo (estilo tecnológico) */}
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-[#7C3AED]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-40 top-1/3 h-[420px] w-[520px] rounded-full bg-[#FF2D87]/15 blur-[120px]" />
-      <div className="pointer-events-none absolute -left-40 bottom-0 h-[380px] w-[480px] rounded-full bg-[#4285F4]/10 blur-[120px]" />
-
-      {/* ── HERO ── */}
-      <section className="relative">
-        <div className="mx-auto max-w-[1100px] px-4 py-20 text-center md:px-5 md:py-28">
-          <span className="pro-gradient-text mb-6 inline-flex items-center gap-2 text-[12px] font-black uppercase tracking-[0.25em]">
-            <Crown size={14} /> MonatizaPlus
-          </span>
-          <h1 className="text-[36px] font-black leading-[1.02] tracking-tight md:text-[60px]">
-            Mais alcance.
-            <br className="hidden md:block" />{" "}
-            <span className="pro-gradient-text">Mais reconhecimento.</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-relaxed text-zinc-400 md:text-[18px]">
-            Assine o MonatizaPlus: jornalismo com profundidade e sem anúncios, sua voz com mais
-            alcance na comunidade e o selo de reconhecimento.
-          </p>
-          <a
-            href="#planos"
-            className="pro-gradient pro-glow mt-9 inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm font-bold text-white transition hover:opacity-90"
-          >
-            Ver planos <ArrowRight size={16} />
-          </a>
-        </div>
+    <div className="min-h-screen bg-white text-black">
+      {/* ── HERO minimalista (sem caixa forçada) ── */}
+      <section className="mx-auto max-w-[900px] px-4 pb-10 pt-16 text-center md:pt-24">
+        <span className="pro-gradient-text inline-flex items-center gap-2 text-[12px] font-black uppercase tracking-[0.25em]">
+          <Crown size={14} /> MonatizaPlus
+        </span>
+        <h1 className="mt-4 font-serif text-[40px] font-black leading-[1.03] tracking-tight md:text-[58px]">
+          Mais alcance.
+          <br className="hidden md:block" /> <span className="pro-gradient-text">Mais reconhecimento.</span>
+        </h1>
+        <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-zinc-500 md:text-[17px]">
+          Assine o MonatizaPlus: jornalismo com profundidade e sem anúncios, sua voz com mais alcance
+          na comunidade e o selo de reconhecimento.
+        </p>
+        <a
+          href="#planos"
+          className="pro-gradient mt-7 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white transition hover:opacity-90"
+        >
+          Ver planos <ArrowRight size={16} />
+        </a>
       </section>
 
       {/* ── BENEFÍCIOS ── */}
-      <section className="relative mx-auto max-w-[1100px] px-4 pb-6 md:px-5">
-        <h2 className="mb-10 text-center text-[24px] font-black tracking-tight md:text-[32px]">
-          O que você recebe ao assinar
-        </h2>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mx-auto max-w-[1100px] px-4 pb-4 md:px-5">
+        <div className="mb-9 flex items-center gap-3">
+          <h2 className="text-[22px] font-black tracking-tight md:text-[28px]">O que você recebe ao assinar</h2>
+          <div className="h-px flex-1 bg-zinc-200" />
+        </div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
           {BENEFITS.map((b) => (
             <div
               key={b.title}
-              className="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05]"
+              className="rounded-2xl border border-zinc-200 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <span className="pro-gradient inline-flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-lg shadow-[#9B72CB]/25">
+              <span className="pro-gradient inline-flex h-11 w-11 items-center justify-center rounded-xl text-white">
                 <b.icon size={22} strokeWidth={2.2} />
               </span>
-              <h3 className="mt-5 text-[17px] font-bold">{b.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-400">{b.desc}</p>
+              <h3 className="mt-4 text-[17px] font-black">{b.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-500">{b.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── PLANOS ── */}
-      <section id="planos" className="relative mx-auto max-w-[920px] px-4 py-20 md:px-5 md:py-24">
-        <h2 className="mb-12 text-center text-[24px] font-black tracking-tight md:text-[32px]">
-          Escolha seu plano
-        </h2>
+      <section id="planos" className="mx-auto max-w-[860px] px-4 py-16 md:px-5 md:py-20">
+        <div className="mb-9 flex items-center gap-3">
+          <h2 className="text-[22px] font-black tracking-tight md:text-[28px]">Escolha seu plano</h2>
+          <div className="h-px flex-1 bg-zinc-200" />
+        </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-3xl p-8 ${
-                plan.highlight ? "pro-border pro-glow" : "border border-white/10 bg-white/[0.03]"
+              className={`relative rounded-2xl bg-white p-8 ${
+                plan.highlight
+                  ? "border-2 border-transparent shadow-xl [background:linear-gradient(white,white)_padding-box,linear-gradient(120deg,#4285F4,#9B72CB,#FF2D87)_border-box]"
+                  : "border border-zinc-200"
               }`}
             >
               {plan.badge && (
@@ -126,18 +122,16 @@ export default function AssinantesPage() {
                   {plan.badge}
                 </span>
               )}
-              <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-400">{plan.name}</h3>
+              <h3 className="text-[13px] font-black uppercase tracking-widest text-zinc-500">{plan.name}</h3>
               <div className="mt-3 flex items-end gap-1">
-                <span className="text-[42px] font-black leading-none tracking-tight">{plan.price}</span>
+                <span className="text-[40px] font-black leading-none tracking-tight">{plan.price}</span>
                 <span className="mb-1 text-sm text-zinc-500">{plan.period}</span>
               </div>
 
-              <ul className="mt-7 space-y-3">
+              <ul className="mt-6 space-y-3">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-[14px] text-zinc-200">
-                    <span className="pro-gradient mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
-                      <Check size={12} strokeWidth={3} className="text-white" />
-                    </span>
+                  <li key={f} className="flex items-start gap-3 text-[14px] text-zinc-700">
+                    <Check size={18} className="mt-[1px] shrink-0 text-[#9B72CB]" strokeWidth={3} />
                     <span>{f}</span>
                   </li>
                 ))}
@@ -145,19 +139,19 @@ export default function AssinantesPage() {
 
               <Link
                 href={`/assinar?plano=${plan.plano}`}
-                className={`mt-8 flex items-center justify-center gap-2 rounded-full py-4 text-sm font-bold transition ${
+                className={`mt-8 block rounded-full py-4 text-center text-sm font-bold transition ${
                   plan.highlight
                     ? "pro-gradient text-white hover:opacity-90"
-                    : "border border-white/15 text-white hover:bg-white/5"
+                    : "border border-black text-black hover:bg-black hover:text-white"
                 }`}
               >
-                {plan.cta} <Rocket size={15} />
+                {plan.cta}
               </Link>
             </div>
           ))}
         </div>
 
-        <p className="mt-10 text-center text-sm text-zinc-500">
+        <p className="mt-8 text-center text-sm text-zinc-500">
           Já é assinante?{" "}
           <Link href="/painel/login" className="pro-gradient-text font-bold">
             Entrar
@@ -166,8 +160,8 @@ export default function AssinantesPage() {
       </section>
 
       {/* ── RODAPÉ ── */}
-      <div className="relative border-t border-white/10 py-8 text-center text-xs text-zinc-500">
-        <Link href="/" className="font-bold text-zinc-300 transition hover:text-white">
+      <div className="border-t border-zinc-200 py-8 text-center text-xs text-zinc-400">
+        <Link href="/" className="font-bold text-zinc-700 transition hover:text-black">
           monatiza
         </Link>
         {" · "}Apoie o jornalismo independente

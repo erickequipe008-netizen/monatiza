@@ -99,7 +99,7 @@ function AssinarForm() {
         <div className="relative z-10 flex items-center gap-4 border-t border-white/10 pt-6 text-xs text-zinc-500">
           <span className="uppercase tracking-[0.3em]">Pagamento seguro</span>
           <span className="h-px flex-1 bg-white/10" />
-          <span className="pro-gradient-text uppercase tracking-[0.3em]">via Stripe</span>
+          <span className="pro-gradient-text uppercase tracking-[0.3em]">monatiza</span>
         </div>
       </div>
 
