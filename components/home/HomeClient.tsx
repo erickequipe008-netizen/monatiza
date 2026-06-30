@@ -137,17 +137,15 @@ export default function HomeClient({
             <HeroSection dark={dark} featured={featured} sideArticles={sideArticles} />
             <Ticker dark={dark} articles={tickerArticles} />
 
-            {/* ── ANÚNCIO: faixa após o destaque ── */}
-            <AdSlot placement="homeTop" format="horizontal" minHeight={120} className="my-8" />
+            {/* ── BANNER DA COMUNIDADE (no lugar da publicidade) ── */}
+            <CommunityPromo className="my-8" />
 
             <SecondaryGrid dark={dark} articles={secondaryArticles} />
 
             {/* ── CONTEÚDO EXCLUSIVO (premium) ── */}
             <ExclusiveSection dark={dark} articles={articles} />
 
-            {/* ── ANÚNCIO DA CASA: convite para a comunidade (só visitantes) ── */}
-            <CommunityPromo className="my-10" />
-            {/* anúncio normal do feed (assinante não vê nenhum dos dois) ── */}
+            {/* ── ANÚNCIO: meio do feed ── */}
             <AdSlot placement="homeInFeed" format="auto" minHeight={280} className="my-10" />
 
             <ArticleGrid dark={dark} articles={gridArticles} />

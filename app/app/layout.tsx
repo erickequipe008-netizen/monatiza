@@ -6,7 +6,7 @@ const appFont = Manrope({ subsets: ["latin"], weight: ["400", "500", "600", "700
 
 // Área privada do assinante: fora dos índices de busca.
 export const metadata = {
-  title: "Monatiza",
+  title: { absolute: "Monatiza Plus" },
   robots: { index: false, follow: false },
 };
 

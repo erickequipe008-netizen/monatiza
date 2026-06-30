@@ -20,14 +20,14 @@ export default function CommunityPromo({ className = "" }: { className?: string 
 
   return (
     <div className={className}>
-      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b0f] px-6 py-10 text-center sm:px-10 sm:py-14">
+      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b0f] px-6 py-8 text-center sm:px-10 sm:py-10">
         {/* brilhos */}
         <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-[#9B72CB]/30 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-[#FF2D87]/25 blur-3xl" />
 
         <div className="relative mx-auto max-w-[560px]">
           {/* pílula superior */}
-          <div className="mx-auto mb-9 flex items-center justify-between gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 backdrop-blur">
+          <div className="mx-auto mb-6 flex items-center justify-between gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 backdrop-blur">
             <span
               className="flex h-7 w-7 items-center justify-center rounded-lg text-[14px] font-black text-white"
               style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
@@ -46,8 +46,8 @@ export default function CommunityPromo({ className = "" }: { className?: string 
             </span>
           </div>
 
-          <p className="text-[20px] font-semibold text-zinc-200 sm:text-[24px]">Junte-se à nossa</p>
-          <h3 className="mt-1 text-[40px] font-black leading-[0.95] tracking-tight sm:text-[52px]">
+          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Junte-se à nossa</p>
+          <h3 className="mt-1 text-[32px] font-black leading-[0.95] tracking-tight sm:text-[42px]">
             <span
               style={{
                 backgroundImage: "linear-gradient(120deg,#C56CFF,#FF2D87)",
@@ -64,7 +64,7 @@ export default function CommunityPromo({ className = "" }: { className?: string 
 
           {/* pílula "faça parte" */}
           <div
-            className="mx-auto mt-8 flex max-w-[460px] items-center justify-center gap-4 rounded-full p-2 pr-6"
+            className="mx-auto mt-6 flex max-w-[460px] items-center justify-center gap-4 rounded-full p-2 pr-6"
             style={{ backgroundImage: "linear-gradient(120deg,#7C3AED,#FF2D87)" }}
           >
             <div className="flex items-center">
@@ -88,14 +88,14 @@ export default function CommunityPromo({ className = "" }: { className?: string 
             </span>
           </div>
 
-          <p className="mx-auto mt-8 max-w-[440px] text-[15px] leading-relaxed text-zinc-300">
+          <p className="mx-auto mt-6 max-w-[440px] text-[15px] leading-relaxed text-zinc-300">
             Assine o MonatizaPlus e entre na comunidade: publique suas ideias, debata com
             outros assinantes e tenha mais alcance e reconhecimento.
           </p>
 
           <Link
             href="/assinantes"
-            className="mt-9 inline-flex items-center gap-2 rounded-full px-8 py-4 text-[15px] font-black text-white shadow-[0_18px_50px_-15px_rgba(255,45,135,0.6)] transition hover:opacity-90"
+            className="mt-7 inline-flex items-center gap-2 rounded-full px-8 py-4 text-[15px] font-black text-white shadow-[0_18px_50px_-15px_rgba(255,45,135,0.6)] transition hover:opacity-90"
             style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
           >
             Tornar-se assinante <Rocket size={17} />
