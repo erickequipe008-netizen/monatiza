@@ -17,6 +17,7 @@ import {
   CreditCard,
   ShieldCheck,
   Search,
+  MessageCircle,
   LogOut,
   Loader2,
   Crown,
@@ -34,6 +35,7 @@ const PRIMARY = [
 
 const MORE = [
   { href: "/app/perfil", label: "Meu perfil", icon: User },
+  { href: "/app/mensagens", label: "Mensagens", icon: MessageCircle },
   { href: "/app/verificacao", label: "Verificação", icon: ShieldCheck },
   { href: "/app/exclusivo", label: "Exclusivo", icon: Sparkles },
   { href: "/app/revistas", label: "Revistas", icon: BookOpen },
@@ -135,6 +137,17 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
               aria-label="Buscar"
             >
               <Search size={19} />
+            </Link>
+            <Link
+              href="/app/mensagens"
+              className={`rounded-full p-2.5 transition ${
+                isActive(pathname, "/app/mensagens")
+                  ? "pro-gradient text-white"
+                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              }`}
+              aria-label="Mensagens"
+            >
+              <MessageCircle size={19} />
             </Link>
 
             <div className="relative">

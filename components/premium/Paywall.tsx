@@ -6,6 +6,7 @@ import { Crown, Check, Lock } from "lucide-react";
 const BENEFITS = [
   "Acesso ilimitado e sem anúncios",
   "Conteúdo e séries exclusivas",
+  "Mais alcance e reconhecimento na comunidade",
   "Revista Monatiza e newsletter premium",
 ];
 
@@ -25,16 +26,16 @@ export default function Paywall({ floating = true }: { floating?: boolean }) {
 
       <div className="relative rounded-2xl border border-zinc-200 bg-white px-6 py-10 sm:px-12 sm:py-12 text-center shadow-[0_24px_60px_-30px_rgba(0,0,0,0.35)]">
         <span className="inline-flex items-center gap-2 rounded-full bg-[#0b0b0c] px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-white">
-          <Crown size={13} className="text-[#E0263B]" /> Conteúdo de assinante
+          <Crown size={13} className="text-[#E0263B]" /> Conteúdo MonatizaPlus
         </span>
 
         <h2 className="mx-auto mt-6 max-w-xl font-serif text-[26px] sm:text-[34px] font-black leading-[1.12] tracking-tight text-[#0b0b0c]">
-          Continue lendo tornando-se assinante.
+          Continue lendo com o MonatizaPlus.
         </h2>
 
         <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-zinc-500">
-          Jornalismo independente de negócios, IA, mercado e tecnologia — com
-          profundidade, sem anúncios e com a Revista Monatiza.
+          Jornalismo com profundidade, sem anúncios — e mais alcance e
+          reconhecimento para o seu perfil na comunidade.
         </p>
 
         <ul className="mx-auto mt-7 flex max-w-md flex-col gap-2.5 text-left">

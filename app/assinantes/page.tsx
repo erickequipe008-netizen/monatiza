@@ -2,15 +2,15 @@ import Link from "next/link";
 import { Check, Crown, Sparkles, BookOpen, Ban, Zap, Users, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Assinantes",
+  title: "MonatizaPlus",
   description:
-    "Assine a Monatiza: jornalismo independente de negócios, IA, mercado e tecnologia — sem anúncios e com conteúdo exclusivo.",
+    "Assine o MonatizaPlus: jornalismo sem anúncios, conteúdo exclusivo e mais alcance e reconhecimento para o seu perfil.",
 };
 
 // ── Ajuste preços e benefícios dos planos aqui ──────────────
 const PLANS = [
   {
-    name: "Digital",
+    name: "Plus Mensal",
     plano: "mensal",
     price: "R$ 19,90",
     period: "/mês",
@@ -21,12 +21,13 @@ const PLANS = [
       "Conteúdos sempre em primeiro lugar",
       "Acesso ilimitado e sem anúncios",
       "Mais alcance do seu perfil na comunidade",
+      "Mensagens diretas com outros assinantes",
       "Newsletter premium",
       "Cancele quando quiser",
     ],
   },
   {
-    name: "Anual",
+    name: "Plus Anual",
     plano: "anual",
     price: "R$ 199",
     period: "/ano",
@@ -34,11 +35,11 @@ const PLANS = [
     badge: "Economize 2 meses",
     cta: "Assinar anual",
     features: [
-      "Tudo do plano Digital",
+      "Tudo do MonatizaPlus Mensal",
       "2 meses grátis no plano anual",
       "Acesso à Revista Monatiza",
       "Conteúdo e séries exclusivas",
-      "Selo de verificado disponível",
+      "Selo de reconhecimento disponível",
       "Suporte prioritário",
     ],
   },
@@ -49,7 +50,7 @@ const BENEFITS = [
   { icon: Ban, title: "Sem anúncios", desc: "Leitura limpa, com foco total — sem banners no caminho." },
   { icon: Sparkles, title: "Conteúdo exclusivo", desc: "Análises, séries e bastidores só para assinantes." },
   { icon: Users, title: "Mais alcance de perfil", desc: "Sua voz na comunidade: publique, ganhe seguidores e apareça mais." },
-  { icon: ShieldCheck, title: "Mais segurança", desc: "Conta confiável, selo de verificado e seus dados protegidos." },
+  { icon: ShieldCheck, title: "Reconhecimento", desc: "Selo dourado ao lado do seu nome: mais credibilidade e destaque." },
   { icon: BookOpen, title: "Revista + Newsletter", desc: "A Revista Monatiza e a newsletter premium no seu e-mail." },
 ];
 
@@ -60,15 +61,15 @@ export default function AssinantesPage() {
       <section className="bg-black text-white">
         <div className="max-w-[1100px] mx-auto px-4 md:px-5 py-16 md:py-24 text-center">
           <span className="inline-flex items-center gap-2 text-red-500 text-[11px] font-black uppercase tracking-widest mb-5">
-            <Crown size={14} /> Assinantes Monatiza
+            <Crown size={14} /> MonatizaPlus
           </span>
           <h1 className="text-[34px] md:text-[56px] font-serif font-black leading-[1.05] tracking-tight">
-            Jornalismo independente
-            <br className="hidden md:block" /> vale o seu apoio
+            Mais alcance.
+            <br className="hidden md:block" /> Mais reconhecimento.
           </h1>
           <p className="text-zinc-300 text-[15px] md:text-[18px] mt-5 max-w-2xl mx-auto leading-relaxed">
-            Negócios, IA, mercado e tecnologia com profundidade — sem anúncios,
-            com conteúdo exclusivo e a Revista Monatiza.
+            Assine o MonatizaPlus: jornalismo com profundidade e sem anúncios,
+            sua voz com mais alcance na comunidade e o selo de reconhecimento.
           </p>
           <a
             href="#planos"

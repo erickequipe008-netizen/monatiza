@@ -153,22 +153,66 @@ export default function VerificacaoPage() {
           </p>
         </div>
       ) : (
-        <div className={`${card} p-7 text-center`}>
-          <div className="mx-auto mb-5 w-fit"><VerifiedBadge size={46} /></div>
-          <h1 className="text-[20px] font-extrabold text-white">Selo de verificado</h1>
-          <p className="mx-auto mt-2 max-w-xs text-sm text-zinc-400">
-            Ganhe o selo dourado ao lado do seu nome. Pagamento único.
-          </p>
-          {err && <p className="mt-4 text-sm text-red-300">{err}</p>}
-          <button
-            onClick={startPayment}
-            disabled={busy}
-            className="pro-gradient mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
-          >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : null}
-            {busy ? "Abrindo…" : "Continuar · R$ 39,90"}
-            {!busy && <ArrowRight size={16} />}
-          </button>
+        <div className="space-y-4">
+          <div className={`${card} p-7 text-center`}>
+            <div className="mx-auto mb-5 w-fit"><VerifiedBadge size={46} /></div>
+            <h1 className="text-[20px] font-extrabold text-white">Selo de reconhecimento</h1>
+            <p className="mx-auto mt-2 max-w-xs text-sm text-zinc-400">
+              O selo dourado ao lado do seu nome — mais credibilidade, alcance e destaque na comunidade.
+            </p>
+
+            <ul className="mx-auto mt-6 flex max-w-xs flex-col gap-3 text-left">
+              {[
+                "Selo dourado ao lado do seu nome",
+                "Mais alcance e destaque nas publicações",
+                "Perfil verificado e mais confiável",
+                "@ exclusivo, protegido só para você",
+              ].map((b) => (
+                <li key={b} className="flex items-start gap-2.5 text-[13.5px] text-zinc-200">
+                  <span className="mt-0.5 shrink-0 rounded-full bg-[#C9A24B]/15 p-1">
+                    <Check size={12} className="text-[#C9A24B]" />
+                  </span>
+                  {b}
+                </li>
+              ))}
+            </ul>
+
+            {err && <p className="mt-4 text-sm text-red-300">{err}</p>}
+            <button
+              onClick={startPayment}
+              disabled={busy}
+              className="pro-gradient mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+            >
+              {busy ? <Loader2 size={16} className="animate-spin" /> : null}
+              {busy ? "Abrindo…" : "Quero o selo · R$ 39,90"}
+              {!busy && <ArrowRight size={16} />}
+            </button>
+            <p className="mt-3 text-[11px] text-zinc-500">Pagamento único • sem mensalidade</p>
+          </div>
+
+          <div className={`${card} p-6`}>
+            <p className="mb-4 text-[12px] font-black uppercase tracking-widest text-zinc-500">Como funciona</p>
+            <ol className="space-y-4">
+              {[
+                { t: "Pague o selo", d: "R$ 39,90, pagamento único e seguro pela Stripe." },
+                { t: "Envie documento + selfie", d: "Verificação em 2 etapas, como nas grandes redes." },
+                { t: "Pronto em até 48h", d: "Aprovamos e o selo aparece ao lado do seu nome." },
+              ].map((s, i) => (
+                <li key={s.t} className="flex gap-3">
+                  <span className="pro-gradient flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="text-[14px] font-bold text-white">{s.t}</p>
+                    <p className="text-[12.5px] text-zinc-400">{s.d}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-5 flex items-center gap-1.5 text-[11px] text-zinc-500">
+              <Lock size={11} /> Seus documentos são privados e criptografados.
+            </p>
+          </div>
         </div>
       )}
     </div>

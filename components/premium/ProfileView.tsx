@@ -189,16 +189,24 @@ export default function ProfileView({
               {editing ? "Cancelar" : "Editar perfil"}
             </button>
           ) : (
-            <button
-              onClick={toggleFollow}
-              className={`rounded-full px-5 py-2 text-[13px] font-bold transition ${
-                following
-                  ? "border border-white/15 text-zinc-200 hover:border-[#E0263B] hover:text-[#E0263B]"
-                  : "pro-gradient text-white hover:opacity-90"
-              }`}
-            >
-              {following ? "Seguindo" : "Seguir"}
-            </button>
+            <>
+              <Link
+                href={`/app/mensagens/${profile.user_id}`}
+                className="rounded-full border border-white/15 px-4 py-2 text-[13px] font-bold text-zinc-200 transition hover:border-white/30"
+              >
+                Mensagem
+              </Link>
+              <button
+                onClick={toggleFollow}
+                className={`rounded-full px-5 py-2 text-[13px] font-bold transition ${
+                  following
+                    ? "border border-white/15 text-zinc-200 hover:border-[#E0263B] hover:text-[#E0263B]"
+                    : "pro-gradient text-white hover:opacity-90"
+                }`}
+              >
+                {following ? "Seguindo" : "Seguir"}
+              </button>
+            </>
           )}
         </div>
       </div>
