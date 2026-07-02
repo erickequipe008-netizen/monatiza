@@ -71,7 +71,8 @@ export async function POST(req: Request) {
   const admin = await requireAdmin(req);
   if (!admin) return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
 
-  const body = (await req.json()) as { user_id?: string; handle?: string; action?: string };
+  const body = (await req.json()) as { user_id?: string; handle?: string; action?: string; tier?: string };
+  const tier = body.tier === "silver" ? "silver" : "gold";
 
   // Verificação MANUAL por @ (libera o selo para qualquer pessoa, sem o fluxo pago)
   if (body.handle && (body.action === "grant" || body.action === "revoke")) {
@@ -83,14 +84,20 @@ export async function POST(req: Request) {
       .ilike("handle", handle)
       .maybeSingle();
     if (!prof) return NextResponse.json({ error: "Perfil não encontrado" }, { status: 404 });
-    await supabaseAdmin.from("community_profiles").update({ verified }).eq("user_id", prof.user_id);
+    await supabaseAdmin
+      .from("community_profiles")
+      .update({ verified, verified_tier: verified ? tier : null })
+      .eq("user_id", prof.user_id);
     return NextResponse.json({ ok: true, name: prof.display_name || prof.handle });
   }
 
   // Aprovar/rejeitar um pedido (fluxo pago)
   if (body.user_id && (body.action === "approve" || body.action === "reject")) {
     const verified = body.action === "approve";
-    await supabaseAdmin.from("community_profiles").update({ verified }).eq("user_id", body.user_id);
+    await supabaseAdmin
+      .from("community_profiles")
+      .update({ verified, verified_tier: verified ? tier : null })
+      .eq("user_id", body.user_id);
     await supabaseAdmin
       .from("verification_requests")
       .update({ status: verified ? "approved" : "rejected", updated_at: new Date().toISOString() })

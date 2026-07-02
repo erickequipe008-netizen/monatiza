@@ -38,7 +38,7 @@ export default function PainelLoginPage() {
       return;
     }
     const next = new URLSearchParams(window.location.search).get("next");
-    router.push(next || "/painel");
+    router.push(next || "/app");
   }
 
   async function loginGoogle() {
@@ -155,9 +155,9 @@ export default function PainelLoginPage() {
           </button>
 
           <p className="text-center text-sm text-zinc-400">
-            Ainda não é assinante?{" "}
-            <Link href="/assinantes" className="pro-gradient-text font-bold">
-              Ver planos
+            Não tem conta?{" "}
+            <Link href="/painel/cadastro" className="pro-gradient-text font-bold">
+              Criar conta grátis
             </Link>
           </p>
         </form>

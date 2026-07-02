@@ -19,6 +19,7 @@ function isInternal(pathname: string): boolean {
     pathname === "/painel/login" ||
     pathname === "/painel/recuperar" ||
     pathname === "/painel/redefinir" ||
+    pathname === "/painel/cadastro" ||
     pathname === "/convite"
   );
 }

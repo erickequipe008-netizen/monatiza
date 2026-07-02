@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Heart, MessageCircle, Trash2, Repeat2, X, Bookmark, Flag } from "lucide-react";
+import { useState, useRef } from "react";
+import { Heart, MessageCircle, Trash2, Repeat2, X, Bookmark, Flag, Play } from "lucide-react";
 import { togglePostLike, togglePostBookmark, reportPost, deletePost, repost, type Post } from "@/lib/premium/community";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
@@ -38,6 +38,40 @@ export function Avatar({
 // URL de vídeo? (mp4/webm/mov subidos pelo composer)
 function isVideoUrl(u?: string | null) {
   return !!u && /\.(mp4|webm|mov|m4v)($|\?)/i.test(u);
+}
+
+// Vídeo do post com botão de play bem visível (some ao tocar).
+function PostVideo({ src }: { src: string }) {
+  const ref = useRef<HTMLVideoElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+  return (
+    <div className="relative">
+      <video
+        ref={ref}
+        src={src}
+        playsInline
+        preload="metadata"
+        controls={playing}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        className="max-h-[520px] w-full bg-black"
+      />
+      {!playing && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            ref.current?.play();
+          }}
+          className="absolute inset-0 flex items-center justify-center bg-black/20 transition hover:bg-black/30"
+          aria-label="Reproduzir vídeo"
+        >
+          <span className="pro-gradient flex h-16 w-16 items-center justify-center rounded-full text-white shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+            <Play size={30} fill="currentColor" className="ml-1" />
+          </span>
+        </button>
+      )}
+    </div>
+  );
 }
 
 // Deixa #hashtags (busca) e @menções (perfil) clicáveis.
@@ -80,7 +114,7 @@ function QuotedCard({ post }: { post: Post }) {
       <div className="flex items-center gap-1.5 text-[13px]">
         <Avatar name={name} url={post.author?.avatar_url} size={18} />
         <span className="font-bold text-zinc-200">{name}</span>
-        {post.author?.verified && <VerifiedBadge size={12} />}
+        {post.author?.verified && <VerifiedBadge size={12} tier={post.author?.verified_tier} />}
         <span className="truncate text-zinc-500">@{handle}</span>
       </div>
       {post.content && <p className="mt-1 line-clamp-4 whitespace-pre-wrap text-[14px] text-zinc-300">{post.content}</p>}
@@ -183,7 +217,7 @@ export default function PostCard({
           >
             {name}
           </Link>
-          {display.author?.verified && <VerifiedBadge size={14} />}
+          {display.author?.verified && <VerifiedBadge size={14} tier={display.author?.verified_tier} />}
           <span className="truncate text-zinc-400">@{handle}</span>
           <span className="text-zinc-300">·</span>
           <span className="shrink-0 text-zinc-400">{timeAgo(display.created_at)}</span>
@@ -202,7 +236,7 @@ export default function PostCard({
         {display.image_url && (
           <div className="mt-2 overflow-hidden rounded-xl border border-white/10" onClick={(e) => e.stopPropagation()}>
             {isVideoUrl(display.image_url) ? (
-              <video src={display.image_url} controls playsInline preload="metadata" className="max-h-[520px] w-full bg-black" />
+              <PostVideo src={display.image_url} />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={display.image_url} alt="" className="max-h-[520px] w-full object-cover" />

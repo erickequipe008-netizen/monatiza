@@ -14,6 +14,7 @@ export interface CommunityProfile {
   cover_url?: string | null;
   link?: string | null;
   verified?: boolean | null;
+  verified_tier?: string | null;
   created_at?: string;
 }
 
@@ -142,7 +143,7 @@ async function enrich(rows: any[]): Promise<Post[]> {
   const [{ data: profs }, { data: likes }, { data: replies }, { data: marks }] = await Promise.all([
     supabase
       .from("community_profiles")
-      .select("user_id, handle, display_name, avatar_url, verified")
+      .select("user_id, handle, display_name, avatar_url, verified, verified_tier")
       .in("user_id", [...authorIds]),
     supabase.from("post_likes").select("post_id, user_id").in("post_id", allPostIds),
     supabase.from("posts").select("parent_id").in("parent_id", allPostIds),
@@ -367,7 +368,7 @@ async function profilesByIds(ids: string[]): Promise<CommunityProfile[]> {
   if (!ids.length) return [];
   const { data } = await supabase
     .from("community_profiles")
-    .select("user_id, handle, display_name, avatar_url, bio, verified")
+    .select("user_id, handle, display_name, avatar_url, bio, verified, verified_tier")
     .in("user_id", ids);
   const map = new Map((data || []).map((p: any) => [p.user_id, p]));
   return ids.map((id) => map.get(id)).filter(Boolean) as CommunityProfile[];
@@ -403,7 +404,7 @@ export async function getRecommendedProfiles(limit = 40): Promise<CommunityProfi
   }
   let q = supabase
     .from("community_profiles")
-    .select("user_id, handle, display_name, avatar_url, bio, verified")
+    .select("user_id, handle, display_name, avatar_url, bio, verified, verified_tier")
     .order("created_at", { ascending: false })
     .limit(limit);
   if (exclude.length) q = q.not("user_id", "in", `(${exclude.join(",")})`);
@@ -438,7 +439,7 @@ export async function searchProfiles(term: string): Promise<CommunityProfile[]> 
   if (!t) return [];
   const { data } = await supabase
     .from("community_profiles")
-    .select("user_id, handle, display_name, avatar_url, bio, verified")
+    .select("user_id, handle, display_name, avatar_url, bio, verified, verified_tier")
     .or(`handle.ilike.%${t}%,display_name.ilike.%${t}%`)
     .limit(20);
   return (data as CommunityProfile[]) || [];

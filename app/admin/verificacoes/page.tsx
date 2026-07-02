@@ -22,6 +22,7 @@ export default function AdminVerificacoesPage() {
   const [handle, setHandle] = useState("");
   const [manualMsg, setManualMsg] = useState("");
   const [manualBusy, setManualBusy] = useState(false);
+  const [tier, setTier] = useState<"gold" | "silver">("gold");
 
   async function load() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -43,7 +44,7 @@ export default function AdminVerificacoesPage() {
     await fetch("/api/admin/verifications", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ user_id, action }),
+      body: JSON.stringify({ user_id, action, tier }),
     });
     await load();
     setActing(null);
@@ -58,7 +59,7 @@ export default function AdminVerificacoesPage() {
     const res = await fetch("/api/admin/verifications", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ handle: h, action }),
+      body: JSON.stringify({ handle: h, action, tier }),
     });
     const json = await res.json();
     setManualBusy(false);
@@ -104,8 +105,22 @@ export default function AdminVerificacoesPage() {
             <div className="rounded-2xl border border-gray-100 bg-white p-5">
               <h2 className="text-sm font-bold text-[#0b0b0c]">Verificar manualmente</h2>
               <p className="mb-3 mt-0.5 text-xs text-gray-500">
-                Libere (ou remova) o selo dourado para qualquer @ — sem precisar do pagamento.
+                Escolha o nível do selo — vale para a verificação manual e para aprovar os pedidos abaixo.
               </p>
+              <div className="mb-3 inline-flex rounded-lg border border-gray-200 p-0.5">
+                <button
+                  onClick={() => setTier("silver")}
+                  className={`rounded-md px-4 py-1.5 text-[13px] font-bold transition ${tier === "silver" ? "bg-[#0b0b0c] text-white" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  🥈 Prata · negócio real
+                </button>
+                <button
+                  onClick={() => setTier("gold")}
+                  className={`rounded-md px-4 py-1.5 text-[13px] font-bold transition ${tier === "gold" ? "bg-[#0b0b0c] text-white" : "text-gray-500 hover:text-gray-800"}`}
+                >
+                  🥇 Ouro · autoridade
+                </button>
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative min-w-[200px] flex-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@</span>

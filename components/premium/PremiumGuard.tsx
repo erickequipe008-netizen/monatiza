@@ -68,7 +68,7 @@ function FullScreen({ children }: { children: React.ReactNode }) {
 }
 
 export default function PremiumGuard({ children }: { children: React.ReactNode }) {
-  const { loading, isSubscriber, user, status } = useSubscriber();
+  const { loading, isSubscriber, user } = useSubscriber();
   const router = useRouter();
   const pathname = usePathname() || "/app";
   const [menuOpen, setMenuOpen] = useState(false);
@@ -146,20 +146,40 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
     };
   }, [user?.id]);
 
+  // App PÚBLICO: qualquer usuário logado entra. Se ainda não é assinante ativo,
+  // liberamos acesso grátis (linha de assinante ativa) para o RLS funcionar.
+  const [access, setAccess] = useState(false);
   useEffect(() => {
     if (loading) return;
     if (!user) {
       router.replace(`/painel/login?next=${encodeURIComponent(pathname)}`);
-    } else if (!isSubscriber) {
-      router.replace(status === "inactive" || status === "past_due" ? "/painel" : "/assinantes");
+      return;
     }
-  }, [loading, user, isSubscriber, status, pathname, router]);
+    if (isSubscriber) {
+      setAccess(true);
+      return;
+    }
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await fetch("/api/ensure-access", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+        }
+      } catch {
+        /* segue mesmo assim */
+      }
+      setAccess(true);
+    })();
+  }, [loading, user, isSubscriber, pathname, router]);
 
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
-  if (loading) {
+  if (loading || (user && !access)) {
     return (
       <FullScreen>
         <Loader2 className="animate-spin" size={22} />
@@ -167,7 +187,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
       </FullScreen>
     );
   }
-  if (!user || !isSubscriber) {
+  if (!user) {
     return (
       <FullScreen>
         <Crown size={22} className="text-[#9B72CB]" />
