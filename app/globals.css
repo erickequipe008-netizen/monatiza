@@ -148,8 +148,8 @@ body {
   border-color: rgba(255, 255, 255, 0.24);
 }
 
-/* Brilho suave sob botões em gradiente */
-.pro-glow { box-shadow: 0 12px 34px -12px rgba(155, 114, 203, 0.6); }
+/* Brilho suave sob botões em gradiente (discreto) */
+.pro-glow { box-shadow: 0 12px 30px -14px rgba(155, 114, 203, 0.4); }
 
 /* Contorno em gradiente (botão/realce com fundo translúcido) */
 .pro-border {
@@ -168,31 +168,39 @@ body {
 }
 .pro-badge { animation: pro-badge-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
-/* Aura suave animada (efeito Gemini) */
+/* Aura suave animada (efeito Gemini) — discreta, sem exagero de roxo */
 @keyframes pro-aura {
-  0%, 100% { opacity: 0.45; transform: scale(1); }
-  50%      { opacity: 0.8;  transform: scale(1.08); }
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50%      { opacity: 0.34; transform: scale(1.06); }
 }
 .pro-aura { animation: pro-aura 7s ease-in-out infinite; }
 
 /* ───────── Tema CLARO do app (classe .pro-light no contêiner do /app) ─────────
    Remapeia os padrões escuros mais usados para superfícies claras. */
-.pro-light { background-color: #ffffff !important; }
+.pro-light { background-color: #ffffff !important; color: #18181b; }
 .pro-light [class*="bg-[#0a0a0c]"] { background-color: #ffffff !important; }
 .pro-light [class*="bg-[#101014]"],
 .pro-light [class*="bg-[#15151b]"],
 .pro-light [class*="bg-[#0f0f14]"],
-.pro-light [class*="bg-[#0b0b0f]"] { background-color: #f4f4f5 !important; }
-.pro-light [class*="bg-white/"] { background-color: rgba(0, 0, 0, 0.045) !important; }
-.pro-light [class*="border-white/"] { border-color: rgba(0, 0, 0, 0.12) !important; }
-.pro-light [class*="ring-white/"] { --tw-ring-color: rgba(0, 0, 0, 0.12) !important; }
+.pro-light [class*="bg-[#0b0b0f]"] { background-color: #f4f4f6 !important; }
+/* superfícies translúcidas viram cartões claros com contraste */
+.pro-light [class*="bg-white/"] { background-color: #f3f3f5 !important; }
+.pro-light [class*="hover:bg-white/"]:hover { background-color: #ececf0 !important; }
+.pro-light [class*="border-white/"] { border-color: rgba(0, 0, 0, 0.14) !important; }
+.pro-light [class*="ring-white/"] { --tw-ring-color: rgba(0, 0, 0, 0.14) !important; }
 .pro-light [class*="divide-white/"] > * + * { border-color: rgba(0, 0, 0, 0.1) !important; }
+/* textos: garante contraste em fundo claro */
 .pro-light [class*="text-zinc-1"],
 .pro-light [class*="text-zinc-2"] { color: #18181b !important; }
 .pro-light [class*="text-zinc-3"] { color: #3f3f46 !important; }
-.pro-light [class*="text-zinc-4"] { color: #52525b !important; }
-.pro-light [class*="text-zinc-5"],
+.pro-light [class*="text-zinc-4"],
+.pro-light [class*="text-zinc-5"] { color: #565660 !important; }
 .pro-light [class*="text-zinc-6"] { color: #71717a !important; }
-.pro-light [class*="text-white"]:not([class*="pro-gradient"]):not(.pro-gradient *) { color: #111113 !important; }
-.pro-light .pro-glass { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.12); }
+.pro-light [class*="text-white"]:not([class*="pro-gradient"]):not(.pro-gradient *):not([class*="bg-"]) { color: #111113 !important; }
+.pro-light .pro-glass { background: #f3f3f5 !important; border-color: rgba(0, 0, 0, 0.14) !important; }
+.pro-light .pro-glass:hover { background: #ececf0 !important; }
 .pro-light ::placeholder { color: #8e8e93 !important; }
+/* auras/brilhos de fundo somem no claro (evita manchas roxas) */
+.pro-light [class*="blur-3xl"],
+.pro-light [class*="blur-[120px]"],
+.pro-light .pro-aura { display: none !important; }

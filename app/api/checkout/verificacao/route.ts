@@ -18,6 +18,11 @@ export async function POST(req: Request) {
 
     const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "https://www.monatiza.com";
 
+    const { tier: rawTier } = ((await req.json().catch(() => ({}))) || {}) as { tier?: string };
+    const tier = rawTier === "silver" ? "silver" : "gold";
+    const amount = tier === "silver" ? 2990 : 4990; // Prata R$29,90 · Ouro R$49,90
+    const name = tier === "silver" ? "Selo Prata — Monatiza" : "Selo Ouro — Monatiza";
+
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
       line_items: [
@@ -25,16 +30,16 @@ export async function POST(req: Request) {
           quantity: 1,
           price_data: {
             currency: "brl",
-            unit_amount: 3990, // R$ 39,90/mês
+            unit_amount: amount,
             recurring: { interval: "month" },
-            product_data: { name: "Selo de verificado — Monatiza" },
+            product_data: { name },
           },
         },
       ],
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
-      metadata: { user_id: user.id, type: "verification" },
-      subscription_data: { metadata: { user_id: user.id, type: "verification" } },
+      metadata: { user_id: user.id, type: "verification", tier },
+      subscription_data: { metadata: { user_id: user.id, type: "verification", tier } },
       locale: "pt-BR",
       success_url: `${origin}/app/verificacao?pago=1`,
       cancel_url: `${origin}/app/verificacao`,

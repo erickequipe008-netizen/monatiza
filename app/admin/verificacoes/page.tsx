@@ -8,6 +8,7 @@ import { Check, X, Loader2, Users, FileText, Film, BadgeCheck, Crown } from "luc
 interface Req {
   user_id: string;
   status: string;
+  tier?: string;
   created_at: string;
   profile: { handle?: string; display_name?: string; avatar_url?: string } | null;
   docUrl: string | null;
@@ -38,13 +39,14 @@ export default function AdminVerificacoesPage() {
 
   useEffect(() => { load(); }, []);
 
-  async function decide(user_id: string, action: "approve" | "reject") {
+  async function decide(user_id: string, action: "approve" | "reject", reqTier?: string) {
     setActing(user_id);
     const { data: { session } } = await supabase.auth.getSession();
     await fetch("/api/admin/verifications", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ user_id, action, tier }),
+      // usa o nível que a pessoa pagou; se não houver, usa o selecionado acima
+      body: JSON.stringify({ user_id, action, tier: reqTier || tier }),
     });
     await load();
     setActing(null);
@@ -171,7 +173,12 @@ export default function AdminVerificacoesPage() {
                             </span>
                           )}
                           <div className="min-w-0">
-                            <p className="font-bold text-[#0b0b0c]">{name}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold text-[#0b0b0c]">{name}</p>
+                              <span className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${r.tier === "silver" ? "bg-zinc-200 text-zinc-700" : "bg-amber-100 text-amber-700"}`}>
+                                {r.tier === "silver" ? "Prata" : "Ouro"}
+                              </span>
+                            </div>
                             <p className="text-[12px] text-gray-400">
                               @{r.profile?.handle} · {r.status === "review" ? "documentos enviados" : "aguardando documentos"}
                             </p>
@@ -208,12 +215,12 @@ export default function AdminVerificacoesPage() {
                           </button>
                           <div className="flex-1" />
                           <button
-                            onClick={() => decide(r.user_id, "approve")}
+                            onClick={() => decide(r.user_id, "approve", r.tier)}
                             disabled={acting === r.user_id}
                             className="flex items-center gap-1.5 rounded-lg bg-[#0b0b0c] px-4 py-1.5 text-[13px] font-semibold text-white transition hover:bg-[#E0263B] disabled:opacity-50"
                           >
                             {acting === r.user_id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                            Aprovar selo
+                            Aprovar selo {r.tier === "silver" ? "Prata" : "Ouro"}
                           </button>
                         </div>
                       </div>

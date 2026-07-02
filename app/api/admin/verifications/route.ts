@@ -44,7 +44,7 @@ export async function GET(req: Request) {
 
   const { data: reqs } = await supabaseAdmin
     .from("verification_requests")
-    .select("user_id, doc_url, selfie_url, status, created_at")
+    .select("user_id, doc_url, selfie_url, status, tier, created_at")
     .in("status", ["paid", "review"])
     .order("created_at", { ascending: true });
 
@@ -61,7 +61,7 @@ export async function GET(req: Request) {
     const selfieUrl = r.selfie_url
       ? (await supabaseAdmin.storage.from("verification").createSignedUrl(r.selfie_url, 300)).data?.signedUrl ?? null
       : null;
-    requests.push({ user_id: r.user_id, status: r.status, created_at: r.created_at, profile: prof, docUrl, selfieUrl });
+    requests.push({ user_id: r.user_id, status: r.status, tier: (r as { tier?: string }).tier ?? "gold", created_at: r.created_at, profile: prof, docUrl, selfieUrl });
   }
 
   return NextResponse.json({ stats, requests });

@@ -126,6 +126,16 @@ export default function PerfilPage() {
       data: { name: payload.name, display_name: payload.display_name },
     });
 
+    // reflete o nome/foto também no seu perfil da comunidade (app)
+    await supabase
+      .from("community_profiles")
+      .update({
+        display_name: payload.display_name || payload.name,
+        avatar_url: avatarUrl || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+
     setSaving(false);
     alert("Perfil salvo com sucesso!");
   }
