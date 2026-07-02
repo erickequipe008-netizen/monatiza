@@ -5,6 +5,7 @@ import { MessagesSquare, ArrowUp, Loader2 } from "lucide-react";
 import {
   ensureProfile,
   listPosts,
+  listFollowingPosts,
   getPost,
   type Post,
   type CommunityProfile,
@@ -20,6 +21,7 @@ const PAGE = 20;
 export default function ComunidadePage() {
   const { user } = useSubscriber();
   const [me, setMe] = useState<CommunityProfile | null>(null);
+  const [feed, setFeed] = useState<"all" | "following">("all");
   const [posts, setPosts] = useState<Post[]>([]);
   const [pendingIds, setPendingIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,28 +30,43 @@ export default function ComunidadePage() {
   const sentinel = useRef<HTMLDivElement | null>(null);
   const seen = useRef<Set<number>>(new Set());
 
+  const fetchPage = useCallback(
+    (limit: number, before?: string | null) =>
+      feed === "following" ? listFollowingPosts(limit, before) : listPosts(limit, before),
+    [feed]
+  );
+
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setDone(false);
+    setPendingIds([]);
     (async () => {
       const prof = await ensureProfile();
+      if (!active) return;
       setMe(prof);
-      const first = await listPosts(PAGE);
-      first.forEach((p) => seen.current.add(p.id));
+      const first = await fetchPage(PAGE);
+      if (!active) return;
+      seen.current = new Set(first.map((p) => p.id));
       setPosts(first);
       if (first.length < PAGE) setDone(true);
       setLoading(false);
     })();
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [fetchPage]);
 
   const loadMore = useCallback(async () => {
     if (loadingMore || done || posts.length === 0) return;
     setLoadingMore(true);
     const before = posts[posts.length - 1]?.created_at ?? null;
-    const next = await listPosts(PAGE, before);
+    const next = await fetchPage(PAGE, before);
     next.forEach((p) => seen.current.add(p.id));
     setPosts((prev) => [...prev, ...next]);
     if (next.length < PAGE) setDone(true);
     setLoadingMore(false);
-  }, [loadingMore, done, posts]);
+  }, [loadingMore, done, posts, fetchPage]);
 
   useEffect(() => {
     const el = sentinel.current;
@@ -92,6 +109,25 @@ export default function ComunidadePage() {
         title="Opinião pública"
         subtitle="Compartilhe ideias e debata com outros assinantes da Monatiza."
       />
+
+      {/* Para você | Seguindo */}
+      <div className="mb-2 flex border-b border-white/10">
+        {([
+          { key: "all", label: "Para você" },
+          { key: "following", label: "Seguindo" },
+        ] as const).map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setFeed(t.key)}
+            className={`relative flex-1 py-3 text-[13.5px] font-bold transition ${
+              feed === t.key ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            {t.label}
+            {feed === t.key && <span className="pro-gradient absolute inset-x-10 bottom-0 h-[3px] rounded-full" />}
+          </button>
+        ))}
+      </div>
 
       {me !== null && (
         <PostComposer

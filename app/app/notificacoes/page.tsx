@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, Heart, MessageCircle, Repeat2, UserPlus, Mail } from "lucide-react";
+import { Bell, Heart, MessageCircle, Repeat2, UserPlus, Mail, AtSign } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { listNotifications, type AppNotification } from "@/lib/premium/notifications";
 import { Avatar } from "@/components/premium/PostCard";
@@ -16,6 +16,7 @@ const META: Record<string, { icon: LucideIcon; text: string }> = {
   repost: { icon: Repeat2, text: "repostou sua publicação" },
   follow: { icon: UserPlus, text: "começou a seguir você" },
   message: { icon: Mail, text: "te enviou uma mensagem" },
+  mention: { icon: AtSign, text: "mencionou você em uma publicação" },
 };
 
 function hrefFor(n: AppNotification): string {

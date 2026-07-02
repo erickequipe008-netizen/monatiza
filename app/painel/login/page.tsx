@@ -125,6 +125,11 @@ export default function PainelLoginPage() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            <div className="text-right">
+              <Link href="/painel/recuperar" className="text-[13px] font-semibold text-zinc-400 hover:text-white">
+                Esqueceu a senha?
+              </Link>
+            </div>
           </div>
 
           <button

@@ -193,6 +193,24 @@ export async function listPosts(limit = 30, before?: string | null): Promise<Pos
   return enrich(data || []);
 }
 
+// Feed "Seguindo": posts de quem eu sigo (+ os meus).
+export async function listFollowingPosts(limit = 30, before?: string | null): Promise<Post[]> {
+  const me = await uid();
+  if (!me) return [];
+  const { data: fol } = await supabase.from("follows").select("following_id").eq("follower_id", me);
+  const ids = [me, ...(fol || []).map((r: any) => r.following_id)];
+  let q = supabase
+    .from("posts")
+    .select(POST_COLS)
+    .is("parent_id", null)
+    .in("user_id", ids)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (before) q = q.lt("created_at", before);
+  const { data } = await q;
+  return enrich(data || []);
+}
+
 export async function getPost(id: number): Promise<Post | null> {
   const { data } = await supabase.from("posts").select(POST_COLS).eq("id", id).maybeSingle();
   if (!data) return null;

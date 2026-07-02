@@ -35,22 +35,35 @@ export function Avatar({
   );
 }
 
-// Deixa #hashtags clicáveis (levam à busca).
+// Deixa #hashtags (busca) e @menções (perfil) clicáveis.
 function renderContent(text: string) {
-  return text.split(/(#[\p{L}0-9_]+)/gu).map((part, i) =>
-    /^#/.test(part) ? (
-      <Link
-        key={i}
-        href={`/app/busca?q=${encodeURIComponent(part)}`}
-        onClick={(e) => e.stopPropagation()}
-        className="text-[#9B72CB] hover:underline"
-      >
-        {part}
-      </Link>
-    ) : (
-      part
-    )
-  );
+  return text.split(/(#[\p{L}0-9_]+|@[A-Za-z0-9_]+)/gu).map((part, i) => {
+    if (/^#/.test(part)) {
+      return (
+        <Link
+          key={i}
+          href={`/app/busca?q=${encodeURIComponent(part)}`}
+          onClick={(e) => e.stopPropagation()}
+          className="text-[#9B72CB] hover:underline"
+        >
+          {part}
+        </Link>
+      );
+    }
+    if (/^@/.test(part)) {
+      return (
+        <Link
+          key={i}
+          href={`/app/perfil/${part.slice(1).toLowerCase()}`}
+          onClick={(e) => e.stopPropagation()}
+          className="text-[#9B72CB] hover:underline"
+        >
+          {part}
+        </Link>
+      );
+    }
+    return part;
+  });
 }
 
 // Card compacto da publicação citada.
