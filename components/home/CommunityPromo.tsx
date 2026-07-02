@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Rocket, Plus } from "lucide-react";
+import { ArrowUpRight, Plus } from "lucide-react";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
 // Anúncio "da casa": convida o visitante a CRIAR O PERFIL GRÁTIS e usar a rede social.
@@ -39,20 +39,20 @@ export default function CommunityPromo({
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-[15px] font-black leading-tight text-white">
-                Junte-se à{" "}
+                A{" "}
                 <span style={{ backgroundImage: "linear-gradient(120deg,#C56CFF,#FF2D87)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-                  Comunidade
+                  rede social
                 </span>{" "}
-                de assinantes
+                do Monatiza
               </p>
-              <p className="text-[12.5px] text-zinc-400">Crie seu perfil grátis, publique e siga pessoas no Monatiza.</p>
+              <p className="text-[12.5px] text-zinc-400">Notícias, publicações e debates sobre negócios em um só lugar.</p>
             </div>
             <Link
               href="/painel/cadastro"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-bold text-white"
               style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
             >
-              Criar perfil <Rocket size={14} />
+              Acessar <ArrowUpRight size={15} />
             </Link>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function CommunityPromo({
               m
             </span>
             <div className="text-left leading-tight">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400">Acesse agora</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400">Rede social</p>
               <p className="text-[13px] font-bold text-white">monatiza.com</p>
             </div>
             <span
@@ -88,7 +88,7 @@ export default function CommunityPromo({
             </span>
           </div>
 
-          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Faça parte da nossa</p>
+          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Conheça a</p>
           <h3 className="mt-1 text-[32px] font-black leading-[0.95] tracking-tight sm:text-[42px]">
             <span
               style={{
@@ -101,7 +101,7 @@ export default function CommunityPromo({
               Rede social
             </span>
             <br />
-            <span className="text-white">grátis</span>
+            <span className="text-white">do Monatiza</span>
           </h3>
 
           {/* pílula "faça parte" */}
@@ -124,15 +124,15 @@ export default function CommunityPromo({
               </span>
             </div>
             <span className="text-left text-[15px] font-bold leading-tight text-white">
-              Faça parte
+              Comunidade
               <br />
-              da comunidade
+              Monatiza
             </span>
           </div>
 
           <p className="mx-auto mt-6 max-w-[440px] text-[15px] leading-relaxed text-zinc-300">
-            Crie o seu perfil gratuito e entre na rede social do Monatiza: publique suas
-            ideias, siga pessoas e acompanhe as notícias que movem os negócios no Brasil.
+            A rede social do Monatiza reúne notícias, publicações e debates sobre
+            negócios, economia e tecnologia no Brasil — tudo em um só lugar.
           </p>
 
           <Link
@@ -140,7 +140,7 @@ export default function CommunityPromo({
             className="mt-7 inline-flex items-center gap-2 rounded-full px-8 py-4 text-[15px] font-black text-white shadow-[0_18px_50px_-15px_rgba(255,45,135,0.6)] transition hover:opacity-90"
             style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
           >
-            Criar meu perfil grátis <Rocket size={17} />
+            Acessar <ArrowUpRight size={17} />
           </Link>
         </div>
       </div>

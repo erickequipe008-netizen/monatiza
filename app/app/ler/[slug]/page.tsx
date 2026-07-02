@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Bookmark, Heart, Share2, Clock3, Loader2, Crown } from "lucide-react";
-import { fetchArticleBySlug, fetchArticleBody, type ArticleCard } from "@/lib/premium/articles";
+import { fetchArticleBySlug, fetchArticleBody, fetchLatest, type ArticleCard } from "@/lib/premium/articles";
 import {
   isBookmarked,
   toggleBookmark,
@@ -25,6 +25,14 @@ export default function Reader() {
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  // Recomendações no fim da matéria (rolagem infinita: conteúdo após conteúdo).
+  const [recs, setRecs] = useState<ArticleCard[]>([]);
+  const [recsDone, setRecsDone] = useState(false);
+  const recsBusy = useRef(false);
+  const recsCursor = useRef<string | null>(null);
+  const recsSeen = useRef<Set<number>>(new Set());
+  const recsSentinel = useRef<HTMLDivElement | null>(null);
 
   const startRef = useRef<number>(Date.now());
   const progressRef = useRef<number>(0);
@@ -80,6 +88,39 @@ export default function Reader() {
       }
     };
   }, [article]);
+
+  // Carrega mais recomendações (cursor por data) evitando repetir a própria matéria.
+  const loadRecs = useCallback(async () => {
+    if (recsBusy.current || recsDone || !article) return;
+    recsBusy.current = true;
+    const batch = await fetchLatest(8, recsCursor.current);
+    const fresh = batch.filter((a) => a.id !== article.id && !recsSeen.current.has(a.id));
+    fresh.forEach((a) => recsSeen.current.add(a.id));
+    if (batch.length > 0) recsCursor.current = batch[batch.length - 1].created_at ?? null;
+    if (batch.length < 8) setRecsDone(true);
+    if (fresh.length) setRecs((prev) => [...prev, ...fresh]);
+    recsBusy.current = false;
+  }, [article, recsDone]);
+
+  // Reinicia a lista ao trocar de matéria (ao clicar numa recomendação, avança do topo).
+  useEffect(() => {
+    if (!article) return;
+    recsSeen.current = new Set([article.id]);
+    recsCursor.current = null;
+    recsBusy.current = false;
+    setRecs([]);
+    setRecsDone(false);
+    window.scrollTo({ top: 0 });
+  }, [article?.id]);
+
+  // Observa o fim da página e vai puxando mais conteúdo automaticamente.
+  useEffect(() => {
+    const el = recsSentinel.current;
+    if (!el) return;
+    const io = new IntersectionObserver((e) => e[0].isIntersecting && loadRecs(), { rootMargin: "1000px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loadRecs, recsDone]);
 
   async function onSave() {
     if (!article) return;
@@ -232,6 +273,48 @@ export default function Reader() {
           Não foi possível carregar o conteúdo desta matéria.
         </p>
       )}
+
+      {/* ── Continue lendo — recomendações em rolagem infinita ── */}
+      <section className="mt-14 border-t border-white/10 pt-8">
+        {recs.length > 0 && (
+          <h2 className="mb-5 flex items-center gap-2 text-[16px] font-extrabold">
+            <span className="pro-gradient inline-block h-4 w-1.5 rounded-full" /> Continue lendo
+          </h2>
+        )}
+        <div className="space-y-3">
+          {recs.map((a, i) => (
+            <Link
+              key={`${a.id}-${i}`}
+              href={`/app/ler/${a.slug}`}
+              className="group flex gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:bg-white/[0.06]"
+            >
+              {a.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={a.image_url} alt="" className="h-[76px] w-[112px] shrink-0 rounded-xl object-cover" />
+              ) : (
+                <div className="pro-gradient h-[76px] w-[112px] shrink-0 rounded-xl opacity-25" />
+              )}
+              <div className="min-w-0 flex-1">
+                <span className="pro-gradient-text text-[10px] font-black uppercase tracking-widest">
+                  {a.category}
+                </span>
+                <h3 className="mt-0.5 line-clamp-2 text-[15px] font-bold leading-snug group-hover:underline">
+                  {a.title}
+                </h3>
+                <p className="mt-1 flex items-center gap-1 text-[11px] text-zinc-400">
+                  <Clock3 size={10} /> {timeAgo(a.created_at)}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+        {!recsDone && <div ref={recsSentinel} className="h-12" />}
+        {!recsDone && (
+          <div className="flex justify-center py-4 text-zinc-400">
+            <Loader2 className="animate-spin" size={18} />
+          </div>
+        )}
+      </section>
 
       <style>{`
         .reader-body { font-family: Georgia, 'Times New Roman', serif; font-size: 19px; line-height: 1.9; color: #d4d4d8; }
