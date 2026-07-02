@@ -19,6 +19,8 @@ import {
   Search,
   MessageCircle,
   Bell,
+  MoreHorizontal,
+  PenSquare,
   LogOut,
   Loader2,
   Crown,
@@ -68,6 +70,8 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname() || "/app";
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [q, setQ] = useState("");
   const [unread, setUnread] = useState(0);
   const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const [notif, setNotif] = useState(0);
@@ -169,8 +173,8 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0">
-      {/* ── BARRA SUPERIOR ── */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0c]/80 backdrop-blur-xl">
+      {/* ── BARRA SUPERIOR (celular/tablet) ── */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0c]/80 backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-4 px-4 md:px-6">
           <Link href="/app" className="flex items-center">
             <span className="text-[22px] font-extrabold tracking-tight text-white">monatiza</span>
@@ -299,10 +303,124 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
         </div>
       </header>
 
-      {/* ── CONTEÚDO ── */}
-      <main key={pathname} className="pro-pop mx-auto max-w-[1240px] px-4 py-6 md:px-6 md:py-10">
-        {children}
-      </main>
+      {/* ── CORPO: menu lateral (desktop) + conteúdo ── */}
+      <div className="mx-auto flex w-full max-w-[1300px]">
+        {/* menu lateral estilo grande rede social */}
+        <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-white/10 px-4 py-6 lg:flex">
+          <Link href="/app" className="px-3 text-[24px] font-extrabold tracking-tight text-white">
+            monatiza
+          </Link>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (q.trim()) router.push(`/app/busca?q=${encodeURIComponent(q.trim())}`);
+            }}
+            className="relative mt-5 px-1"
+          >
+            <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar"
+              className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-[14px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#9B72CB]"
+            />
+          </form>
+
+          <nav className="mt-5 flex-1 space-y-1 overflow-y-auto pro-scroll">
+            {[
+              { href: "/app", label: "Início", icon: Home },
+              { href: "/app/descobrir", label: "Explorar", icon: Compass },
+              { href: "/app/notificacoes", label: "Notificações", icon: Bell, badge: notif },
+              { href: "/app/mensagens", label: "Mensagens", icon: MessageCircle, badge: unread },
+              { href: "/app/comunidade", label: "Comunidade", icon: MessagesSquare },
+              { href: "/app/feed", label: "Notícias", icon: Newspaper },
+              { href: "/app/biblioteca", label: "Biblioteca", icon: Bookmark },
+              { href: "/app/perfil", label: "Perfil", icon: User },
+            ].map((item) => {
+              const Icon = item.icon;
+              const active = isActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3.5 rounded-full px-4 py-2.5 text-[15px] transition ${
+                    active ? "bg-white/5 font-extrabold text-white" : "font-semibold text-zinc-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <span className="relative">
+                    <Icon size={21} />
+                    {!!item.badge && item.badge > 0 && (
+                      <span className="pro-badge pro-gradient absolute -right-2 -top-1.5 flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-extrabold leading-none text-white">
+                        {item.badge > 99 ? "99+" : item.badge}
+                      </span>
+                    )}
+                  </span>
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            <button
+              onClick={() => setMoreOpen((v) => !v)}
+              className="flex w-full items-center gap-3.5 rounded-full px-4 py-2.5 text-[15px] font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+            >
+              <MoreHorizontal size={21} /> Mais
+            </button>
+            {moreOpen && (
+              <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
+                {MORE.filter((m) => !["/app/perfil", "/app/mensagens", "/app/notificacoes"].includes(m.href)).map(
+                  (item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                      >
+                        <Icon size={17} /> {item.label}
+                      </Link>
+                    );
+                  }
+                )}
+              </div>
+            )}
+
+            <Link
+              href="/app#publicar"
+              className="pro-gradient pro-glow mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
+            >
+              <PenSquare size={17} /> Publicar
+            </Link>
+          </nav>
+
+          {/* perfil no rodapé */}
+          <div className="mt-4 flex items-center gap-3 rounded-full px-2 py-2 transition hover:bg-white/5">
+            <Link href="/app/perfil" className="flex min-w-0 flex-1 items-center gap-3">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+              ) : (
+                <span className="pro-gradient flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-bold text-white">
+                  {initial}
+                </span>
+              )}
+              <span className="min-w-0">
+                <span className="block truncate text-[14px] font-bold text-white">{displayName}</span>
+                {profile?.handle && <span className="block truncate text-[12px] text-zinc-500">@{profile.handle}</span>}
+              </span>
+            </Link>
+            <button onClick={logout} className="shrink-0 rounded-full p-2 text-zinc-500 transition hover:bg-white/10 hover:text-white" aria-label="Sair" title="Sair">
+              <LogOut size={17} />
+            </button>
+          </div>
+        </aside>
+
+        {/* ── CONTEÚDO ── */}
+        <main key={pathname} className="pro-pop min-w-0 flex-1 px-4 py-6 md:px-6 md:py-8">
+          {children}
+        </main>
+      </div>
 
       {/* ── BARRA INFERIOR (mobile) ── */}
       <nav
