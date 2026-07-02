@@ -108,7 +108,7 @@ export default function FeedPage() {
             </div>
           )}
           {done && items.length > 0 && (
-            <p className="py-8 text-center text-[13px] text-zinc-400">Você chegou ao fim. 🎉</p>
+            <p className="py-8 text-center text-[13px] text-zinc-400">Você está em dia. Não há mais publicações no momento.</p>
           )}
         </>
       )}

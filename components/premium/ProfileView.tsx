@@ -284,7 +284,7 @@ export default function ProfileView({
 
         {isMe && !profile.verified && (
           <Link href="/app/verificacao" className="pro-gradient-text mt-3 inline-flex items-center gap-1 text-[13px] font-bold">
-            ✦ Obter selo de verificado
+            Obter selo de verificação
           </Link>
         )}
       </div>

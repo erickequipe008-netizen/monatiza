@@ -203,7 +203,7 @@ export default function ChatPage() {
             );
           })
         ) : (
-          <p className="py-10 text-center text-sm text-zinc-500">Diga olá 👋</p>
+          <p className="py-10 text-center text-sm text-zinc-500">Nenhuma mensagem ainda. Envie a primeira e inicie a conversa.</p>
         )}
         <div ref={endRef} />
       </div>
