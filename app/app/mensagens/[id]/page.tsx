@@ -12,6 +12,25 @@ import { Spinner } from "@/components/premium/States";
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
+// Deixa links clicáveis dentro da mensagem.
+function linkify(text: string) {
+  return text.split(/(https?:\/\/[^\s]+)/g).map((part, i) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline decoration-white/50 underline-offset-2 hover:decoration-white"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    )
+  );
+}
+
 export default function ChatPage() {
   const params = useParams<{ id: string }>();
   const otherId = (params?.id as string) || "";
@@ -111,7 +130,7 @@ export default function ChatPage() {
                       : "rounded-2xl rounded-bl-md bg-white/10 text-zinc-100"
                   }`}
                 >
-                  {m.content}
+                  {linkify(m.content)}
                 </div>
               </div>
             );

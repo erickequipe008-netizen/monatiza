@@ -15,8 +15,8 @@ const PLANS = [
     price: "R$ 19,90",
     period: "/mês",
     highlight: false,
-    badge: "",
-    cta: "Assinar mensal",
+    badge: "Teste grátis",
+    cta: "Começar grátis",
     features: [
       "Conteúdos sempre em primeiro lugar",
       "Acesso ilimitado e sem anúncios",

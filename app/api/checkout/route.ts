@@ -59,7 +59,11 @@ export async function POST(req: Request) {
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
       metadata: { user_id: user.id, plano: planKey },
-      subscription_data: { metadata: { user_id: user.id, plano: planKey } },
+      subscription_data: {
+        metadata: { user_id: user.id, plano: planKey },
+        // Plano mensal começa com 7 dias grátis (só cobra depois do teste).
+        ...(planKey === "mensal" ? { trial_period_days: 7 } : {}),
+      },
       allow_promotion_codes: true,
       locale: "pt-BR",
       billing_address_collection: "auto",

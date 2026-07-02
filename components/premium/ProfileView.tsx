@@ -23,7 +23,7 @@ import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import { Spinner } from "@/components/premium/States";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
-type Tab = "posts" | "followers" | "following";
+type Tab = "posts" | "fotos" | "followers" | "following";
 
 const inputCls =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-[#9B72CB]";
@@ -50,6 +50,7 @@ export default function ProfileView({
   const [following, setFollowing] = useState(false);
   const [tab, setTab] = useState<Tab>("posts");
   const [posts, setPosts] = useState<Post[]>([]);
+  const [photos, setPhotos] = useState<Post[]>([]);
   const [people, setPeople] = useState<CommunityProfile[]>([]);
   const [loadingTab, setLoadingTab] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -92,6 +93,9 @@ export default function ProfileView({
       if (tab === "posts") {
         const d = await listUserPosts(profile.user_id);
         if (active) setPosts(d);
+      } else if (tab === "fotos") {
+        const d = await listUserPosts(profile.user_id);
+        if (active) setPhotos(d.filter((p) => !!p.image_url));
       } else {
         const d = tab === "followers" ? await listFollowers(profile.user_id) : await listFollowing(profile.user_id);
         if (active) setPeople(d);
@@ -151,6 +155,7 @@ export default function ProfileView({
 
   const TABS: { key: Tab; label: string }[] = [
     { key: "posts", label: "Publicações" },
+    { key: "fotos", label: "Fotos" },
     { key: "followers", label: "Seguidores" },
     { key: "following", label: "Seguindo" },
   ];
@@ -315,6 +320,23 @@ export default function ProfileView({
             posts.map((p) => <PostCard key={p.id} post={p} myId={user?.id} onDeleted={(id) => setPosts((prev) => prev.filter((x) => x.id !== id))} />)
           ) : (
             <p className="py-10 text-center text-sm text-zinc-500">Nenhuma publicação ainda.</p>
+          )
+        ) : tab === "fotos" ? (
+          photos.length ? (
+            <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
+              {photos.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/app/comunidade/${p.id}`}
+                  className="relative block aspect-square overflow-hidden rounded-lg ring-1 ring-white/10"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.image_url!} alt="" className="h-full w-full object-cover transition hover:scale-105" />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="py-10 text-center text-sm text-zinc-500">Nenhuma foto ainda.</p>
           )
         ) : people.length ? (
           people.map((p) => (

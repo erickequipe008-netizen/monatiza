@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase/client";
 import { Check, Lock, ShieldCheck, CreditCard, ArrowRight, Crown } from "lucide-react";
 
 const PLAN: Record<string, { label: string; price: string; period: string; note: string }> = {
-  mensal: { label: "MonatizaPlus Mensal", price: "R$ 19,90", period: "/mês", note: "Cobrança mensal, renovada automaticamente." },
+  mensal: { label: "MonatizaPlus Mensal", price: "R$ 19,90", period: "/mês", note: "Teste grátis, depois cobrança mensal. Cancele quando quiser." },
   anual: { label: "MonatizaPlus Anual", price: "R$ 199", period: "/ano", note: "Cobrança anual (2 meses grátis), renovada automaticamente." },
 };
 
