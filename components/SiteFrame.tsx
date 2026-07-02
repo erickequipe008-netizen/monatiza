@@ -18,7 +18,8 @@ function isInternal(pathname: string): boolean {
     pathname.startsWith("/assinar") ||
     pathname === "/painel/login" ||
     pathname === "/painel/recuperar" ||
-    pathname === "/painel/redefinir"
+    pathname === "/painel/redefinir" ||
+    pathname === "/convite"
   );
 }
 
