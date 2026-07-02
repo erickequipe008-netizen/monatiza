@@ -8,11 +8,26 @@ import type { CommunityProfile } from "@/lib/premium/community";
 export interface Story {
   id: number;
   user_id: string;
-  media_url: string;
-  media_type: "image" | "video" | string;
+  media_url: string | null;
+  media_type: "image" | "video" | "text" | string;
+  text_content?: string | null;
+  bg?: string | null;
   created_at: string;
   expires_at: string;
   viewedByMe?: boolean;
+}
+
+// Fundos disponíveis para story de texto.
+export const STORY_BGS: { key: string; css: string }[] = [
+  { key: "brand", css: "linear-gradient(135deg,#4285F4,#9B72CB,#FF5C8A)" },
+  { key: "noite", css: "linear-gradient(135deg,#141E30,#243B55)" },
+  { key: "fogo", css: "linear-gradient(135deg,#f12711,#f5af19)" },
+  { key: "verde", css: "linear-gradient(135deg,#11998e,#38ef7d)" },
+  { key: "rosa", css: "linear-gradient(135deg,#7C3AED,#FF2D87)" },
+];
+
+export function storyBgCss(key?: string | null): string {
+  return (STORY_BGS.find((b) => b.key === key) || STORY_BGS[0]).css;
 }
 
 export interface StoryGroup {
@@ -34,7 +49,7 @@ export async function listStoryGroups(): Promise<StoryGroup[]> {
   const me = await uid();
   const { data } = await supabase
     .from("stories")
-    .select("id, user_id, media_url, media_type, created_at, expires_at")
+    .select("id, user_id, media_url, media_type, text_content, bg, created_at, expires_at")
     .gt("expires_at", new Date().toISOString())
     .order("created_at", { ascending: true })
     .limit(200);
@@ -73,6 +88,17 @@ export async function createStory(mediaUrl: string, mediaType: "image" | "video"
   const me = await uid();
   if (!me) return false;
   const { error } = await supabase.from("stories").insert({ user_id: me, media_url: mediaUrl, media_type: mediaType });
+  return !error;
+}
+
+// Story de texto (frase + fundo em gradiente).
+export async function createTextStory(text: string, bg: string): Promise<boolean> {
+  const me = await uid();
+  const t = text.trim().slice(0, 280);
+  if (!me || !t) return false;
+  const { error } = await supabase
+    .from("stories")
+    .insert({ user_id: me, media_url: null, media_type: "text", text_content: t, bg });
   return !error;
 }
 

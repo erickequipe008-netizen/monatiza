@@ -1,13 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Plus, X, Eye, Trash2, Loader2 } from "lucide-react";
+import { Plus, X, Eye, Trash2, Loader2, ImagePlus, Type } from "lucide-react";
 import {
   listStoryGroups,
   createStory,
+  createTextStory,
   markStoryViewed,
   listStoryViewers,
   deleteStory,
+  storyBgCss,
+  STORY_BGS,
   type StoryGroup,
 } from "@/lib/premium/stories";
 import { uploadMedia } from "@/lib/premium/upload";
@@ -18,11 +21,142 @@ import type { CommunityProfile } from "@/lib/premium/community";
 
 const IMAGE_MS = 6000;
 
+// Botão reutilizável de criar story: abre o menu Foto/Vídeo ou Texto.
+// Usado na barra de stories e no "+" do perfil (estilo Instagram).
+export function AddStoryButton({
+  className = "",
+  children,
+  onCreated,
+}: {
+  className?: string;
+  children: React.ReactNode;
+  onCreated?: () => void;
+}) {
+  const [menu, setMenu] = useState(false);
+  const [textOpen, setTextOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [bg, setBg] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  async function pick(f: File | null) {
+    if (!f || busy) return;
+    const isVideo = f.type.startsWith("video/");
+    if (!isVideo && !f.type.startsWith("image/")) return;
+    setBusy(true);
+    const { url } = await uploadMedia(f, "stories");
+    if (url) {
+      await createStory(url, isVideo ? "video" : "image");
+      onCreated?.();
+    }
+    setBusy(false);
+    setMenu(false);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function publishText() {
+    if (!text.trim() || busy) return;
+    setBusy(true);
+    const ok = await createTextStory(text, STORY_BGS[bg].key);
+    setBusy(false);
+    if (ok) {
+      setText("");
+      setTextOpen(false);
+      setMenu(false);
+      onCreated?.();
+    }
+  }
+
+  return (
+    <>
+      <button onClick={() => setMenu(true)} className={className} aria-label="Adicionar story">
+        {busy ? <Loader2 size={16} className="animate-spin" /> : children}
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*,video/*"
+        className="hidden"
+        onChange={(e) => pick(e.target.files?.[0] || null)}
+      />
+
+      {menu && (
+        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setMenu(false)}>
+          <div
+            className="pro-pop w-full max-w-[420px] rounded-t-3xl border border-white/10 bg-[#101014] p-5 sm:rounded-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {!textOpen ? (
+              <>
+                <p className="mb-4 text-center text-[13px] font-black uppercase tracking-widest text-zinc-400">Novo story</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    className="pro-glass flex flex-col items-center gap-2 rounded-2xl py-6 text-zinc-100"
+                  >
+                    <ImagePlus size={26} className="text-[#9B72CB]" />
+                    <span className="text-[13px] font-bold">Foto ou vídeo</span>
+                  </button>
+                  <button
+                    onClick={() => setTextOpen(true)}
+                    className="pro-glass flex flex-col items-center gap-2 rounded-2xl py-6 text-zinc-100"
+                  >
+                    <Type size={26} className="text-[#FF5C8A]" />
+                    <span className="text-[13px] font-bold">Texto</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-[13px] font-black uppercase tracking-widest text-zinc-400">Story de texto</p>
+                  <button onClick={() => setTextOpen(false)} className="text-zinc-400 hover:text-white" aria-label="Voltar">
+                    <X size={16} />
+                  </button>
+                </div>
+                <div
+                  className="flex min-h-[180px] items-center justify-center rounded-2xl p-5"
+                  style={{ background: STORY_BGS[bg].css }}
+                >
+                  <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value.slice(0, 280))}
+                    placeholder="Escreva algo…"
+                    rows={3}
+                    autoFocus
+                    className="w-full resize-none border-0 bg-transparent text-center text-[20px] font-extrabold leading-snug text-white outline-none placeholder:text-white/60"
+                  />
+                </div>
+                <div className="mt-3 flex items-center justify-center gap-2">
+                  {STORY_BGS.map((b, i) => (
+                    <button
+                      key={b.key}
+                      onClick={() => setBg(i)}
+                      className={`h-7 w-7 rounded-full transition ${bg === i ? "ring-2 ring-white" : "opacity-70"}`}
+                      style={{ background: b.css }}
+                      aria-label={`Fundo ${b.key}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={publishText}
+                  disabled={!text.trim() || busy}
+                  className="pro-gradient pro-glow mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {busy && <Loader2 size={15} className="animate-spin" />} Publicar no story
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function StoriesBar() {
   const [groups, setGroups] = useState<StoryGroup[]>([]);
   const [open, setOpen] = useState<number | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const load = useCallback(() => {
     listStoryGroups().then(setGroups);
@@ -31,37 +165,19 @@ export default function StoriesBar() {
     load();
   }, [load]);
 
-  async function pick(f: File | null) {
-    if (!f || uploading) return;
-    const isVideo = f.type.startsWith("video/");
-    if (!isVideo && !f.type.startsWith("image/")) return;
-    setUploading(true);
-    const { url } = await uploadMedia(f, "stories");
-    if (url) {
-      await createStory(url, isVideo ? "video" : "image");
-      load();
-    }
-    setUploading(false);
-    if (fileRef.current) fileRef.current.value = "";
-  }
-
   return (
     <div className="mb-4">
       <div className="pro-scroll flex gap-4 overflow-x-auto pb-2">
         {/* criar story */}
-        <button onClick={() => fileRef.current?.click()} className="flex w-[68px] shrink-0 flex-col items-center gap-1.5">
-          <span className="relative flex h-[62px] w-[62px] items-center justify-center rounded-full border-2 border-dashed border-white/25 text-zinc-400 transition hover:border-[#9B72CB] hover:text-[#9B72CB]">
-            {uploading ? <Loader2 size={20} className="animate-spin" /> : <Plus size={22} />}
-          </span>
+        <div className="flex w-[68px] shrink-0 flex-col items-center gap-1.5">
+          <AddStoryButton
+            onCreated={load}
+            className="relative flex h-[62px] w-[62px] items-center justify-center rounded-full border-2 border-dashed border-white/25 text-zinc-400 transition hover:border-[#9B72CB] hover:text-[#9B72CB]"
+          >
+            <Plus size={22} />
+          </AddStoryButton>
           <span className="text-[11px] text-zinc-400">Seu story</span>
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*,video/*"
-          className="hidden"
-          onChange={(e) => pick(e.target.files?.[0] || null)}
-        />
+        </div>
 
         {groups.map((g, i) => (
           <button key={g.user.user_id} onClick={() => setOpen(i)} className="flex w-[68px] shrink-0 flex-col items-center gap-1.5">
@@ -100,6 +216,7 @@ function StoryViewer({ groups, start, onClose }: { groups: StoryGroup[]; start: 
   const group = groups[gi];
   const story = group?.stories[si];
   const isVideo = story?.media_type === "video";
+  const isText = story?.media_type === "text";
 
   const next = useCallback(() => {
     setViewers(null);
@@ -125,12 +242,11 @@ function StoryViewer({ groups, start, onClose }: { groups: StoryGroup[]; start: 
   const nextRef = useRef(next);
   nextRef.current = next;
 
-  // registra visualização
   useEffect(() => {
     if (story) markStoryViewed(story.id);
   }, [story?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // avanço automático para imagens
+  // avanço automático para imagem/texto
   useEffect(() => {
     if (!story || isVideo || viewers) return;
     setProgress(0);
@@ -157,10 +273,20 @@ function StoryViewer({ groups, start, onClose }: { groups: StoryGroup[]; start: 
         onClick={(e) => e.stopPropagation()}
       >
         {/* mídia */}
-        {isVideo ? (
+        {isText ? (
+          <div
+            key={story.id}
+            className="flex h-full w-full items-center justify-center p-8"
+            style={{ background: storyBgCss(story.bg) }}
+          >
+            <p className="text-center text-[26px] font-extrabold leading-snug text-white drop-shadow">
+              {story.text_content}
+            </p>
+          </div>
+        ) : isVideo ? (
           <video
             key={story.id}
-            src={story.media_url}
+            src={story.media_url || undefined}
             autoPlay
             playsInline
             className="h-full w-full object-contain"
@@ -172,7 +298,7 @@ function StoryViewer({ groups, start, onClose }: { groups: StoryGroup[]; start: 
           />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img key={story.id} src={story.media_url} alt="" className="h-full w-full object-contain" />
+          <img key={story.id} src={story.media_url || ""} alt="" className="h-full w-full object-contain" />
         )}
 
         {/* zonas de toque */}

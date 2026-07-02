@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { Share2, PlusCircle, Check, Loader2 } from "lucide-react";
+import { createTextStory } from "@/lib/premium/stories";
+
 // Frase do dia — muda automaticamente a cada dia (índice pelo dia do calendário).
 const QUOTES: { t: string; a: string }[] = [
   { t: "O risco vem de não saber o que você está fazendo.", a: "Warren Buffett" },
@@ -33,6 +37,32 @@ export default function QuoteOfDay() {
   const day = Math.floor(Date.now() / 86_400_000);
   const q = QUOTES[((day % QUOTES.length) + QUOTES.length) % QUOTES.length];
 
+  const [shared, setShared] = useState(false);
+  const [storied, setStoried] = useState<"idle" | "busy" | "done">("idle");
+
+  async function share() {
+    const text = `“${q.t}” — ${q.a} · via monatiza.com`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ text });
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
+      setShared(true);
+      setTimeout(() => setShared(false), 2200);
+    } catch {
+      /* usuário cancelou o compartilhamento */
+    }
+  }
+
+  async function toStory() {
+    if (storied !== "idle") return;
+    setStoried("busy");
+    const ok = await createTextStory(`“${q.t}” — ${q.a}`, "brand");
+    setStoried(ok ? "done" : "idle");
+    if (ok) setTimeout(() => setStoried("idle"), 3000);
+  }
+
   return (
     <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6 md:p-7">
       <div className="pro-gradient pro-aura pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-25 blur-3xl" />
@@ -40,6 +70,30 @@ export default function QuoteOfDay() {
         <p className="pro-gradient-text text-[11px] font-black uppercase tracking-[0.2em]">Frase do dia</p>
         <p className="mt-3 font-serif text-[20px] leading-snug text-white md:text-[24px]">“{q.t}”</p>
         <p className="mt-3 text-[13px] font-semibold text-zinc-400">— {q.a}</p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            onClick={share}
+            className="pro-glass inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[12.5px] font-bold text-zinc-100"
+          >
+            {shared ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />}
+            {shared ? "Copiada!" : "Compartilhar"}
+          </button>
+          <button
+            onClick={toStory}
+            disabled={storied === "busy"}
+            className="pro-glass inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[12.5px] font-bold text-zinc-100 disabled:opacity-60"
+          >
+            {storied === "busy" ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : storied === "done" ? (
+              <Check size={14} className="text-emerald-400" />
+            ) : (
+              <PlusCircle size={14} />
+            )}
+            {storied === "done" ? "Publicada no seu story!" : "Publicar no story"}
+          </button>
+        </div>
       </div>
     </div>
   );
