@@ -2,81 +2,50 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Compass, TrendingUp } from "lucide-react";
-import {
-  getRecommendedProfiles,
-  getTrendingHashtags,
-  follow,
-  unfollow,
-  type CommunityProfile,
-} from "@/lib/premium/community";
-import { Avatar } from "@/components/premium/PostCard";
-import VerifiedBadge from "@/components/premium/VerifiedBadge";
+import { Compass, TrendingUp, Newspaper } from "lucide-react";
+import { getTrendingHashtags } from "@/lib/premium/community";
+import { fetchLatest, fetchByCategory, type ArticleCard } from "@/lib/premium/articles";
+import { BigCard } from "@/components/premium/PremiumCards";
 import { Spinner, EmptyState, PageHeader } from "@/components/premium/States";
 
-function Row({ p }: { p: CommunityProfile }) {
-  const [following, setFollowing] = useState(false);
-  const [busy, setBusy] = useState(false);
+const CATS = ["Todas", "Negócios", "IA", "Mercado", "Brasil", "Tech", "Empreende", "Startups", "Carreira", "Saúde"];
 
-  async function toggle() {
-    const n = !following;
-    setFollowing(n);
-    setBusy(true);
-    if (n) await follow(p.user_id);
-    else await unfollow(p.user_id);
-    setBusy(false);
-  }
-
-  return (
-    <div className="flex items-center gap-3 border-b border-white/10 py-4">
-      <Link href={`/app/perfil/${p.handle}`} className="flex min-w-0 flex-1 items-center gap-3">
-        <Avatar name={p.display_name || p.handle} url={p.avatar_url} size={48} />
-        <div className="min-w-0">
-          <p className="flex items-center gap-1 truncate font-bold text-zinc-100">
-            {p.display_name || p.handle}
-            {p.verified && <VerifiedBadge size={13} />}
-          </p>
-          <p className="truncate text-[13px] text-zinc-500">@{p.handle}</p>
-          {p.bio && <p className="line-clamp-1 text-[13px] text-zinc-500">{p.bio}</p>}
-        </div>
-      </Link>
-      <button
-        onClick={toggle}
-        disabled={busy}
-        className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-bold transition disabled:opacity-60 ${
-          following ? "border border-white/15 text-zinc-200" : "pro-gradient text-white hover:opacity-90"
-        }`}
-      >
-        {following ? "Seguindo" : "Seguir"}
-      </button>
-    </div>
-  );
-}
-
-export default function DescobrirPage() {
-  const [people, setPeople] = useState<CommunityProfile[]>([]);
+export default function ExplorarPage() {
   const [trends, setTrends] = useState<{ tag: string; count: number }[]>([]);
+  const [cat, setCat] = useState("Todas");
+  const [articles, setArticles] = useState<ArticleCard[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      const [p, t] = await Promise.all([getRecommendedProfiles(40), getTrendingHashtags(8)]);
-      setPeople(p);
-      setTrends(t);
-      setLoading(false);
-    })();
+    getTrendingHashtags(10).then(setTrends);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    (async () => {
+      const data = cat === "Todas" ? await fetchLatest(24) : await fetchByCategory(`%${cat}%`, 24);
+      if (active) {
+        setArticles(data);
+        setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [cat]);
+
   return (
-    <div className="mx-auto max-w-[640px]">
+    <div className="mx-auto max-w-[980px]">
       <PageHeader
-        eyebrow={<><Compass size={14} /> Descobrir</>}
-        title="Explorar"
-        subtitle="Assuntos do momento e pessoas da comunidade para você seguir."
+        eyebrow={<><Compass size={14} /> Explorar</>}
+        title="Assuntos e artigos"
+        subtitle="O que está em alta na comunidade e as reportagens para você conferir."
       />
 
+      {/* Assuntos do momento */}
       {trends.length > 0 && (
-        <div className="mb-8">
+        <section className="mb-9">
           <h2 className="mb-3 flex items-center gap-2 text-[12px] font-black uppercase tracking-widest text-zinc-500">
             <TrendingUp size={14} /> Assuntos do momento
           </h2>
@@ -91,24 +60,43 @@ export default function DescobrirPage() {
               </Link>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {loading ? (
-        <Spinner />
-      ) : people.length ? (
-        <div>
-          {people.map((p) => (
-            <Row key={p.user_id} p={p} />
+      {/* Artigos */}
+      <section>
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="flex items-center gap-2 text-[12px] font-black uppercase tracking-widest text-zinc-500">
+            <Newspaper size={14} /> Artigos
+          </h2>
+        </div>
+
+        <div className="pro-scroll mb-6 flex gap-2 overflow-x-auto pb-1">
+          {CATS.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
+              className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-bold transition ${
+                cat === c ? "pro-gradient text-white" : "bg-white/5 text-zinc-400 hover:bg-white/10"
+              }`}
+            >
+              {c}
+            </button>
           ))}
         </div>
-      ) : (
-        <EmptyState
-          icon={Compass}
-          title="Sem recomendações por enquanto."
-          hint="Conforme mais assinantes entram na comunidade, eles aparecem aqui."
-        />
-      )}
+
+        {loading ? (
+          <Spinner />
+        ) : articles.length ? (
+          <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            {articles.map((a) => (
+              <BigCard key={a.id} a={a} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState icon={Newspaper} title="Nada nesta categoria ainda." hint="Escolha outra categoria." />
+        )}
+      </section>
     </div>
   );
 }

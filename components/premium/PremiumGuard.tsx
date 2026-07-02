@@ -21,6 +21,8 @@ import {
   Bell,
   MoreHorizontal,
   PenSquare,
+  Sun,
+  Moon,
   LogOut,
   Loader2,
   Crown,
@@ -72,7 +74,20 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("app_theme") === "light") setTheme("light");
+  }, []);
+
+  function toggleTheme() {
+    setTheme((t) => {
+      const n = t === "dark" ? "light" : "dark";
+      localStorage.setItem("app_theme", n);
+      return n;
+    });
+  }
   const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const [notif, setNotif] = useState(0);
   const onNotif = pathname.startsWith("/app/notificacoes");
@@ -172,7 +187,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const avatarUrl = profile?.avatar_url || null;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0">
+    <div className={`min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0 ${theme === "light" ? "pro-light" : ""}`}>
       {/* ── BARRA SUPERIOR (celular/tablet) ── */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0c]/80 backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-4 px-4 md:px-6">
@@ -200,6 +215,13 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <button
+              onClick={toggleTheme}
+              className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              aria-label={theme === "dark" ? "Tema claro" : "Tema escuro"}
+            >
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
             <Link
               href="/app/busca"
               className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
@@ -307,9 +329,19 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
       <div className="mx-auto flex w-full max-w-[1300px]">
         {/* menu lateral estilo grande rede social */}
         <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-white/10 px-4 py-6 lg:flex">
-          <Link href="/app" className="px-3 text-[24px] font-extrabold tracking-tight text-white">
-            monatiza
-          </Link>
+          <div className="flex items-center justify-between px-3">
+            <Link href="/app" className="text-[24px] font-extrabold tracking-tight text-white">
+              monatiza
+            </Link>
+            <button
+              onClick={toggleTheme}
+              className="rounded-full p-2 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              aria-label={theme === "dark" ? "Tema claro" : "Tema escuro"}
+              title={theme === "dark" ? "Tema claro" : "Tema escuro"}
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          </div>
 
           <form
             onSubmit={(e) => {

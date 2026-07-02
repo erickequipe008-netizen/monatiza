@@ -35,6 +35,11 @@ export function Avatar({
   );
 }
 
+// URL de vídeo? (mp4/webm/mov subidos pelo composer)
+function isVideoUrl(u?: string | null) {
+  return !!u && /\.(mp4|webm|mov|m4v)($|\?)/i.test(u);
+}
+
 // Deixa #hashtags (busca) e @menções (perfil) clicáveis.
 function renderContent(text: string) {
   return text.split(/(#[\p{L}0-9_]+|@[A-Za-z0-9_]+)/gu).map((part, i) => {
@@ -195,9 +200,13 @@ export default function PostCard({
           </p>
         )}
         {display.image_url && (
-          <div className="mt-2 overflow-hidden rounded-xl border border-white/10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={display.image_url} alt="" className="max-h-[520px] w-full object-cover" />
+          <div className="mt-2 overflow-hidden rounded-xl border border-white/10" onClick={(e) => e.stopPropagation()}>
+            {isVideoUrl(display.image_url) ? (
+              <video src={display.image_url} controls playsInline preload="metadata" className="max-h-[520px] w-full bg-black" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={display.image_url} alt="" className="max-h-[520px] w-full object-cover" />
+            )}
           </div>
         )}
 

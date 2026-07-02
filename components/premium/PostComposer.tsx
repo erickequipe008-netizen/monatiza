@@ -31,8 +31,12 @@ export default function PostComposer({
   function pickImage(f: File | null) {
     setErr("");
     if (!f) return;
-    if (!f.type.startsWith("image/")) {
-      setErr("Selecione uma imagem.");
+    if (!f.type.startsWith("image/") && !f.type.startsWith("video/")) {
+      setErr("Selecione uma imagem ou um vídeo.");
+      return;
+    }
+    if (f.size > 75 * 1024 * 1024) {
+      setErr("Arquivo muito grande (máx. 75 MB).");
       return;
     }
     setFile(f);
@@ -83,8 +87,12 @@ export default function PostComposer({
 
         {preview && (
           <div className="relative mt-1 w-fit">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="prévia" className="max-h-72 rounded-xl border border-white/10" />
+            {file?.type.startsWith("video/") ? (
+              <video src={preview} controls playsInline className="max-h-72 rounded-xl border border-white/10" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={preview} alt="prévia" className="max-h-72 rounded-xl border border-white/10" />
+            )}
             <button
               onClick={clearImage}
               className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-black"
@@ -113,12 +121,12 @@ export default function PostComposer({
             onClick={() => fileRef.current?.click()}
             className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13px] font-semibold text-[#E0263B] hover:bg-[#E0263B]/10"
           >
-            <ImagePlus size={18} /> Foto
+            <ImagePlus size={18} /> Foto/Vídeo
           </button>
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             className="hidden"
             onChange={(e) => pickImage(e.target.files?.[0] || null)}
           />

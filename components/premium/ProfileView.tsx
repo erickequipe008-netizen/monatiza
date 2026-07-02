@@ -22,6 +22,7 @@ import PostCard, { Avatar } from "@/components/premium/PostCard";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import { Spinner } from "@/components/premium/States";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
+import ImageAdjuster from "@/components/premium/ImageAdjuster";
 
 type Tab = "posts" | "fotos" | "followers" | "following";
 
@@ -60,6 +61,7 @@ export default function ProfileView({
   const [err, setErr] = useState("");
   const [upAvatar, setUpAvatar] = useState(false);
   const [upCover, setUpCover] = useState(false);
+  const [adjust, setAdjust] = useState<{ file: File; kind: "avatars" | "covers" } | null>(null);
   const avatarRef = useRef<HTMLInputElement | null>(null);
   const coverRef = useRef<HTMLInputElement | null>(null);
 
@@ -136,17 +138,23 @@ export default function ProfileView({
     setEditing(false);
   }
 
-  async function pickAvatar(f: File) {
-    setUpAvatar(true);
-    const { url } = await uploadMedia(f, "avatars");
-    setUpAvatar(false);
-    if (url) setForm((s) => ({ ...s, avatar_url: url }));
+  // abre o editor de enquadramento (arrastar + zoom) antes de salvar
+  function pickAvatar(f: File) {
+    if (f.type.startsWith("image/")) setAdjust({ file: f, kind: "avatars" });
   }
-  async function pickCover(f: File) {
-    setUpCover(true);
-    const { url } = await uploadMedia(f, "covers");
-    setUpCover(false);
-    if (url) setForm((s) => ({ ...s, cover_url: url }));
+  function pickCover(f: File) {
+    if (f.type.startsWith("image/")) setAdjust({ file: f, kind: "covers" });
+  }
+  async function doneAdjust(blob: Blob) {
+    if (!adjust) return;
+    const kind = adjust.kind;
+    const setUp = kind === "avatars" ? setUpAvatar : setUpCover;
+    setUp(true);
+    const jpg = new File([blob], `${kind}-${Date.now()}.jpg`, { type: "image/jpeg" });
+    const { url } = await uploadMedia(jpg, kind);
+    setUp(false);
+    if (url) setForm((s) => (kind === "avatars" ? { ...s, avatar_url: url } : { ...s, cover_url: url }));
+    setAdjust(null);
   }
 
   const name = profile.display_name || profile.handle || "Membro";
@@ -162,6 +170,17 @@ export default function ProfileView({
 
   return (
     <div className="pro-pop mx-auto max-w-[640px]">
+      {adjust && (
+        <ImageAdjuster
+          file={adjust.file}
+          round={adjust.kind === "avatars"}
+          outW={adjust.kind === "avatars" ? 400 : 1200}
+          outH={adjust.kind === "avatars" ? 400 : 360}
+          busy={upAvatar || upCover}
+          onCancel={() => setAdjust(null)}
+          onDone={doneAdjust}
+        />
+      )}
       {/* Capa */}
       <div className="relative h-36 w-full overflow-hidden rounded-3xl ring-1 ring-white/10 sm:h-48">
         {coverShown ? (
