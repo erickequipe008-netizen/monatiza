@@ -24,6 +24,7 @@ export default function Reader() {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const startRef = useRef<number>(Date.now());
   const progressRef = useRef<number>(0);
@@ -62,7 +63,9 @@ export default function Reader() {
     const onScroll = () => {
       const h = document.documentElement;
       const max = h.scrollHeight - h.clientHeight;
-      progressRef.current = max > 0 ? Math.min(1, h.scrollTop / max) : 0;
+      const p = max > 0 ? Math.min(1, h.scrollTop / max) : 0;
+      progressRef.current = p;
+      setProgress(Math.round(p * 100));
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -122,9 +125,19 @@ export default function Reader() {
     article.journalist_name && !String(article.journalist_name).includes("@")
       ? article.journalist_name
       : "Redação Monatiza";
+  const wordCount = (body || "").replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+  const readMin = Math.max(1, Math.round(wordCount / 200));
 
   return (
     <article className="mx-auto max-w-[720px]">
+      {/* barra de progresso de leitura */}
+      <div className="fixed inset-x-0 top-0 z-50 h-[3px]">
+        <div
+          className="pro-gradient h-full transition-[width] duration-150 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
       <Link
         href="/app"
         className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-zinc-500 hover:text-[#E0263B]"
@@ -133,7 +146,7 @@ export default function Reader() {
       </Link>
 
       <div className="mb-3 flex items-center gap-3">
-        <span className="text-[11px] font-black uppercase tracking-widest text-[#E0263B]">
+        <span className="pro-gradient-text text-[11px] font-black uppercase tracking-widest">
           {article.category}
         </span>
         {article.is_premium && (
@@ -162,7 +175,7 @@ export default function Reader() {
           <div>
             <p className="text-[13px] font-semibold text-zinc-200">Por {author}</p>
             <p className="mt-0.5 flex items-center gap-1 text-[11px] text-zinc-400">
-              <Clock3 size={10} /> {timeAgo(article.created_at)}
+              <Clock3 size={10} /> {timeAgo(article.created_at)} · {readMin} min de leitura
             </p>
           </div>
         </div>

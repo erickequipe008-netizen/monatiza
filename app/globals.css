@@ -204,3 +204,24 @@ body {
 .pro-light [class*="blur-3xl"],
 .pro-light [class*="blur-[120px]"],
 .pro-light .pro-aura { display: none !important; }
+/* Leitor de artigos no tema claro — evita o texto cinza apagado sobre o branco */
+.pro-light .reader-body { color: #27272a !important; }
+.pro-light .reader-body h2,
+.pro-light .reader-body h3 { color: #0b0b0c !important; }
+.pro-light .reader-body strong { color: #000000 !important; }
+.pro-light .reader-body blockquote { color: #52525b !important; border-left-color: #9B72CB !important; }
+.pro-light .reader-body a { color: #b21e8b !important; }
+.pro-light .reader-body hr { border-top-color: rgba(0, 0, 0, 0.12) !important; }
+
+/* ───────── Leitor de artigos — capitular (drop cap) em gradiente da marca ───────── */
+.reader-body > p:first-of-type::first-letter {
+  font-size: 3.1em;
+  line-height: 0.86;
+  font-weight: 800;
+  float: left;
+  margin: 0.04em 0.14em 0 0;
+  background-image: linear-gradient(120deg, #4285F4 0%, #9B72CB 48%, #FF5C8A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

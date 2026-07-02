@@ -4,8 +4,8 @@ import Link from "next/link";
 import { ArrowUpRight, Rocket, Plus } from "lucide-react";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
-// Anúncio "da casa": convida o visitante a assinar e entrar na comunidade.
-// Aparece no lugar de um anúncio do feed — escondido para quem já é assinante.
+// Anúncio "da casa": convida o visitante a CRIAR O PERFIL GRÁTIS e usar a rede social.
+// Aparece no lugar de um anúncio do feed — escondido para quem já está dentro do app.
 
 const PEOPLE = [
   { n: "A", g: "linear-gradient(120deg,#4285F4,#9B72CB)" },
@@ -45,14 +45,14 @@ export default function CommunityPromo({
                 </span>{" "}
                 de assinantes
               </p>
-              <p className="text-[12.5px] text-zinc-400">Publique, debata e tenha mais alcance no MonatizaPlus.</p>
+              <p className="text-[12.5px] text-zinc-400">Crie seu perfil grátis, publique e siga pessoas no Monatiza.</p>
             </div>
             <Link
-              href="/assinantes"
+              href="/painel/cadastro"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-bold text-white"
               style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
             >
-              Assinar <Rocket size={14} />
+              Criar perfil <Rocket size={14} />
             </Link>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function CommunityPromo({
             </span>
           </div>
 
-          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Junte-se à nossa</p>
+          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Faça parte da nossa</p>
           <h3 className="mt-1 text-[32px] font-black leading-[0.95] tracking-tight sm:text-[42px]">
             <span
               style={{
@@ -98,10 +98,10 @@ export default function CommunityPromo({
                 color: "transparent",
               }}
             >
-              Comunidade
+              Rede social
             </span>
             <br />
-            <span className="text-white">de assinantes</span>
+            <span className="text-white">grátis</span>
           </h3>
 
           {/* pílula "faça parte" */}
@@ -131,16 +131,16 @@ export default function CommunityPromo({
           </div>
 
           <p className="mx-auto mt-6 max-w-[440px] text-[15px] leading-relaxed text-zinc-300">
-            Assine o MonatizaPlus e entre na comunidade: publique suas ideias, debata com
-            outros assinantes e tenha mais alcance e reconhecimento.
+            Crie o seu perfil gratuito e entre na rede social do Monatiza: publique suas
+            ideias, siga pessoas e acompanhe as notícias que movem os negócios no Brasil.
           </p>
 
           <Link
-            href="/assinantes"
+            href="/painel/cadastro"
             className="mt-7 inline-flex items-center gap-2 rounded-full px-8 py-4 text-[15px] font-black text-white shadow-[0_18px_50px_-15px_rgba(255,45,135,0.6)] transition hover:opacity-90"
             style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
           >
-            Tornar-se assinante <Rocket size={17} />
+            Criar meu perfil grátis <Rocket size={17} />
           </Link>
         </div>
       </div>
