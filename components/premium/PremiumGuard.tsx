@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Search,
   MessageCircle,
+  Bell,
   LogOut,
   Loader2,
   Crown,
@@ -26,6 +27,7 @@ import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 import { countUnread, markMessagesSeen } from "@/lib/premium/messages";
 import { getMyProfile, type CommunityProfile } from "@/lib/premium/community";
+import { countUnreadNotifications, markNotificationsRead } from "@/lib/premium/notifications";
 
 const PRIMARY = [
   { href: "/app", label: "Início", icon: Home },
@@ -38,6 +40,7 @@ const PRIMARY = [
 const MORE = [
   { href: "/app/perfil", label: "Meu perfil", icon: User },
   { href: "/app/mensagens", label: "Mensagens", icon: MessageCircle },
+  { href: "/app/notificacoes", label: "Notificações", icon: Bell },
   { href: "/app/verificacao", label: "Verificação", icon: ShieldCheck },
   { href: "/app/exclusivo", label: "Exclusivo", icon: Sparkles },
   { href: "/app/revistas", label: "Revistas", icon: BookOpen },
@@ -67,7 +70,9 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const [menuOpen, setMenuOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [profile, setProfile] = useState<CommunityProfile | null>(null);
+  const [notif, setNotif] = useState(0);
   const onMensagens = pathname.startsWith("/app/mensagens");
+  const onNotif = pathname.startsWith("/app/notificacoes");
 
   // não lidas: zera ao entrar em Mensagens, senão conta
   useEffect(() => {
@@ -99,6 +104,33 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (user?.id) getMyProfile().then(setProfile);
+  }, [user?.id]);
+
+  // notificações: zera ao entrar na aba, senão conta
+  useEffect(() => {
+    if (!user?.id) return;
+    if (onNotif) {
+      markNotificationsRead();
+      setNotif(0);
+      return;
+    }
+    countUnreadNotifications().then(setNotif);
+  }, [user?.id, onNotif]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch = supabase
+      .channel("notif-unread")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
+        const n = payload.new as { user_id: string };
+        if (n.user_id === user.id && !window.location.pathname.startsWith("/app/notificacoes")) {
+          setNotif((x) => x + 1);
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [user?.id]);
 
   useEffect(() => {
@@ -190,6 +222,20 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
               {unread > 0 && (
                 <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
                   {unread > 99 ? "99+" : unread}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/app/notificacoes"
+              className={`relative rounded-full p-2.5 transition ${
+                onNotif ? "pro-gradient text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              }`}
+              aria-label="Notificações"
+            >
+              <Bell size={19} />
+              {notif > 0 && (
+                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
+                  {notif > 99 ? "99+" : notif}
                 </span>
               )}
             </Link>

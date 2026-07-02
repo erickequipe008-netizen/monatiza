@@ -13,11 +13,13 @@ export default function PostComposer({
   placeholder = "Compartilhe sua opinião…",
   onPosted,
   myProfile,
+  quoteOf = null,
 }: {
   parentId?: number | null;
   placeholder?: string;
   onPosted: (p: Post) => void;
   myProfile?: { display_name?: string | null; avatar_url?: string | null } | null;
+  quoteOf?: Post | null;
 }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -45,7 +47,7 @@ export default function PostComposer({
 
   async function submit() {
     const t = text.trim();
-    if ((!t && !file) || busy) return;
+    if ((!t && !file && !quoteOf) || busy) return;
     setBusy(true);
     setErr("");
     let imageUrl: string | null = null;
@@ -58,7 +60,7 @@ export default function PostComposer({
       }
       imageUrl = url;
     }
-    const p = await createPost(t, parentId, imageUrl);
+    const p = await createPost(t, parentId, imageUrl, quoteOf?.id ?? null);
     setBusy(false);
     if (p) {
       setText("");
@@ -90,6 +92,17 @@ export default function PostComposer({
             >
               <X size={14} />
             </button>
+          </div>
+        )}
+
+        {quoteOf && (
+          <div className="mt-2 rounded-xl border border-white/10 p-3">
+            <div className="flex items-center gap-1.5 text-[13px]">
+              <Avatar name={quoteOf.author?.display_name || quoteOf.author?.handle} url={quoteOf.author?.avatar_url} size={18} />
+              <span className="font-bold text-zinc-200">{quoteOf.author?.display_name || quoteOf.author?.handle}</span>
+              <span className="truncate text-zinc-500">@{quoteOf.author?.handle}</span>
+            </div>
+            {quoteOf.content && <p className="mt-1 line-clamp-3 text-[13px] text-zinc-400">{quoteOf.content}</p>}
           </div>
         )}
 

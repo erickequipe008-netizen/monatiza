@@ -23,11 +23,13 @@ export interface Post {
   content: string;
   image_url: string | null;
   parent_id: number | null;
+  repost_of?: number | null;
   created_at: string;
   author?: CommunityProfile;
   likeCount: number;
   likedByMe: boolean;
   replyCount: number;
+  repostOf?: Post | null;
 }
 
 async function uid(): Promise<string | null> {
@@ -122,15 +124,25 @@ async function enrich(rows: any[]): Promise<Post[]> {
   if (!rows.length) return [];
   const me = await uid();
   const ids = rows.map((r) => r.id);
-  const authorIds = [...new Set(rows.map((r) => r.user_id))];
+  const authorIds = new Set<string>(rows.map((r) => r.user_id));
+
+  // posts originais dos reposts/citações
+  const repostIds = [...new Set(rows.map((r) => r.repost_of).filter(Boolean))] as number[];
+  let origRows: any[] = [];
+  if (repostIds.length) {
+    const { data } = await supabase.from("posts").select(POST_COLS).in("id", repostIds);
+    origRows = data || [];
+    origRows.forEach((o) => authorIds.add(o.user_id));
+  }
+  const allPostIds = [...new Set([...ids, ...origRows.map((o) => o.id)])];
 
   const [{ data: profs }, { data: likes }, { data: replies }] = await Promise.all([
     supabase
       .from("community_profiles")
       .select("user_id, handle, display_name, avatar_url, verified")
-      .in("user_id", authorIds),
-    supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
-    supabase.from("posts").select("parent_id").in("parent_id", ids),
+      .in("user_id", [...authorIds]),
+    supabase.from("post_likes").select("post_id, user_id").in("post_id", allPostIds),
+    supabase.from("posts").select("parent_id").in("parent_id", allPostIds),
   ]);
 
   const pmap = new Map((profs || []).map((p: any) => [p.user_id, p]));
@@ -145,21 +157,29 @@ async function enrich(rows: any[]): Promise<Post[]> {
     if (r.parent_id != null) replyCount[r.parent_id] = (replyCount[r.parent_id] || 0) + 1;
   });
 
-  return rows.map((r) => ({
+  const toPost = (r: any): Post => ({
     id: r.id,
     user_id: r.user_id,
     content: r.content,
     image_url: r.image_url ?? null,
     parent_id: r.parent_id,
+    repost_of: r.repost_of ?? null,
     created_at: r.created_at,
     author: pmap.get(r.user_id),
     likeCount: likeCount[r.id] || 0,
     likedByMe: !!liked[r.id],
     replyCount: replyCount[r.id] || 0,
-  }));
+  });
+
+  const origMap = new Map<number, Post>(origRows.map((o) => [o.id, toPost(o)]));
+  return rows.map((r) => {
+    const p = toPost(r);
+    p.repostOf = r.repost_of ? origMap.get(r.repost_of) ?? null : null;
+    return p;
+  });
 }
 
-const POST_COLS = "id, user_id, content, image_url, parent_id, created_at";
+const POST_COLS = "id, user_id, content, image_url, parent_id, repost_of, created_at";
 
 export async function listPosts(limit = 30, before?: string | null): Promise<Post[]> {
   let q = supabase
@@ -203,20 +223,26 @@ export async function listUserPosts(userId: string, limit = 40): Promise<Post[]>
 export async function createPost(
   content: string,
   parentId: number | null = null,
-  imageUrl: string | null = null
+  imageUrl: string | null = null,
+  repostOf: number | null = null
 ): Promise<Post | null> {
   const u = await uid();
   if (!u) return null;
   const text = content.trim().slice(0, 1000);
-  if (!text && !imageUrl) return null; // precisa de texto OU imagem
+  if (!text && !imageUrl && !repostOf) return null; // precisa de texto, imagem ou repost
   const { data } = await supabase
     .from("posts")
-    .insert({ user_id: u, content: text, parent_id: parentId, image_url: imageUrl })
+    .insert({ user_id: u, content: text, parent_id: parentId, image_url: imageUrl, repost_of: repostOf })
     .select(POST_COLS)
     .maybeSingle();
   if (!data) return null;
   const [p] = await enrich([data]);
   return p;
+}
+
+// Repost simples (sem comentário). Citação = createPost(texto, null, null, postId).
+export async function repost(postId: number): Promise<Post | null> {
+  return createPost("", null, null, postId);
 }
 
 export async function deletePost(id: number): Promise<void> {
@@ -321,4 +347,29 @@ export async function getRecommendedProfiles(limit = 40): Promise<CommunityProfi
   if (exclude.length) q = q.not("user_id", "in", `(${exclude.join(",")})`);
   const { data } = await q;
   return (data as CommunityProfile[]) || [];
+}
+
+// ── Busca (pessoas + publicações/hashtags) ──────────────────
+export async function searchProfiles(term: string): Promise<CommunityProfile[]> {
+  const t = term.replace(/^#/, "").trim();
+  if (!t) return [];
+  const { data } = await supabase
+    .from("community_profiles")
+    .select("user_id, handle, display_name, avatar_url, bio, verified")
+    .or(`handle.ilike.%${t}%,display_name.ilike.%${t}%`)
+    .limit(20);
+  return (data as CommunityProfile[]) || [];
+}
+
+export async function searchPosts(term: string): Promise<Post[]> {
+  const t = term.trim();
+  if (!t) return [];
+  const { data } = await supabase
+    .from("posts")
+    .select(POST_COLS)
+    .is("parent_id", null)
+    .ilike("content", `%${t}%`)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  return enrich(data || []);
 }

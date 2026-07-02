@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Send, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, ImagePlus, X } from "lucide-react";
 import { fetchMessages, sendMessage, getProfileById, type DirectMessage } from "@/lib/premium/messages";
+import { uploadMedia } from "@/lib/premium/upload";
 import type { CommunityProfile } from "@/lib/premium/community";
 import { Avatar } from "@/components/premium/PostCard";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
@@ -41,6 +42,9 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [imgFile, setImgFile] = useState<File | null>(null);
+  const [imgPreview, setImgPreview] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -84,10 +88,18 @@ export default function ChatPage() {
 
   async function send() {
     const t = text.trim();
-    if (!t || sending) return;
+    if ((!t && !imgFile) || sending) return;
     setSending(true);
+    let imageUrl: string | null = null;
+    if (imgFile) {
+      const { url } = await uploadMedia(imgFile, "posts");
+      imageUrl = url || null;
+    }
     setText("");
-    const sent = await sendMessage(otherId, t);
+    setImgFile(null);
+    setImgPreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+    const sent = await sendMessage(otherId, t, imageUrl);
     if (sent) setMsgs((prev) => (prev.some((x) => x.id === sent.id) ? prev : [...prev, sent]));
     setSending(false);
   }
@@ -130,7 +142,11 @@ export default function ChatPage() {
                       : "rounded-2xl rounded-bl-md bg-white/10 text-zinc-100"
                   }`}
                 >
-                  {linkify(m.content)}
+                  {m.image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={m.image_url} alt="" className="mb-1 max-h-64 rounded-lg" />
+                  )}
+                  {m.content && linkify(m.content)}
                 </div>
               </div>
             );
@@ -142,24 +158,63 @@ export default function ChatPage() {
       </div>
 
       {/* compositor */}
-      <div className="flex items-center gap-2.5 pt-3">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") send();
-          }}
-          placeholder="Escreva uma mensagem…"
-          className="pro-glass flex-1 rounded-full px-5 py-3.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-[#9B72CB]"
-        />
-        <button
-          onClick={send}
-          disabled={sending || !text.trim()}
-          className="pro-gradient pro-glow inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white transition hover:opacity-90 active:scale-95 disabled:opacity-50"
-          aria-label="Enviar"
-        >
-          {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-        </button>
+      <div className="pt-3">
+        {imgPreview && (
+          <div className="relative mb-2 w-fit">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imgPreview} alt="prévia" className="max-h-40 rounded-xl border border-white/10" />
+            <button
+              onClick={() => {
+                setImgFile(null);
+                setImgPreview(null);
+                if (fileRef.current) fileRef.current.value = "";
+              }}
+              className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-black"
+              aria-label="Remover"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="shrink-0 rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+            aria-label="Enviar foto"
+          >
+            <ImagePlus size={20} />
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                setImgFile(f);
+                setImgPreview(URL.createObjectURL(f));
+              }
+            }}
+          />
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") send();
+            }}
+            placeholder="Escreva uma mensagem…"
+            className="pro-glass flex-1 rounded-full px-5 py-3.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-[#9B72CB]"
+          />
+          <button
+            onClick={send}
+            disabled={sending || (!text.trim() && !imgFile)}
+            className="pro-gradient pro-glow inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white transition hover:opacity-90 active:scale-95 disabled:opacity-50"
+            aria-label="Enviar"
+          >
+            {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+          </button>
+        </div>
       </div>
     </div>
   );

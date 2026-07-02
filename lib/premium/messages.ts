@@ -11,6 +11,7 @@ export interface DirectMessage {
   sender_id: string;
   recipient_id: string;
   content: string;
+  image_url?: string | null;
   created_at: string;
 }
 
@@ -58,7 +59,7 @@ export async function listConversations(): Promise<Conversation[]> {
   if (!me) return [];
   const { data } = await supabase
     .from("direct_messages")
-    .select("sender_id, recipient_id, content, created_at")
+    .select("sender_id, recipient_id, content, image_url, created_at")
     .or(`sender_id.eq.${me},recipient_id.eq.${me}`)
     .order("created_at", { ascending: false })
     .limit(300);
@@ -69,7 +70,12 @@ export async function listConversations(): Promise<Conversation[]> {
   (data || []).forEach((r: any) => {
     const other = r.sender_id === me ? r.recipient_id : r.sender_id;
     if (!latest.has(other))
-      latest.set(other, { other, content: r.content, created_at: r.created_at, fromMe: r.sender_id === me });
+      latest.set(other, {
+        other,
+        content: r.content || (r.image_url ? "📷 Foto" : ""),
+        created_at: r.created_at,
+        fromMe: r.sender_id === me,
+      });
     if (r.recipient_id === me && r.created_at > since) unread[other] = (unread[other] || 0) + 1;
   });
   const ids = [...latest.keys()];
@@ -88,7 +94,7 @@ export async function fetchMessages(otherId: string): Promise<DirectMessage[]> {
   if (!me) return [];
   const { data } = await supabase
     .from("direct_messages")
-    .select("id, sender_id, recipient_id, content, created_at")
+    .select("id, sender_id, recipient_id, content, image_url, created_at")
     .or(
       `and(sender_id.eq.${me},recipient_id.eq.${otherId}),and(sender_id.eq.${otherId},recipient_id.eq.${me})`
     )
@@ -97,14 +103,18 @@ export async function fetchMessages(otherId: string): Promise<DirectMessage[]> {
   return (data as DirectMessage[]) || [];
 }
 
-export async function sendMessage(otherId: string, content: string): Promise<DirectMessage | null> {
+export async function sendMessage(
+  otherId: string,
+  content: string,
+  imageUrl: string | null = null
+): Promise<DirectMessage | null> {
   const me = await uid();
   const text = content.trim();
-  if (!me || !text) return null;
+  if (!me || (!text && !imageUrl)) return null;
   const { data } = await supabase
     .from("direct_messages")
-    .insert({ sender_id: me, recipient_id: otherId, content: text.slice(0, 2000) })
-    .select("id, sender_id, recipient_id, content, created_at")
+    .insert({ sender_id: me, recipient_id: otherId, content: text.slice(0, 2000), image_url: imageUrl })
+    .select("id, sender_id, recipient_id, content, image_url, created_at")
     .maybeSingle();
   return (data as DirectMessage) || null;
 }
