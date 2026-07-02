@@ -22,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await Supabase.instance.client.auth
           .signInWithPassword(email: _email.text.trim(), password: _password.text);
+      if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
     } on AuthException catch (e) {
       final m = e.message;
       final network = m.contains('SocketException') ||

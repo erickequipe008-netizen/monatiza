@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'screens/login_screen.dart';
+import 'screens/auth_landing.dart';
 import 'screens/home_shell.dart';
 
 /// Decide entre login e app, reagindo a entrar/sair (mesma sessão do site).
@@ -13,7 +13,7 @@ class AuthGate extends StatelessWidget {
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, _) {
         final session = Supabase.instance.client.auth.currentSession;
-        return session != null ? const HomeShell() : const LoginScreen();
+        return session != null ? const HomeShell() : const AuthLanding();
       },
     );
   }
