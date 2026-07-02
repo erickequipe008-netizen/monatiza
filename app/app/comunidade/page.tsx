@@ -12,6 +12,7 @@ import {
 } from "@/lib/premium/community";
 import PostCard from "@/components/premium/PostCard";
 import PostComposer from "@/components/premium/PostComposer";
+import StoriesBar from "@/components/premium/StoriesBar";
 import { Spinner, PageHeader } from "@/components/premium/States";
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
@@ -109,6 +110,9 @@ export default function ComunidadePage() {
         title="Opinião pública"
         subtitle="Compartilhe ideias e debata com outros assinantes da Monatiza."
       />
+
+      {/* Stories (24h) */}
+      <StoriesBar />
 
       {/* Para você | Seguindo */}
       <div className="mb-2 flex border-b border-white/10">

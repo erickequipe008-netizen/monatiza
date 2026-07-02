@@ -12,6 +12,7 @@ export interface DirectMessage {
   recipient_id: string;
   content: string;
   image_url?: string | null;
+  read?: boolean;
   created_at: string;
 }
 
@@ -31,18 +32,7 @@ async function uid(): Promise<string | null> {
   return session?.user.id ?? null;
 }
 
-// ── Não lidas (estilo WhatsApp/Instagram), via marcador local ──
-const SEEN_KEY = "dm_last_seen";
-
-function lastSeenISO(): string {
-  if (typeof window === "undefined") return "1970-01-01T00:00:00Z";
-  return localStorage.getItem(SEEN_KEY) || "1970-01-01T00:00:00Z";
-}
-
-export function markMessagesSeen() {
-  if (typeof window !== "undefined") localStorage.setItem(SEEN_KEY, new Date().toISOString());
-}
-
+// ── Não lidas: baseado no status "read" do banco (sincroniza entre aparelhos) ──
 export async function countUnread(): Promise<number> {
   const me = await uid();
   if (!me) return 0;
@@ -50,8 +40,20 @@ export async function countUnread(): Promise<number> {
     .from("direct_messages")
     .select("id", { count: "exact", head: true })
     .eq("recipient_id", me)
-    .gt("created_at", lastSeenISO());
+    .eq("read", false);
   return count ?? 0;
+}
+
+// Marca como lidas todas as mensagens recebidas nesta conversa.
+export async function markConversationRead(otherId: string): Promise<void> {
+  const me = await uid();
+  if (!me) return;
+  await supabase
+    .from("direct_messages")
+    .update({ read: true })
+    .eq("recipient_id", me)
+    .eq("sender_id", otherId)
+    .eq("read", false);
 }
 
 export async function listConversations(): Promise<Conversation[]> {
@@ -59,12 +61,11 @@ export async function listConversations(): Promise<Conversation[]> {
   if (!me) return [];
   const { data } = await supabase
     .from("direct_messages")
-    .select("sender_id, recipient_id, content, image_url, created_at")
+    .select("sender_id, recipient_id, content, image_url, read, created_at")
     .or(`sender_id.eq.${me},recipient_id.eq.${me}`)
     .order("created_at", { ascending: false })
     .limit(300);
 
-  const since = lastSeenISO();
   const latest = new Map<string, Conversation>();
   const unread: Record<string, number> = {};
   (data || []).forEach((r: any) => {
@@ -76,7 +77,7 @@ export async function listConversations(): Promise<Conversation[]> {
         created_at: r.created_at,
         fromMe: r.sender_id === me,
       });
-    if (r.recipient_id === me && r.created_at > since) unread[other] = (unread[other] || 0) + 1;
+    if (r.recipient_id === me && r.read === false) unread[other] = (unread[other] || 0) + 1;
   });
   const ids = [...latest.keys()];
   if (!ids.length) return [];
@@ -94,7 +95,7 @@ export async function fetchMessages(otherId: string): Promise<DirectMessage[]> {
   if (!me) return [];
   const { data } = await supabase
     .from("direct_messages")
-    .select("id, sender_id, recipient_id, content, image_url, created_at")
+    .select("id, sender_id, recipient_id, content, image_url, read, created_at")
     .or(
       `and(sender_id.eq.${me},recipient_id.eq.${otherId}),and(sender_id.eq.${otherId},recipient_id.eq.${me})`
     )
@@ -114,7 +115,7 @@ export async function sendMessage(
   const { data } = await supabase
     .from("direct_messages")
     .insert({ sender_id: me, recipient_id: otherId, content: text.slice(0, 2000), image_url: imageUrl })
-    .select("id, sender_id, recipient_id, content, image_url, created_at")
+    .select("id, sender_id, recipient_id, content, image_url, read, created_at")
     .maybeSingle();
   return (data as DirectMessage) || null;
 }

@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Send, Loader2, ImagePlus, X } from "lucide-react";
-import { fetchMessages, sendMessage, getProfileById, type DirectMessage } from "@/lib/premium/messages";
+import { ArrowLeft, Send, Loader2, ImagePlus, X, Check, CheckCheck } from "lucide-react";
+import { fetchMessages, sendMessage, markConversationRead, getProfileById, type DirectMessage } from "@/lib/premium/messages";
 import { uploadMedia } from "@/lib/premium/upload";
 import type { CommunityProfile } from "@/lib/premium/community";
 import { Avatar } from "@/components/premium/PostCard";
@@ -44,8 +44,11 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
   const [imgFile, setImgFile] = useState<File | null>(null);
   const [imgPreview, setImgPreview] = useState<string | null>(null);
+  const [otherTyping, setOtherTyping] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const typingSentAt = useRef(0);
+  const typingTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!otherId) return;
@@ -57,13 +60,14 @@ export default function ChatPage() {
       setOther(p);
       setMsgs(m);
       setLoading(false);
+      markConversationRead(otherId);
     })();
     return () => {
       active = false;
     };
   }, [otherId]);
 
-  // tempo real: novas mensagens desta conversa
+  // tempo real: novas mensagens + status de lido desta conversa
   useEffect(() => {
     if (!otherId || !me) return;
     const ch = supabase
@@ -75,12 +79,50 @@ export default function ChatPage() {
           (m.sender_id === otherId && m.recipient_id === me);
         if (!involved) return;
         setMsgs((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
+        // estou com a conversa aberta → marca como lida na hora
+        if (m.sender_id === otherId) markConversationRead(otherId);
+        setOtherTyping(false);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "direct_messages" }, (payload) => {
+        const m = payload.new as DirectMessage;
+        setMsgs((prev) => prev.map((x) => (x.id === m.id ? { ...x, read: m.read } : x)));
       })
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
   }, [otherId, me]);
+
+  // "digitando…" via broadcast (canal do par, sem tocar no banco)
+  const typingChannel = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  useEffect(() => {
+    if (!otherId || !me) return;
+    const key = [me, otherId].sort().join("-");
+    const ch = supabase
+      .channel(`typing-${key}`)
+      .on("broadcast", { event: "typing" }, (payload) => {
+        if ((payload.payload as { who?: string })?.who !== me) {
+          setOtherTyping(true);
+          if (typingTimeout.current) clearTimeout(typingTimeout.current);
+          typingTimeout.current = setTimeout(() => setOtherTyping(false), 2600);
+        }
+      })
+      .subscribe();
+    typingChannel.current = ch;
+    return () => {
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      typingChannel.current = null;
+      supabase.removeChannel(ch);
+    };
+  }, [otherId, me]);
+
+  function broadcastTyping() {
+    if (!me) return;
+    const now = Date.now();
+    if (now - typingSentAt.current < 1500) return;
+    typingSentAt.current = now;
+    typingChannel.current?.send({ type: "broadcast", event: "typing", payload: { who: me } });
+  }
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -120,7 +162,11 @@ export default function ChatPage() {
               <span className="truncate">{name}</span>
               {other?.verified && <VerifiedBadge size={14} />}
             </span>
-            {other?.handle && <span className="block truncate text-[12px] text-zinc-500">@{other.handle}</span>}
+            {otherTyping ? (
+              <span className="pro-gradient-text block text-[12px] font-bold">digitando…</span>
+            ) : (
+              other?.handle && <span className="block truncate text-[12px] text-zinc-500">@{other.handle}</span>
+            )}
           </span>
         </Link>
       </div>
@@ -147,6 +193,11 @@ export default function ChatPage() {
                     <img src={m.image_url} alt="" className="mb-1 max-h-64 rounded-lg" />
                   )}
                   {m.content && linkify(m.content)}
+                  {mine && (
+                    <span className="ml-1.5 inline-flex translate-y-[2px] align-baseline">
+                      {m.read ? <CheckCheck size={13} className="text-white" /> : <Check size={13} className="text-white/60" />}
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -199,7 +250,10 @@ export default function ChatPage() {
           />
           <input
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              broadcastTyping();
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") send();
             }}

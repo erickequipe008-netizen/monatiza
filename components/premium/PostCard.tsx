@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Heart, MessageCircle, Trash2, Repeat2, X } from "lucide-react";
-import { togglePostLike, deletePost, repost, type Post } from "@/lib/premium/community";
+import { Heart, MessageCircle, Trash2, Repeat2, X, Bookmark, Flag } from "lucide-react";
+import { togglePostLike, togglePostBookmark, reportPost, deletePost, repost, type Post } from "@/lib/premium/community";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import PostComposer from "@/components/premium/PostComposer";
@@ -109,6 +109,7 @@ export default function PostCard({
 
   const [liked, setLiked] = useState(display.likedByMe);
   const [count, setCount] = useState(display.likeCount);
+  const [saved, setSaved] = useState(display.bookmarkedByMe ?? false);
   const [popped, setPopped] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [reposted, setReposted] = useState(false);
@@ -140,6 +141,19 @@ export default function PostCard({
     setMenuOpen(false);
     setReposted(true);
     await repost(display.id);
+  }
+  async function toggleSave(e: React.MouseEvent) {
+    e.stopPropagation();
+    const n = !saved;
+    setSaved(n);
+    await togglePostBookmark(display.id, n);
+  }
+  async function doReport(e: React.MouseEvent) {
+    e.stopPropagation();
+    const reason = prompt("Por que você quer denunciar esta publicação? (opcional)");
+    if (reason === null) return;
+    const ok = await reportPost(display.id, reason);
+    alert(ok ? "Denúncia enviada. Nossa equipe vai analisar." : "Não foi possível enviar. Tente novamente.");
   }
 
   return (
@@ -248,6 +262,27 @@ export default function PostCard({
             />
             {count > 0 && <span className="font-semibold">{count}</span>}
           </button>
+
+          <button
+            onClick={toggleSave}
+            className={`flex items-center gap-1 rounded-full px-2 py-1.5 text-[13px] transition hover:bg-[#4285F4]/10 ${
+              saved ? "text-[#4285F4]" : "hover:text-[#4285F4]"
+            }`}
+            aria-label="Salvar"
+          >
+            <Bookmark size={17} fill={saved ? "currentColor" : "none"} />
+          </button>
+
+          {!isMine && (
+            <button
+              onClick={doReport}
+              className="ml-auto flex items-center rounded-full px-2 py-1.5 text-zinc-600 transition hover:bg-white/5 hover:text-zinc-300"
+              aria-label="Denunciar"
+              title="Denunciar"
+            >
+              <Flag size={15} />
+            </button>
+          )}
         </div>
       </div>
 

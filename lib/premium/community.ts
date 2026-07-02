@@ -28,6 +28,7 @@ export interface Post {
   author?: CommunityProfile;
   likeCount: number;
   likedByMe: boolean;
+  bookmarkedByMe?: boolean;
   replyCount: number;
   repostOf?: Post | null;
 }
@@ -136,14 +137,16 @@ async function enrich(rows: any[]): Promise<Post[]> {
   }
   const allPostIds = [...new Set([...ids, ...origRows.map((o) => o.id)])];
 
-  const [{ data: profs }, { data: likes }, { data: replies }] = await Promise.all([
+  const [{ data: profs }, { data: likes }, { data: replies }, { data: marks }] = await Promise.all([
     supabase
       .from("community_profiles")
       .select("user_id, handle, display_name, avatar_url, verified")
       .in("user_id", [...authorIds]),
     supabase.from("post_likes").select("post_id, user_id").in("post_id", allPostIds),
     supabase.from("posts").select("parent_id").in("parent_id", allPostIds),
+    supabase.from("post_bookmarks").select("post_id").in("post_id", allPostIds), // RLS: só os meus
   ]);
+  const bookmarked = new Set((marks || []).map((b: any) => b.post_id));
 
   const pmap = new Map((profs || []).map((p: any) => [p.user_id, p]));
   const likeCount: Record<number, number> = {};
@@ -168,6 +171,7 @@ async function enrich(rows: any[]): Promise<Post[]> {
     author: pmap.get(r.user_id),
     likeCount: likeCount[r.id] || 0,
     likedByMe: !!liked[r.id],
+    bookmarkedByMe: bookmarked.has(r.id),
     replyCount: replyCount[r.id] || 0,
   });
 
@@ -269,6 +273,44 @@ export async function deletePost(id: number): Promise<void> {
   await supabase.from("posts").delete().eq("id", id).eq("user_id", u);
 }
 
+export async function togglePostBookmark(postId: number, on: boolean): Promise<void> {
+  const u = await uid();
+  if (!u) return;
+  if (on) {
+    await supabase.from("post_bookmarks").upsert({ post_id: postId, user_id: u }, { onConflict: "user_id,post_id" });
+  } else {
+    await supabase.from("post_bookmarks").delete().eq("post_id", postId).eq("user_id", u);
+  }
+}
+
+// Posts salvos (mais recentes primeiro).
+export async function listSavedPosts(): Promise<Post[]> {
+  const u = await uid();
+  if (!u) return [];
+  const { data: marks } = await supabase
+    .from("post_bookmarks")
+    .select("post_id, created_at")
+    .eq("user_id", u)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const ids = (marks || []).map((m: any) => m.post_id);
+  if (!ids.length) return [];
+  const { data } = await supabase.from("posts").select(POST_COLS).in("id", ids);
+  const posts = await enrich(data || []);
+  const order = new Map(ids.map((id: number, i: number) => [id, i]));
+  return posts.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+}
+
+// Denunciar publicação (vai para a moderação no admin).
+export async function reportPost(postId: number, reason: string): Promise<boolean> {
+  const u = await uid();
+  if (!u) return false;
+  const { error } = await supabase
+    .from("reports")
+    .insert({ reporter_id: u, post_id: postId, reason: reason.trim().slice(0, 300) || null });
+  return !error;
+}
+
 export async function togglePostLike(postId: number, on: boolean): Promise<void> {
   const u = await uid();
   if (!u) return;
@@ -365,6 +407,27 @@ export async function getRecommendedProfiles(limit = 40): Promise<CommunityProfi
   if (exclude.length) q = q.not("user_id", "in", `(${exclude.join(",")})`);
   const { data } = await q;
   return (data as CommunityProfile[]) || [];
+}
+
+// ── Trending: hashtags mais usadas nos posts recentes ───────
+export async function getTrendingHashtags(limit = 8): Promise<{ tag: string; count: number }[]> {
+  const { data } = await supabase
+    .from("posts")
+    .select("content")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const counts = new Map<string, number>();
+  (data || []).forEach((r: any) => {
+    const tags = (r.content || "").match(/#[\p{L}0-9_]+/gu) || [];
+    tags.forEach((t: string) => {
+      const k = t.toLowerCase();
+      counts.set(k, (counts.get(k) || 0) + 1);
+    });
+  });
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
 }
 
 // ── Busca (pessoas + publicações/hashtags) ──────────────────

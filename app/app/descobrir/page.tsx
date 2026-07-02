@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Compass } from "lucide-react";
+import { Compass, TrendingUp } from "lucide-react";
 import {
   getRecommendedProfiles,
+  getTrendingHashtags,
   follow,
   unfollow,
   type CommunityProfile,
@@ -54,11 +55,14 @@ function Row({ p }: { p: CommunityProfile }) {
 
 export default function DescobrirPage() {
   const [people, setPeople] = useState<CommunityProfile[]>([]);
+  const [trends, setTrends] = useState<{ tag: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      setPeople(await getRecommendedProfiles(40));
+      const [p, t] = await Promise.all([getRecommendedProfiles(40), getTrendingHashtags(8)]);
+      setPeople(p);
+      setTrends(t);
       setLoading(false);
     })();
   }, []);
@@ -67,9 +71,29 @@ export default function DescobrirPage() {
     <div className="mx-auto max-w-[640px]">
       <PageHeader
         eyebrow={<><Compass size={14} /> Descobrir</>}
-        title="Perfis recomendados"
-        subtitle="Pessoas da comunidade Monatiza para você seguir."
+        title="Explorar"
+        subtitle="Assuntos do momento e pessoas da comunidade para você seguir."
       />
+
+      {trends.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-3 flex items-center gap-2 text-[12px] font-black uppercase tracking-widest text-zinc-500">
+            <TrendingUp size={14} /> Assuntos do momento
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {trends.map((t) => (
+              <Link
+                key={t.tag}
+                href={`/app/busca?q=${encodeURIComponent(t.tag)}`}
+                className="pro-glass rounded-full px-4 py-2 text-[13px] font-bold text-zinc-100"
+              >
+                {t.tag} <span className="ml-1 text-[11px] font-semibold text-zinc-500">{t.count}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <Spinner />
       ) : people.length ? (

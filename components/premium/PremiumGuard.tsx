@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
-import { countUnread, markMessagesSeen } from "@/lib/premium/messages";
+import { countUnread } from "@/lib/premium/messages";
 import { getMyProfile, type CommunityProfile } from "@/lib/premium/community";
 import { countUnreadNotifications, markNotificationsRead } from "@/lib/premium/notifications";
 
@@ -71,19 +71,13 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const [unread, setUnread] = useState(0);
   const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const [notif, setNotif] = useState(0);
-  const onMensagens = pathname.startsWith("/app/mensagens");
   const onNotif = pathname.startsWith("/app/notificacoes");
 
-  // não lidas: zera ao entrar em Mensagens, senão conta
+  // não lidas: contadas pelo banco (abrir a conversa marca como lida)
   useEffect(() => {
     if (!user?.id) return;
-    if (onMensagens) {
-      markMessagesSeen();
-      setUnread(0);
-      return;
-    }
     countUnread().then(setUnread);
-  }, [user?.id, onMensagens]);
+  }, [user?.id, pathname]);
 
   // tempo real: nova mensagem recebida fora da aba → +1 no badge
   useEffect(() => {

@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase/client";
 // dono gravar na própria pasta. Retorna a URL pública (bucket público).
 export async function uploadMedia(
   file: File,
-  kind: "avatars" | "covers" | "posts" | "reels"
+  kind: "avatars" | "covers" | "posts" | "reels" | "stories"
 ): Promise<{ url: string | null; error: string | null }> {
   const {
     data: { session },
