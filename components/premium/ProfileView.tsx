@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Pencil, X, Loader2, CreditCard, Camera, Link2, Plus } from "lucide-react";
-import { AddStoryButton } from "@/components/premium/StoriesBar";
+import { Pencil, X, Loader2, CreditCard, Camera, Link2 } from "lucide-react";
 import {
   getMyProfile,
   updateProfile,
@@ -192,11 +191,6 @@ export default function ProfileView({
             <button onClick={() => avatarRef.current?.click()} className="absolute bottom-1 right-1 rounded-full bg-white/15 p-1.5 text-white shadow backdrop-blur" aria-label="Trocar foto">
               {upAvatar ? <Loader2 size={13} className="animate-spin" /> : <Camera size={13} />}
             </button>
-          )}
-          {isMe && !editing && (
-            <AddStoryButton className="absolute bottom-0.5 right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white ring-2 ring-[#0a0a0c] backdrop-blur transition hover:bg-black/80">
-              <Plus size={15} />
-            </AddStoryButton>
           )}
           <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) pickAvatar(f); }} />
         </div>

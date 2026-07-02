@@ -4,15 +4,12 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
-import { User, Mail, Lock, Eye, EyeOff, Check, Crown } from "lucide-react";
+import { X, Eye, EyeOff, Check, Loader2, AtSign } from "lucide-react";
 
 const PLAN_LABEL: Record<string, string> = {
-  mensal: "MonatizaPlus · mensal",
-  anual: "MonatizaPlus · anual (economize 2 meses)",
+  mensal: "MonatizaPlus Mensal · R$ 19,90/mês · teste grátis",
+  anual: "MonatizaPlus Anual · R$ 199/ano · economize 2 meses",
 };
-
-const inputCls =
-  "w-full h-13 rounded-2xl border border-white/10 bg-white/[0.04] pl-12 pr-12 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-[#9B72CB] focus:bg-white/[0.06] focus:ring-2 focus:ring-[#9B72CB]/20";
 
 function GoogleG() {
   return (
@@ -25,33 +22,72 @@ function GoogleG() {
   );
 }
 
+// Item do checklist de senha (bolinha roxa com check, como nas grandes redes).
+function Rule({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <li className="flex items-center gap-2.5 text-[13.5px]">
+      <span
+        className={`flex h-5 w-5 items-center justify-center rounded-full transition ${
+          ok ? "pro-gradient text-white" : "border border-zinc-300 text-transparent"
+        }`}
+      >
+        <Check size={12} strokeWidth={3} />
+      </span>
+      <span className={ok ? "text-zinc-700" : "text-zinc-400"}>{label}</span>
+    </li>
+  );
+}
+
+const inputCls =
+  "h-13 w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 text-[15px] text-zinc-900 placeholder:text-zinc-400 outline-none transition focus:border-[#9B72CB] focus:bg-white focus:ring-2 focus:ring-[#9B72CB]/15";
+
 function AssinarForm() {
   const params = useSearchParams();
   const plano: "mensal" | "anual" = params.get("plano") === "anual" ? "anual" : "mensal";
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<1 | 2>(1);
+  const [handle, setHandle] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const rules = {
+    len: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+  };
+  const emailOk = /.+@.+\..+/.test(email);
+  const step1Ok = handle.length >= 3 && rules.len && rules.upper && rules.lower && emailOk;
+
+  async function next() {
+    setError("");
+    if (!step1Ok) return;
+    // melhor esforço: avisa se o @ já estiver em uso
+    const { count } = await supabase
+      .from("community_profiles")
+      .select("user_id", { count: "exact", head: true })
+      .eq("handle", handle);
+    if (count) {
+      setError("Esse nome de usuário já está em uso. Escolha outro.");
+      return;
+    }
+    setStep(2);
+  }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
-    if (!name.trim()) return setError("Digite seu nome.");
-    if (password.length < 6) return setError("A senha deve ter no mínimo 6 caracteres.");
-    if (password !== confirm) return setError("As senhas não coincidem.");
+    if (!name.trim()) return setError("Digite seu nome completo.");
 
     setLoading(true);
     try {
       const { data: signUpData, error: signErr } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { name } },
+        options: { data: { name: name.trim(), handle } },
       });
       if (signErr) {
         setError(signErr.message);
@@ -68,10 +104,6 @@ function AssinarForm() {
         session = signInData.session;
       }
 
-      if (!session) {
-        setError("Não foi possível iniciar a sessão.");
-        return;
-      }
       window.location.href = `/assinar/pagamento?plano=${plano}`;
     } catch {
       setError("Erro inesperado. Tente novamente.");
@@ -88,129 +120,161 @@ function AssinarForm() {
   }
 
   return (
-    <main className="relative flex min-h-screen overflow-hidden bg-[#08080b] text-white">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08080b] p-4">
       <div className="pointer-events-none absolute -left-40 top-0 h-[460px] w-[560px] rounded-full bg-[#7C3AED]/20 blur-[120px]" />
       <div className="pointer-events-none absolute -right-40 bottom-0 h-[460px] w-[560px] rounded-full bg-[#FF2D87]/15 blur-[120px]" />
 
-      {/* ── Lado marca ── */}
-      <div className="relative hidden w-[44%] flex-col justify-between border-r border-white/10 px-14 py-16 lg:flex">
-        <div className="relative z-10">
-          <span className="pro-gradient-text inline-flex items-center gap-2 text-[12px] font-black uppercase tracking-[0.3em]">
-            <Crown size={14} /> MonatizaPlus
-          </span>
-          <h1 className="mt-8 max-w-sm text-5xl font-black leading-[1.1] tracking-tight">
-            Jornalismo
-            <br />
-            <span className="pro-gradient-text">que vale a pena.</span>
-          </h1>
-          <ul className="mt-8 space-y-3 text-sm text-zinc-300">
-            {["Acesso ilimitado e sem anúncios", "Newsletter premium", "Revista Monatiza", "Comunidade e mensagens"].map((b) => (
-              <li key={b} className="flex items-center gap-3">
-                <span className="pro-gradient flex h-5 w-5 items-center justify-center rounded-full">
-                  <Check size={12} strokeWidth={3} className="text-white" />
-                </span>
-                {b}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="relative z-10 flex items-center gap-4 border-t border-white/10 pt-6 text-xs text-zinc-500">
-          <span className="uppercase tracking-[0.3em]">Pagamento seguro</span>
-          <span className="h-px flex-1 bg-white/10" />
-          <span className="pro-gradient-text uppercase tracking-[0.3em]">monatiza</span>
-        </div>
-      </div>
-
-      {/* ── Lado formulário ── */}
-      <div className="relative flex flex-1 items-center justify-center p-6 sm:p-10">
-        <form onSubmit={handleSignup} className="w-full max-w-md space-y-6">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-black tracking-tight">Criar sua conta</h2>
-            <p className="text-sm text-zinc-400">{PLAN_LABEL[plano]} — você vai para o pagamento em seguida.</p>
-          </div>
-
-          {error && (
-            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>
-          )}
-
-          <div className="space-y-4">
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-              <input type="text" placeholder="Nome completo" value={name} onChange={(e) => setName(e.target.value)} required className={inputCls} />
-            </div>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-              <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputCls} />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className={inputCls}
+      {/* cartão central estilo grande rede social */}
+      <div className="pro-pop relative w-full max-w-[520px] rounded-3xl bg-white p-7 text-zinc-900 shadow-2xl sm:p-9">
+        {/* topo: fechar + bolinhas de etapa */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link href="/assinantes" aria-label="Fechar" className="text-zinc-500 transition hover:text-zinc-900">
+            <X size={22} />
+          </Link>
+          <div className="flex items-center gap-1.5">
+            {[1, 2].map((s) => (
+              <span
+                key={s}
+                className={`h-2 w-2 rounded-full transition ${step === s ? "pro-gradient" : "bg-zinc-300"}`}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
-                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            ))}
+          </div>
+        </div>
+
+        {step === 1 ? (
+          <>
+            <h1 className="text-[26px] font-black tracking-tight sm:text-[30px]">Informações da conta</h1>
+
+            {error && (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
+            )}
+
+            <div className="mt-6 space-y-5">
+              <div>
+                <label className="text-[15px] font-bold">Seu nome de usuário</label>
+                <p className="mb-2 text-[13px] text-zinc-500">Pode conter apenas letras de A a Z, números de 0 a 9 e sublinhado.</p>
+                <div className="relative">
+                  <AtSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <input
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase().slice(0, 20))}
+                    placeholder="seunome"
+                    className={`${inputCls} pl-10`}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[15px] font-bold">Senha</label>
+                <div className="relative mt-2">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Crie uma senha"
+                    className={`${inputCls} pr-12`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  >
+                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                  </button>
+                </div>
+                <ul className="mt-3 space-y-2">
+                  <Rule ok={rules.len} label="8 caracteres" />
+                  <Rule ok={rules.upper} label="1 letra maiúscula" />
+                  <Rule ok={rules.lower} label="1 letra minúscula" />
+                </ul>
+              </div>
+
+              <div>
+                <label className="text-[15px] font-bold">E-mail</label>
+                <p className="mb-2 text-[13px] text-zinc-500">
+                  Usamos seu e-mail para acesso, suporte e recuperação da conta.
+                </p>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="voce@email.com"
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={next}
+              disabled={!step1Ok}
+              className="pro-gradient mt-7 h-13 w-full rounded-full text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-40"
+            >
+              Próximo
+            </button>
+
+            <div className="my-5 flex items-center gap-3">
+              <span className="h-px flex-1 bg-zinc-200" />
+              <span className="text-[11px] uppercase tracking-widest text-zinc-400">ou</span>
+              <span className="h-px flex-1 bg-zinc-200" />
+            </div>
+
+            <button
+              type="button"
+              onClick={signupGoogle}
+              className="flex h-13 w-full items-center justify-center gap-2.5 rounded-full border border-zinc-200 text-[15px] font-bold text-zinc-800 transition hover:bg-zinc-50"
+            >
+              <GoogleG /> Continuar com Google
+            </button>
+
+            <p className="mt-5 text-center text-sm text-zinc-500">
+              Já tem conta?{" "}
+              <Link href="/painel/login" className="pro-gradient-text font-bold">
+                Entrar
+              </Link>
+            </p>
+          </>
+        ) : (
+          <form onSubmit={handleSignup}>
+            <h1 className="text-[26px] font-black tracking-tight sm:text-[30px]">Quase lá</h1>
+            <p className="mt-1 text-[14px] text-zinc-500">{PLAN_LABEL[plano]}</p>
+
+            {error && (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
+            )}
+
+            <div className="mt-6">
+              <label className="text-[15px] font-bold">Nome completo</label>
+              <p className="mb-2 text-[13px] text-zinc-500">É como você aparece na comunidade.</p>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" required className={inputCls} />
+            </div>
+
+            <div className="mt-5 rounded-2xl bg-zinc-50 p-4 text-[13.5px] text-zinc-600">
+              <p>
+                <b className="text-zinc-900">@{handle}</b> · {email}
+              </p>
+              <button type="button" onClick={() => setStep(1)} className="pro-gradient-text mt-1 text-[13px] font-bold">
+                Editar informações
               </button>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Repetir senha"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                required
-                minLength={6}
-                className={inputCls}
-              />
-            </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="pro-gradient pro-glow h-13 w-full rounded-2xl text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60"
-          >
-            {loading ? "Processando…" : "Continuar para o pagamento"}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="pro-gradient mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+            >
+              {loading && <Loader2 size={16} className="animate-spin" />}
+              {loading ? "Criando conta…" : "Criar conta e continuar"}
+            </button>
 
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-white/10" />
-            <span className="text-[11px] uppercase tracking-widest text-zinc-500">ou</span>
-            <span className="h-px flex-1 bg-white/10" />
-          </div>
-
-          <button
-            type="button"
-            onClick={signupGoogle}
-            className="pro-glass flex h-13 w-full items-center justify-center gap-2.5 rounded-2xl text-sm font-bold text-white"
-          >
-            <GoogleG /> Cadastrar com Google
-          </button>
-
-          <p className="text-center text-sm text-zinc-400">
-            Já é assinante?{" "}
-            <Link href="/painel/login" className="pro-gradient-text font-bold">
-              Entrar
-            </Link>
-          </p>
-          <p className="text-center text-xs text-zinc-500">
-            É jornalista?{" "}
-            <Link href="/register" className="underline hover:text-white">
-              Cadastro da redação
-            </Link>
-          </p>
-        </form>
+            <p className="mt-4 text-center text-[12px] leading-relaxed text-zinc-400">
+              Ao continuar, você concorda com os{" "}
+              <Link href="/termos" className="underline">Termos</Link> e a{" "}
+              <Link href="/privacy" className="underline">Política de Privacidade</Link>. Você vai para o
+              pagamento seguro em seguida.
+            </p>
+          </form>
+        )}
       </div>
     </main>
   );

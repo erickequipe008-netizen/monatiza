@@ -61,7 +61,9 @@ export async function ensureProfile(): Promise<CommunityProfile | null> {
     .maybeSingle();
   if (existing) return existing as CommunityProfile;
 
-  const base = handleFromEmail(u.email || "membro");
+  // @ escolhido no cadastro (user_metadata) tem prioridade sobre o derivado do e-mail
+  const wanted = (u.user_metadata?.handle as string | undefined)?.replace(/[^a-z0-9_]/gi, "").toLowerCase();
+  const base = wanted || handleFromEmail(u.email || "membro");
   let handle = base;
   for (let i = 0; i < 6; i++) {
     const { count } = await supabase
