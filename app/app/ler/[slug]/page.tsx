@@ -164,10 +164,12 @@ export default function Reader() {
   }
 
   const isHtml = /<[a-z][\s\S]*>/i.test(body || "");
-  const author =
+  const rawAuthor =
     article.journalist_name && !String(article.journalist_name).includes("@")
-      ? article.journalist_name
+      ? String(article.journalist_name)
       : "Redação Monatiza";
+  // evita "Por Por ..." caso o nome já venha com o prefixo "Por"
+  const author = rawAuthor.replace(/^\s*por\s+/i, "").trim() || "Redação Monatiza";
   const wordCount = (body || "").replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   const readMin = Math.max(1, Math.round(wordCount / 200));
 

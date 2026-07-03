@@ -345,6 +345,21 @@ export default function NewArticlePage() {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [authorList, setAuthorList] = useState<{ id: string; name: string; display_name: string | null }[]>([]);
+  const [authorName, setAuthorName] = useState("");
+
+  // Carrega os jornalistas do time para escolher o autor (byline "Por <nome>").
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("journalists").select("id, name, display_name").order("name");
+      const list = (data || []) as { id: string; name: string; display_name: string | null }[];
+      setAuthorList(list);
+      const { data: { user } } = await supabase.auth.getUser();
+      const mine = list.find((j) => j.id === user?.id);
+      const def = mine?.display_name || mine?.name || list[0]?.display_name || list[0]?.name || "Redação";
+      setAuthorName(def.replace(/^\s*por\s+/i, "").trim());
+    })();
+  }, []);
 
   function validate() {
     const e: Record<string, string> = {};
@@ -385,11 +400,8 @@ export default function NewArticlePage() {
     const slug = generateSlug(title);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { alert("Usuário não autenticado"); setLoading(false); return; }
-    const { data: profile } = await supabase.from("journalists").select("name, display_name").eq("id", user.id).maybeSingle();
-    const meta = (user.user_metadata ?? {}) as { display_name?: string; name?: string; full_name?: string };
-    // nome de jornalismo do cadastro; nunca o e-mail
-    const journalistName =
-      meta.display_name || profile?.display_name || profile?.name || meta.name || meta.full_name || "Redação Monatiza";
+    // autor escolhido no seletor — o byline aparece como "Por <nome>"
+    const journalistName = (authorName || "Redação Monatiza").replace(/^\s*por\s+/i, "").trim() || "Redação Monatiza";
     const { error } = await supabase.from("articles").insert([{
       title, description, content, category,
       image_url: uploadedImage, slug,
@@ -460,6 +472,17 @@ export default function NewArticlePage() {
                 <label style={labelStyle}>Imagem de capa</label>
                 <ImageDropZone imageFile={imageFile} imagePreview={imagePreview} onFileChange={handleImageChange} onClear={() => { setImageFile(null); setImagePreview(null); }} />
               </div>
+            </div>
+
+            <div style={{ padding:"0 20px 20px" }}>
+              <label style={labelStyle}>Autor — aparece como “Por …”</label>
+              <select value={authorName} onChange={e => setAuthorName(e.target.value)} style={{ ...inputStyle, cursor:"pointer" }}>
+                {authorList.length === 0 && <option value="Redação">Redação</option>}
+                {authorList.map(a => {
+                  const nm = (a.display_name || a.name || "").replace(/^\s*por\s+/i, "").trim();
+                  return <option key={a.id} value={nm}>{nm}</option>;
+                })}
+              </select>
             </div>
 
             {/* Acesso: matéria premium (somente assinantes) */}
