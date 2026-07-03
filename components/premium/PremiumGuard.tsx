@@ -219,7 +219,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const avatarUrl = profile?.avatar_url || null;
 
   return (
-    <div className={`min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0 ${theme === "light" ? "pro-light" : ""}`}>
+    <div className={`app-shell min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0 ${theme === "light" ? "pro-light" : ""}`}>
       {/* ── BARRA SUPERIOR (celular/tablet) ── */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0c]/80 backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-4 px-4 md:px-6">
@@ -452,7 +452,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
 
             <Link
               href="/app#publicar"
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] font-bold text-black transition hover:bg-white/90"
+              className="ripple mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] font-bold text-black transition hover:bg-white/90"
             >
               <PenSquare size={17} /> {t("publish")}
             </Link>
@@ -483,7 +483,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
         </aside>
 
         {/* ── CONTEÚDO ── */}
-        <main key={pathname} className="pro-pop min-w-0 flex-1 px-4 py-6 md:px-6 md:py-8">
+        <main key={pathname} className="wave-in min-w-0 flex-1 px-4 py-6 md:px-6 md:py-8">
           {children}
           <AppFooter className="mt-8 border-t border-white/10 pt-4 lg:hidden" />
         </main>

@@ -178,6 +178,58 @@ body {
 /* Aura desativada — nada de brilhos/manchas de fundo (minimalista). */
 .pro-aura { display: none !important; }
 
+/* ═══════════ Usabilidade "app": leve, tátil, com ondas na entrada ═══════════ */
+/* Sem realce cinza no toque + rolagem com inércia (não trava no celular). */
+.app-shell, .app-shell * { -webkit-tap-highlight-color: transparent; }
+.app-shell {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  text-rendering: optimizeSpeed;
+}
+
+/* Feedback tátil: botões e links "afundam" de leve ao tocar (sensação de app). */
+.app-shell button, .app-shell a, .app-shell [role="button"], .app-shell label {
+  transition: transform 0.13s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.app-shell button:active,
+.app-shell a:active,
+.app-shell [role="button"]:active { transform: scale(0.965); }
+/* Cartões/posts/linhas clicáveis dão um "flash" suave ao tocar. */
+.app-shell [class*="cursor-pointer"]:active { background-color: rgba(255, 255, 255, 0.055); }
+
+/* Entrada em "onda": o conteúdo sobe suave ao abrir/trocar de aba. */
+@keyframes wave-in {
+  from { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.994); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+.wave-in { animation: wave-in 0.44s cubic-bezier(0.16, 1, 0.3, 1) both; will-change: transform, opacity; }
+
+/* Ripple: uma onda circular macia sob o toque (some sozinha). */
+.ripple { position: relative; overflow: hidden; isolation: isolate; }
+.ripple::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.16), transparent 60%);
+  opacity: 0; transform: scale(0.6);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+.ripple:active::after { opacity: 1; transform: scale(1); transition-duration: 0s, 0s; }
+
+/* Rolagem mais leve: reduz o blur pesado das barras fixas do app. */
+.app-shell [class*="backdrop-blur"] {
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Transições de navegação mais rápidas (menos "forçado"). */
+.pro-pop { animation-duration: 0.3s; }
+
+/* Respeita quem prefere menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+  .wave-in, .pro-pop, .pro-badge { animation: none !important; }
+  .app-shell button:active, .app-shell a:active, .app-shell [role="button"]:active { transform: none; }
+}
+
 /* ───────── Tema CLARO do app (classe .pro-light no contêiner do /app) ─────────
    Remapeia os padrões escuros mais usados para superfícies claras. */
 .pro-light { background-color: #ffffff !important; color: #18181b; }
