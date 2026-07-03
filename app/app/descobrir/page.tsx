@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Compass, TrendingUp, Loader2, Sparkles } from "lucide-react";
+import { Compass, TrendingUp, Loader2 } from "lucide-react";
 import { listPosts, getTrendingHashtags, type Post } from "@/lib/premium/community";
 import { fetchLatest, type ArticleCard } from "@/lib/premium/articles";
 import { getMyInterests, extractTags, type Interests } from "@/lib/premium/events";
@@ -11,6 +11,7 @@ import PostCard from "@/components/premium/PostCard";
 import QuoteOfDay from "@/components/premium/QuoteOfDay";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
+import { useLang } from "@/components/premium/useLang";
 
 type FeedItem =
   | { kind: "post"; key: string; t: number; score: number; post: Post }
@@ -33,9 +34,9 @@ function scoreArticle(a: ArticleCard, it: Interests): number {
 
 export default function ExplorarPage() {
   const { user } = useSubscriber();
+  const { t } = useLang();
   const [trends, setTrends] = useState<{ tag: string; count: number }[]>([]);
   const [items, setItems] = useState<FeedItem[]>([]);
-  const [personalized, setPersonalized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -74,7 +75,6 @@ export default function ExplorarPage() {
       ]);
       if (!active) return;
       setTrends(tr);
-      setPersonalized(it.tags.length > 0 || it.categories.length > 0 || it.authors.size > 0);
       postCursor.current = posts.length ? posts[posts.length - 1].created_at : null;
       artCursor.current = arts.length ? arts[arts.length - 1].created_at ?? null : null;
       setItems(build(posts, arts, it));
@@ -110,22 +110,17 @@ export default function ExplorarPage() {
 
   return (
     <div className="mx-auto max-w-[640px]">
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2">
         <Compass size={20} className="text-[#1d9bf0]" />
-        <h1 className="text-[20px] font-extrabold tracking-tight">Explorar</h1>
+        <h1 className="text-[20px] font-extrabold tracking-tight">{t("explore")}</h1>
       </div>
-      <p className="mb-5 flex items-center gap-1.5 text-[13px] text-zinc-500">
-        <Sparkles size={13} className="text-[#1d9bf0]" />
-        {personalized
-          ? "Selecionado para você — aprende com o que você curte, lê e segue."
-          : "Tudo o que rola por aqui. Quanto mais você usa, mais personalizado fica."}
-      </p>
+      <p className="mb-5 text-[13px] text-zinc-500">{t("explore_sub")}</p>
 
       {/* Assuntos do momento */}
       {trends.length > 0 && (
         <section className="mb-5">
           <h2 className="mb-2.5 flex items-center gap-2 text-[12px] font-black uppercase tracking-widest text-zinc-500">
-            <TrendingUp size={14} /> Assuntos do momento
+            <TrendingUp size={14} /> {t("trending")}
           </h2>
           <div className="flex flex-wrap gap-2">
             {trends.map((t) => (
@@ -142,11 +137,12 @@ export default function ExplorarPage() {
       )}
 
       {/* Frase do dia */}
-      <div className="mb-2">
+      <div className="mb-4">
         <QuoteOfDay />
       </div>
 
       {/* Feed misturado: posts, vídeos e artigos */}
+      <h2 className="mb-1 border-t border-white/10 pt-4 text-[15px] font-extrabold text-zinc-100">{t("for_you")}</h2>
       {loading ? (
         <div className="flex justify-center py-12 text-zinc-400">
           <Loader2 className="animate-spin" size={22} />
@@ -185,7 +181,7 @@ export default function ExplorarPage() {
                 disabled={busy}
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-2.5 text-[14px] font-bold text-zinc-100 transition hover:bg-white/5 disabled:opacity-50"
               >
-                {busy && <Loader2 size={15} className="animate-spin" />} Mostrar mais
+                {busy && <Loader2 size={15} className="animate-spin" />} {t("show_more")}
               </button>
             </div>
           )}

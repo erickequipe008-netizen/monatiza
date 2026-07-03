@@ -32,6 +32,17 @@ import { useSubscriber } from "@/components/premium/SubscriberProvider";
 import { countUnread } from "@/lib/premium/messages";
 import { getMyProfile, type CommunityProfile } from "@/lib/premium/community";
 import { countUnreadNotifications, markNotificationsRead } from "@/lib/premium/notifications";
+import { useLang } from "@/components/premium/useLang";
+import AppFooter from "@/components/premium/AppFooter";
+
+// Mapa rótulo (pt) → chave de tradução, para traduzir a navegação automaticamente.
+const NAVK: Record<string, string> = {
+  "Início": "home", "Explorar": "explore", "Descobrir": "explore",
+  "Notificações": "notifications", "Mensagens": "messages", "Comunidade": "community",
+  "Notícias": "news", "Biblioteca": "library", "Perfil": "profile", "Meu perfil": "profile",
+  "Verificação": "verification", "Exclusivo": "exclusive", "Revistas": "magazines",
+  "Newsletter": "newsletter", "Painel": "dashboard", "Conta": "account",
+};
 
 const PRIMARY = [
   { href: "/app", label: "Início", icon: Home },
@@ -71,6 +82,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   const { loading, isSubscriber, user } = useSubscriber();
   const router = useRouter();
   const pathname = usePathname() || "/app";
+  const { t } = useLang();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -228,7 +240,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                       : "text-zinc-400 hover:bg-white/5 hover:text-white"
                   }`}
                 >
-                  {item.label}
+                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
                 </Link>
               );
             })}
@@ -326,7 +338,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-zinc-300 transition hover:bg-white/5 hover:text-white"
                           >
                             <Icon size={17} className="text-zinc-500" />
-                            {item.label}
+                            {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
                           </Link>
                         );
                       })}
@@ -334,7 +346,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                         onClick={logout}
                         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-zinc-300 transition hover:bg-white/5 hover:text-white"
                       >
-                        <LogOut size={17} className="text-zinc-500" /> Sair
+                        <LogOut size={17} className="text-zinc-500" /> {t("logout")}
                       </button>
                     </nav>
                   </div>
@@ -374,7 +386,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar"
+              placeholder={t("search")}
               className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-[14px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#1d9bf0]"
             />
           </form>
@@ -408,7 +420,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                       </span>
                     )}
                   </span>
-                  {item.label}
+                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
                 </Link>
               );
             })}
@@ -417,7 +429,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
               onClick={() => setMoreOpen((v) => !v)}
               className="flex w-full items-center gap-3.5 rounded-full px-4 py-2.5 text-[15px] font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white"
             >
-              <MoreHorizontal size={21} /> Mais
+              <MoreHorizontal size={21} /> {t("more")}
             </button>
             {moreOpen && (
               <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
@@ -430,7 +442,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                         href={item.href}
                         className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white"
                       >
-                        <Icon size={17} /> {item.label}
+                        <Icon size={17} /> {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
                       </Link>
                     );
                   }
@@ -442,7 +454,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
               href="/app#publicar"
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] font-bold text-black transition hover:bg-white/90"
             >
-              <PenSquare size={17} /> Publicar
+              <PenSquare size={17} /> {t("publish")}
             </Link>
           </nav>
 
@@ -462,15 +474,18 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                 {profile?.handle && <span className="block truncate text-[12px] text-zinc-500">@{profile.handle}</span>}
               </span>
             </Link>
-            <button onClick={logout} className="shrink-0 rounded-full p-2 text-zinc-500 transition hover:bg-white/10 hover:text-white" aria-label="Sair" title="Sair">
+            <button onClick={logout} className="shrink-0 rounded-full p-2 text-zinc-500 transition hover:bg-white/10 hover:text-white" aria-label={t("logout")} title={t("logout")}>
               <LogOut size={17} />
             </button>
           </div>
+
+          <AppFooter className="mt-3 border-t border-white/10 pt-3" />
         </aside>
 
         {/* ── CONTEÚDO ── */}
         <main key={pathname} className="pro-pop min-w-0 flex-1 px-4 py-6 md:px-6 md:py-8">
           {children}
+          <AppFooter className="mt-8 border-t border-white/10 pt-4 lg:hidden" />
         </main>
       </div>
 
@@ -497,7 +512,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                   <Icon size={21} />
                 </span>
                 <span className={`text-[10px] font-bold ${active ? "pro-gradient-text" : "text-zinc-500"}`}>
-                  {item.label}
+                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
                 </span>
               </Link>
             );
