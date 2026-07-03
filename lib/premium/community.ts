@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
+import { isHidden } from "@/lib/premium/prefs";
+import { logEvent } from "@/lib/premium/events";
 
 // ─────────────────────────────────────────────────────────────
 // Rede social do assinante: perfis + posts (feed de opinião).
@@ -197,7 +199,7 @@ export async function listPosts(limit = 30, before?: string | null): Promise<Pos
     .limit(limit);
   if (before) q = q.lt("created_at", before);
   const { data } = await q;
-  return enrich(data || []);
+  return (await enrich(data || [])).filter((p) => !isHidden(p.user_id));
 }
 
 // Feed "Seguindo": posts de quem eu sigo (+ os meus).
@@ -215,7 +217,7 @@ export async function listFollowingPosts(limit = 30, before?: string | null): Pr
     .limit(limit);
   if (before) q = q.lt("created_at", before);
   const { data } = await q;
-  return enrich(data || []);
+  return (await enrich(data || [])).filter((p) => !isHidden(p.user_id));
 }
 
 export async function getPost(id: number): Promise<Post | null> {
@@ -356,6 +358,7 @@ export async function follow(userId: string): Promise<void> {
     { follower_id: me, following_id: userId },
     { onConflict: "follower_id,following_id" }
   );
+  void logEvent("follow", { targetUser: userId });
 }
 
 export async function unfollow(userId: string): Promise<void> {

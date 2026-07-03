@@ -14,6 +14,7 @@ import {
   addReadingTime,
 } from "@/lib/premium/library";
 import { timeAgo } from "@/components/premium/PremiumCards";
+import { logEvent } from "@/lib/premium/events";
 
 export default function Reader() {
   const params = useParams<{ slug: string }>();
@@ -57,6 +58,7 @@ export default function Reader() {
         setSaved(sv);
         setLiked(lk);
         recordView(a.id);
+        void logEvent("open_article", { category: a.category });
         startRef.current = Date.now();
       }
       setLoading(false);

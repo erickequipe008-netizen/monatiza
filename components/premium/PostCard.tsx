@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
-import { Heart, MessageCircle, Trash2, Repeat2, X, Bookmark, Flag, Play, Volume2, VolumeX } from "lucide-react";
-import { togglePostLike, togglePostBookmark, reportPost, deletePost, repost, type Post } from "@/lib/premium/community";
+import { Heart, MessageCircle, Trash2, Repeat2, X, Bookmark, Flag, Play, Volume2, VolumeX, MoreHorizontal, UserPlus, UserMinus, Ban, CircleSlash } from "lucide-react";
+import { togglePostLike, togglePostBookmark, reportPost, deletePost, repost, follow, unfollow, isFollowing, type Post } from "@/lib/premium/community";
+import { logEvent } from "@/lib/premium/events";
+import { muteUser, blockUser } from "@/lib/premium/prefs";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import PostComposer from "@/components/premium/PostComposer";
@@ -114,7 +116,10 @@ function renderContent(text: string) {
         <Link
           key={i}
           href={`/app/busca?q=${encodeURIComponent(part)}`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            void logEvent("click_tag", { tags: [part.toLowerCase()] });
+          }}
           className="text-[#1d9bf0] hover:underline"
         >
           {part}
@@ -185,6 +190,8 @@ export default function PostCard({
   const [menuOpen, setMenuOpen] = useState(false);
   const [reposted, setReposted] = useState(false);
   const [showQuote, setShowQuote] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [menuFollowing, setMenuFollowing] = useState<boolean | null>(null);
 
   const isMine = !!myId && post.user_id === myId;
   const handle = display.author?.handle || "membro";
@@ -198,6 +205,7 @@ export default function PostCard({
     if (n) {
       setPopped(true);
       setTimeout(() => setPopped(false), 320);
+      void logEvent("like_post", { text: display.content, targetUser: display.user_id });
     }
     await togglePostLike(display.id, n);
   }
@@ -226,6 +234,33 @@ export default function PostCard({
     const ok = await reportPost(display.id, reason);
     alert(ok ? "Denúncia enviada. Nossa equipe vai analisar." : "Não foi possível enviar. Tente novamente.");
   }
+  function notInterested(e: React.MouseEvent) {
+    e.stopPropagation();
+    setMoreOpen(false);
+    void logEvent("not_interested", { text: display.content, targetUser: display.user_id });
+    onDeleted?.(post.id);
+  }
+  async function toggleFollowAuthor(e: React.MouseEvent) {
+    e.stopPropagation();
+    setMoreOpen(false);
+    const willFollow = !menuFollowing;
+    setMenuFollowing(willFollow);
+    if (willFollow) await follow(display.user_id);
+    else await unfollow(display.user_id);
+  }
+  function doMute(e: React.MouseEvent) {
+    e.stopPropagation();
+    setMoreOpen(false);
+    muteUser(display.user_id);
+    onDeleted?.(post.id);
+  }
+  function doBlock(e: React.MouseEvent) {
+    e.stopPropagation();
+    setMoreOpen(false);
+    blockUser(display.user_id);
+    void unfollow(display.user_id);
+    onDeleted?.(post.id);
+  }
 
   return (
     <article
@@ -253,11 +288,55 @@ export default function PostCard({
           <span className="truncate text-zinc-400">@{handle}</span>
           <span className="text-zinc-300">·</span>
           <span className="shrink-0 text-zinc-400">{timeAgo(display.created_at)}</span>
-          {isMine && (
-            <button onClick={del} className="ml-auto shrink-0 text-zinc-600 hover:text-[#E0263B]" title="Excluir">
-              <Trash2 size={15} />
+          <div className="relative ml-auto shrink-0">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setMoreOpen((v) => !v);
+                if (!isMine && menuFollowing === null) isFollowing(display.user_id).then(setMenuFollowing);
+              }}
+              className="rounded-full p-1.5 text-zinc-500 transition hover:bg-[#1d9bf0]/10 hover:text-[#1d9bf0]"
+              aria-label="Mais opções"
+            >
+              <MoreHorizontal size={17} />
             </button>
-          )}
+            {moreOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setMoreOpen(false); }} />
+                <div className="absolute right-0 z-50 mt-1 w-64 overflow-hidden rounded-2xl border border-white/10 bg-[#16181c] py-1 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.85)]">
+                  <button onClick={notInterested} className="flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-zinc-100 transition hover:bg-white/5">
+                    <CircleSlash size={17} className="shrink-0" /> Não tenho interesse
+                  </button>
+                  {!isMine && (
+                    <button onClick={toggleFollowAuthor} className="flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-zinc-100 transition hover:bg-white/5">
+                      {menuFollowing ? <UserMinus size={17} className="shrink-0" /> : <UserPlus size={17} className="shrink-0" />}
+                      <span className="truncate">{menuFollowing ? `Deixar de seguir @${handle}` : `Seguir @${handle}`}</span>
+                    </button>
+                  )}
+                  {!isMine && (
+                    <button onClick={doMute} className="flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-zinc-100 transition hover:bg-white/5">
+                      <VolumeX size={17} className="shrink-0" /> <span className="truncate">Silenciar @{handle}</span>
+                    </button>
+                  )}
+                  {!isMine && (
+                    <button onClick={doBlock} className="flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-zinc-100 transition hover:bg-white/5">
+                      <Ban size={17} className="shrink-0" /> <span className="truncate">Bloquear @{handle}</span>
+                    </button>
+                  )}
+                  {!isMine && (
+                    <button onClick={(e) => { setMoreOpen(false); doReport(e); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-zinc-100 transition hover:bg-white/5">
+                      <Flag size={17} className="shrink-0" /> Denunciar publicação
+                    </button>
+                  )}
+                  {isMine && (
+                    <button onClick={(e) => { setMoreOpen(false); del(e); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-[#E0263B] transition hover:bg-[#E0263B]/10">
+                      <Trash2 size={17} className="shrink-0" /> Excluir
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {display.content && (
@@ -348,16 +427,6 @@ export default function PostCard({
             <Bookmark size={17} fill={saved ? "currentColor" : "none"} />
           </button>
 
-          {!isMine && (
-            <button
-              onClick={doReport}
-              className="ml-auto flex items-center rounded-full px-2 py-1.5 text-zinc-600 transition hover:bg-white/5 hover:text-zinc-300"
-              aria-label="Denunciar"
-              title="Denunciar"
-            >
-              <Flag size={15} />
-            </button>
-          )}
         </div>
       </div>
 
