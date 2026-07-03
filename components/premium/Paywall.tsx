@@ -57,7 +57,7 @@ export default function Paywall({ floating = true }: { floating?: boolean }) {
         <p className="mt-5 flex items-center justify-center gap-1.5 text-[13px] text-zinc-500">
           <Lock size={13} className="text-zinc-400" />
           Já é assinante?{" "}
-          <Link href="/painel/login" className="font-bold text-[#0b0b0c] underline-offset-2 hover:text-[#E0263B] hover:underline">
+          <Link href="/painel/login" className="font-bold text-[#0b0b0c] underline-offset-2 hover:text-[#E0263B]">
             Entrar
           </Link>
         </p>

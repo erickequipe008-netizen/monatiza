@@ -236,7 +236,7 @@ export default function PremiumHome() {
             <div className="space-y-2.5">
               {trends.map((t) => (
                 <Link key={t.tag} href={`/app/busca?q=${encodeURIComponent(t.tag)}`} className="block">
-                  <p className="text-[14px] font-bold text-zinc-100 hover:underline">{t.tag}</p>
+                  <p className="text-[14px] font-bold text-zinc-100">{t.tag}</p>
                   <p className="text-[12px] text-zinc-500">{t.count} publicaç{t.count === 1 ? "ão" : "ões"} recentes</p>
                 </Link>
               ))}
@@ -254,7 +254,7 @@ export default function PremiumHome() {
                 <p className="text-[11px] font-bold uppercase tracking-wide text-zinc-500">
                   {a.category} · {timeAgo(a.created_at || "")}
                 </p>
-                <p className="line-clamp-2 text-[14px] font-bold leading-snug text-zinc-100 group-hover:underline">
+                <p className="line-clamp-2 text-[14px] font-bold leading-snug text-zinc-100">
                   {a.title}
                 </p>
               </Link>

@@ -3,183 +3,103 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Compass, TrendingUp, Loader2 } from "lucide-react";
-import { listPosts, getTrendingHashtags, type Post } from "@/lib/premium/community";
+import { getTrendingHashtags } from "@/lib/premium/community";
 import { fetchLatest, type ArticleCard } from "@/lib/premium/articles";
-import { getMyInterests, extractTags, type Interests } from "@/lib/premium/events";
-import { isHidden } from "@/lib/premium/prefs";
-import PostCard from "@/components/premium/PostCard";
-import { timeAgo } from "@/components/premium/PremiumCards";
-import { useSubscriber } from "@/components/premium/SubscriberProvider";
+import { getMyInterests } from "@/lib/premium/events";
+import { BigCard } from "@/components/premium/PremiumCards";
 import { useLang } from "@/components/premium/useLang";
 
-type FeedItem =
-  | { kind: "post"; key: string; t: number; score: number; post: Post }
-  | { kind: "article"; key: string; t: number; score: number; a: ArticleCard };
-
-// Pontua cada conteúdo pela afinidade com o que o usuário demonstrou gostar.
-function scorePost(p: Post, it: Interests): number {
-  let s = 0;
-  for (const tag of extractTags(p.content)) if (it.tagSet.has(tag)) s += 3;
-  if (it.authors.has(p.user_id)) s += 4;
-  s += Math.min(p.likeCount, 10) * 0.2; // leve empurrão do que engaja
-  return s;
-}
-function scoreArticle(a: ArticleCard, it: Interests): number {
-  let s = 0;
-  const cat = (a.category || "").toString();
-  if (cat && it.catSet.has(cat)) s += 3;
-  return s;
-}
-
 export default function ExplorarPage() {
-  const { user } = useSubscriber();
   const { t } = useLang();
   const [trends, setTrends] = useState<{ tag: string; count: number }[]>([]);
-  const [items, setItems] = useState<FeedItem[]>([]);
+  const [items, setItems] = useState<ArticleCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
   const [busy, setBusy] = useState(false);
-  const postCursor = useRef<string | null>(null);
-  const artCursor = useRef<string | null>(null);
+  const cursor = useRef<string | null>(null);
+  const seen = useRef<Set<number>>(new Set());
 
-  const build = useCallback((posts: Post[], arts: ArticleCard[], it: Interests): FeedItem[] => {
-    const now = Date.now();
-    const recency = (iso?: string | null) => {
-      const t = iso ? new Date(iso).getTime() : now;
-      const days = (now - t) / 86_400_000;
-      return Math.max(0, 3 - days * 0.15); // mais novo = pontua mais
-    };
-    const postItems: FeedItem[] = posts
-      .filter((p) => !isHidden(p.user_id))
-      .map((p) => ({ kind: "post", key: `p${p.id}`, t: new Date(p.created_at).getTime(), score: scorePost(p, it) + recency(p.created_at), post: p }));
-    const artItems: FeedItem[] = arts.map((a) => ({
-      kind: "article",
-      key: `a${a.id}`,
-      t: a.created_at ? new Date(a.created_at).getTime() : now,
-      score: scoreArticle(a, it) + recency(a.created_at) + 0.4, // artigos entram no mix
-      a,
-    }));
-    postItems.sort((x, y) => y.score - x.score || y.t - x.t);
-    artItems.sort((x, y) => y.score - x.score || y.t - x.t);
-    // Intercala (≈2 posts : 1 artigo) para o feed ficar variado, não um bloco só de artigos.
-    const out: FeedItem[] = [];
-    let pi = 0;
-    let ai = 0;
-    while (pi < postItems.length || ai < artItems.length) {
-      if (pi < postItems.length) out.push(postItems[pi++]);
-      if (pi < postItems.length) out.push(postItems[pi++]);
-      if (ai < artItems.length) out.push(artItems[ai++]);
-    }
-    return out;
+  // Ordena por afinidade (categorias que o usuário lê) + recência.
+  const rank = useCallback((arts: ArticleCard[], cats: Set<string>) => {
+    return [...arts].sort((a, b) => {
+      const sa = cats.has((a.category || "").toString()) ? 1 : 0;
+      const sb = cats.has((b.category || "").toString()) ? 1 : 0;
+      if (sa !== sb) return sb - sa;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    });
   }, []);
 
   useEffect(() => {
     let active = true;
     (async () => {
       setLoading(true);
-      const [posts, arts, it, tr] = await Promise.all([
-        listPosts(40),
-        fetchLatest(30),
-        getMyInterests(),
-        getTrendingHashtags(12),
-      ]);
+      const [arts, it, tr] = await Promise.all([fetchLatest(24), getMyInterests(), getTrendingHashtags(10)]);
       if (!active) return;
       setTrends(tr);
-      postCursor.current = posts.length ? posts[posts.length - 1].created_at : null;
-      artCursor.current = arts.length ? arts[arts.length - 1].created_at ?? null : null;
-      setItems(build(posts, arts, it));
-      setShowMore(posts.length >= 40 || arts.length >= 30);
+      arts.forEach((a) => seen.current.add(a.id));
+      cursor.current = arts.length ? arts[arts.length - 1].created_at ?? null : null;
+      setItems(rank(arts, it.catSet));
+      setShowMore(arts.length >= 24);
       setLoading(false);
     })();
     return () => {
       active = false;
     };
-  }, [build]);
+  }, [rank]);
 
   const loadMore = useCallback(async () => {
     if (busy) return;
     setBusy(true);
-    const [posts, arts, it] = await Promise.all([
-      listPosts(30, postCursor.current),
-      fetchLatest(20, artCursor.current),
-      getMyInterests(),
-    ]);
-    if (posts.length) postCursor.current = posts[posts.length - 1].created_at;
-    if (arts.length) artCursor.current = arts[arts.length - 1].created_at ?? null;
-    setItems((prev) => {
-      const seen = new Set(prev.map((i) => i.key));
-      const next = build(posts, arts, it).filter((i) => !seen.has(i.key));
-      return [...prev, ...next];
-    });
-    if (posts.length < 30 && arts.length < 20) setShowMore(false);
+    const [arts, it] = await Promise.all([fetchLatest(18, cursor.current), getMyInterests()]);
+    const fresh = arts.filter((a) => !seen.current.has(a.id));
+    fresh.forEach((a) => seen.current.add(a.id));
+    if (arts.length) cursor.current = arts[arts.length - 1].created_at ?? null;
+    setItems((prev) => [...prev, ...rank(fresh, it.catSet)]);
+    if (arts.length < 18) setShowMore(false);
     setBusy(false);
-  }, [busy, build]);
-
-  const removePost = (id: number) =>
-    setItems((prev) => prev.filter((it) => !(it.kind === "post" && it.post.id === id)));
+  }, [busy, rank]);
 
   return (
-    <div className="mx-auto max-w-[640px]">
+    <div className="mx-auto max-w-[1100px]">
       <div className="mb-5 flex items-center gap-2">
         <Compass size={20} className="text-[#1d9bf0]" />
         <h1 className="text-[20px] font-extrabold tracking-tight">{t("explore")}</h1>
       </div>
 
-      {/* Assuntos do momento */}
       {trends.length > 0 && (
-        <section className="mb-5">
+        <section className="mb-6">
           <h2 className="mb-2.5 flex items-center gap-2 text-[12px] font-black uppercase tracking-widest text-zinc-500">
             <TrendingUp size={14} /> {t("trending")}
           </h2>
           <div className="flex flex-wrap gap-2">
-            {trends.map((t) => (
+            {trends.map((tr) => (
               <Link
-                key={t.tag}
-                href={`/app/busca?q=${encodeURIComponent(t.tag)}`}
+                key={tr.tag}
+                href={`/app/busca?q=${encodeURIComponent(tr.tag)}`}
                 className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[13px] font-bold text-zinc-100 transition hover:bg-white/10"
               >
-                {t.tag} <span className="ml-1 text-[11px] font-semibold text-zinc-500">{t.count}</span>
+                {tr.tag} <span className="ml-1 text-[11px] font-semibold text-zinc-500">{tr.count}</span>
               </Link>
             ))}
           </div>
         </section>
       )}
 
-      {/* Feed misturado: posts, vídeos e artigos */}
-      <h2 className="mb-1 mt-2 border-t border-white/10 pt-4 text-[15px] font-extrabold text-zinc-100">{t("for_you")}</h2>
+      <h2 className="mb-4 text-[15px] font-extrabold text-zinc-100">{t("for_you")}</h2>
+
       {loading ? (
         <div className="flex justify-center py-12 text-zinc-400">
           <Loader2 className="animate-spin" size={22} />
         </div>
       ) : (
-        <div>
-          {items.map((it) =>
-            it.kind === "post" ? (
-              <PostCard key={it.key} post={it.post} myId={user?.id} onDeleted={removePost} />
-            ) : (
-              <Link
-                key={it.key}
-                href={`/app/ler/${it.a.slug}`}
-                className="flex gap-3 border-b border-white/10 px-1 py-4 transition hover:bg-white/5"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-black uppercase tracking-widest text-[#1d9bf0]">
-                    {it.a.category || "Notícia"} · Artigo
-                  </p>
-                  <h3 className="mt-1 line-clamp-2 text-[15px] font-bold leading-snug text-zinc-100">{it.a.title}</h3>
-                  {it.a.excerpt && <p className="mt-1 line-clamp-2 text-[13px] text-zinc-400">{it.a.excerpt}</p>}
-                  <p className="mt-1.5 text-[12px] text-zinc-500">{timeAgo(it.a.created_at || "")}</p>
-                </div>
-                {it.a.image_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={it.a.image_url} alt="" className="h-[82px] w-[124px] shrink-0 rounded-xl object-cover" />
-                )}
-              </Link>
-            )
-          )}
-
+        <>
+          <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((a) => (
+              <BigCard key={a.id} a={a} />
+            ))}
+          </div>
           {showMore && (
-            <div className="flex justify-center py-6">
+            <div className="flex justify-center py-8">
               <button
                 onClick={loadMore}
                 disabled={busy}
@@ -189,7 +109,7 @@ export default function ExplorarPage() {
               </button>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

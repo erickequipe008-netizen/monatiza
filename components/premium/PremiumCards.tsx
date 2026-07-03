@@ -25,7 +25,7 @@ function Meta({ a }: { a: ArticleCard }) {
     <div className="flex items-center gap-2 text-[12px] text-zinc-500">
       <Clock3 size={12} />
       <span>{timeAgo(a.created_at)}</span>
-      {a.is_premium && <Crown size={11} className="text-[#c79bff]" />}
+      {a.is_premium && <Crown size={11} className="text-[#1d9bf0]" />}
     </div>
   );
 }
@@ -65,7 +65,7 @@ export function BigCard({ a }: { a: ArticleCard }) {
       </div>
       <div className="mt-3">
         <span className="text-[10px] font-bold uppercase tracking-widest text-[#1d9bf0]">{a.category}</span>
-        <h3 className="mt-1 text-[18px] font-extrabold leading-snug tracking-tight text-zinc-100 transition group-hover:text-[#c79bff]">{a.title}</h3>
+        <h3 className="mt-1 text-[18px] font-extrabold leading-snug tracking-tight text-zinc-100 transition group-hover:text-[#1d9bf0]">{a.title}</h3>
         {a.excerpt && <p className="mt-1.5 line-clamp-2 text-[13.5px] leading-relaxed text-zinc-400">{a.excerpt}</p>}
         <div className="mt-2"><Meta a={a} /></div>
       </div>
@@ -78,7 +78,7 @@ export function RowCard({ a }: { a: ArticleCard }) {
     <Link href={href(a)} className="group -mx-2 flex gap-4 rounded-2xl px-2 py-4 transition hover:bg-white/5">
       <div className="min-w-0 flex-1">
         <span className="text-[10px] font-bold uppercase tracking-widest text-[#1d9bf0]">{a.category}</span>
-        <h3 className="mt-1 text-[16px] font-bold leading-snug tracking-tight text-zinc-100 transition group-hover:text-[#c79bff]">{a.title}</h3>
+        <h3 className="mt-1 text-[16px] font-bold leading-snug tracking-tight text-zinc-100 transition group-hover:text-[#1d9bf0]">{a.title}</h3>
         <div className="mt-1.5"><Meta a={a} /></div>
       </div>
       {a.image_url && (
@@ -100,7 +100,7 @@ export function SmallCard({ a, index }: { a: ArticleCard; index?: number }) {
         </span>
       )}
       <div className="min-w-0">
-        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-zinc-100 transition group-hover:text-[#c79bff]">{a.title}</h3>
+        <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-zinc-100 transition group-hover:text-[#1d9bf0]">{a.title}</h3>
         <div className="mt-1"><Meta a={a} /></div>
       </div>
     </Link>

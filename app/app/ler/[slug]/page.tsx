@@ -302,7 +302,7 @@ export default function Reader() {
                 <span className="pro-gradient-text text-[10px] font-black uppercase tracking-widest">
                   {a.category}
                 </span>
-                <h3 className="mt-0.5 line-clamp-2 text-[15px] font-bold leading-snug group-hover:underline">
+                <h3 className="mt-0.5 line-clamp-2 text-[15px] font-bold leading-snug">
                   {a.title}
                 </h3>
                 <p className="mt-1 flex items-center gap-1 text-[11px] text-zinc-400">

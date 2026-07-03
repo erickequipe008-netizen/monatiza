@@ -232,7 +232,7 @@ export default function NewsletterPage() {
                     <p className="mt-1 line-clamp-2 text-[15px] font-bold leading-snug text-zinc-100 group-hover:text-white">{a.title}</p>
                     <p className="mt-1 line-clamp-2 text-[13px] text-zinc-400">{phrase(a)}</p>
                   </div>
-                  <ArrowRight size={16} className="mt-1 shrink-0 text-zinc-600 transition group-hover:text-[#c79bff]" />
+                  <ArrowRight size={16} className="mt-1 shrink-0 text-zinc-600 transition group-hover:text-[#1d9bf0]" />
                 </Link>
               ))}
             </div>

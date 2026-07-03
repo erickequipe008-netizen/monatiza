@@ -322,7 +322,7 @@ export default function ContaPage() {
             <button onClick={confirmCode} disabled={modalBusy || code.length < 6} className={`${btnSolid} mt-4 w-full py-3`}>
               {modalBusy ? <Loader2 size={15} className="animate-spin" /> : null} Confirmar
             </button>
-            <button onClick={() => requestChange(pending.purpose, pending.payload)} className="mt-3 w-full text-center text-[13px] font-bold text-[#1d9bf0] hover:underline">
+            <button onClick={() => requestChange(pending.purpose, pending.payload)} className="mt-3 w-full text-center text-[13px] font-bold text-[#1d9bf0]">
               Reenviar código
             </button>
           </div>

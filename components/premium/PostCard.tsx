@@ -120,7 +120,7 @@ function renderContent(text: string) {
             e.stopPropagation();
             void logEvent("click_tag", { tags: [part.toLowerCase()] });
           }}
-          className="text-[#1d9bf0] hover:underline"
+          className="text-[#1d9bf0]"
         >
           {part}
         </Link>
@@ -132,7 +132,7 @@ function renderContent(text: string) {
           key={i}
           href={`/app/perfil/${part.slice(1).toLowerCase()}`}
           onClick={(e) => e.stopPropagation()}
-          className="text-[#1d9bf0] hover:underline"
+          className="text-[#1d9bf0]"
         >
           {part}
         </Link>
@@ -280,7 +280,7 @@ export default function PostCard({
           <Link
             href={`/app/perfil/${handle}`}
             onClick={(e) => e.stopPropagation()}
-            className="font-bold text-zinc-100 hover:underline"
+            className="font-bold text-zinc-100"
           >
             {name}
           </Link>

@@ -22,7 +22,7 @@ export default function AppFooter({ className = "" }: { className?: string }) {
       <nav className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11.5px] leading-snug text-zinc-500">
         {links.map((l, i) => (
           <span key={l.href} className="inline-flex items-center gap-2">
-            <Link href={l.href} className="transition hover:text-zinc-300 hover:underline">
+            <Link href={l.href} className="transition hover:text-zinc-300">
               {t(l.k)}
             </Link>
             {i < links.length - 1 && <span className="text-zinc-700">·</span>}

@@ -279,7 +279,7 @@ export default function ProfileView({
             href={normalizeLink(profile.link) || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-1.5 text-[13.5px] font-bold text-sky-400 hover:text-sky-300 hover:underline"
+            className="mt-2 inline-flex items-center gap-1.5 text-[13.5px] font-bold text-sky-400 hover:text-sky-300"
           >
             <Link2 size={13} /> {prettyLink(profile.link)}
           </a>
@@ -289,10 +289,10 @@ export default function ProfileView({
           <span>
             <b className="font-extrabold text-white">{postCount}</b> <span className="text-zinc-500">{t("posts_word")}</span>
           </span>
-          <button onClick={() => setTab("following")} className="hover:underline">
+          <button onClick={() => setTab("following")} className="">
             <b className="font-extrabold text-white">{counts.following}</b> <span className="text-zinc-500">Seguindo</span>
           </button>
-          <button onClick={() => setTab("followers")} className="hover:underline">
+          <button onClick={() => setTab("followers")} className="">
             <b className="font-extrabold text-white">{counts.followers}</b> <span className="text-zinc-500">seguidores</span>
           </button>
         </div>
