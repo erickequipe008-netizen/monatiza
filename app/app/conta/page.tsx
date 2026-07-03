@@ -14,11 +14,13 @@ import {
   Loader2,
   Save,
   Crown,
+  X,
+  KeyRound,
 } from "lucide-react";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 import { supabase } from "@/lib/supabase/client";
-import { getMyProfile, updateProfile, type CommunityProfile } from "@/lib/premium/community";
-import { PageHeader } from "@/components/premium/States";
+import { getMyProfile, type CommunityProfile } from "@/lib/premium/community";
+import { Avatar } from "@/components/premium/PostCard";
 
 const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
   active: { label: "Ativa", tone: "bg-emerald-500/15 text-emerald-400" },
@@ -26,6 +28,17 @@ const STATUS_LABEL: Record<string, { label: string; tone: string }> = {
   canceled: { label: "Cancelada", tone: "bg-white/10 text-zinc-400" },
   inactive: { label: "Inativa", tone: "bg-amber-500/15 text-amber-400" },
 };
+
+type Purpose = "name" | "email" | "password";
+type Pending = { purpose: Purpose; payload: { name?: string; email?: string; password?: string }; sentTo: string };
+
+const inputCls =
+  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[14px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#1d9bf0]";
+const labelCls = "mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-zinc-400";
+const btnCls =
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-[13px] font-bold text-black transition hover:bg-white/90 disabled:opacity-50";
+const btnGhost =
+  "inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-[13px] font-bold text-zinc-100 transition hover:bg-white/5 disabled:opacity-50";
 
 function Card({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
@@ -38,28 +51,24 @@ function Card({ title, icon: Icon, children }: { title: string; icon: React.Elem
   );
 }
 
-const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-[14px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#1d9bf0]";
-const labelCls = "mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-zinc-400";
-const btnCls =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-[13px] font-bold text-black transition hover:bg-white/90 disabled:opacity-50";
-const btnGhost =
-  "inline-flex items-center justify-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-[13px] font-bold text-zinc-100 transition hover:bg-white/5 disabled:opacity-50";
-
 export default function ContaPage() {
   const { user, plan, status, periodEnd } = useSubscriber();
   const router = useRouter();
 
   const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const [displayName, setDisplayName] = useState("");
-  const [savingName, setSavingName] = useState(false);
-
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // fluxo de código de verificação
+  const [pending, setPending] = useState<Pending | null>(null);
+  const [code, setCode] = useState("");
+  const [modalErr, setModalErr] = useState("");
+  const [modalBusy, setModalBusy] = useState(false);
 
   useEffect(() => {
     getMyProfile().then((p) => {
@@ -70,71 +79,66 @@ export default function ContaPage() {
 
   const info = STATUS_LABEL[status ?? "active"] ?? STATUS_LABEL.active;
 
-  async function saveName() {
-    setMsg("");
-    setSavingName(true);
-    const { error } = await updateProfile({ display_name: displayName.trim() || null });
-    await supabase.auth.updateUser({ data: { name: displayName.trim() } });
-    setSavingName(false);
-    setMsg(error ? `Erro: ${error}` : "Nome atualizado.");
+  async function authFetch(url: string, body: unknown) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json().catch(() => ({}));
+    return { res, json };
   }
 
-  async function changeEmail() {
+  // Pede o código (por e-mail) antes de aplicar a mudança sensível.
+  async function requestChange(purpose: Purpose, payload: Pending["payload"], validate?: () => string | null) {
     setMsg("");
-    if (!newEmail.trim()) return setMsg("Digite o novo e-mail.");
+    const v = validate?.();
+    if (v) return setMsg(v);
     setBusy(true);
-    const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+    const { res, json } = await authFetch("/api/account/send-code", { purpose });
     setBusy(false);
-    if (error) return setMsg("Erro: " + error.message);
-    setNewEmail("");
-    setMsg("Enviamos um link de confirmação para o novo e-mail. A troca vale após confirmar.");
+    if (!res.ok) return setMsg(json.error || "Não foi possível enviar o código.");
+    setCode("");
+    setModalErr("");
+    setPending({ purpose, payload, sentTo: json.sentTo });
   }
 
-  async function changePassword() {
-    setMsg("");
-    if (newPassword.length < 6) return setMsg("A senha deve ter no mínimo 6 caracteres.");
-    setBusy(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    setBusy(false);
-    if (error) return setMsg("Erro: " + error.message);
-    setNewPassword("");
-    setMsg("Senha atualizada com sucesso.");
+  async function confirmCode() {
+    if (!pending) return;
+    setModalErr("");
+    setModalBusy(true);
+    const { res, json } = await authFetch("/api/account/verify-code", {
+      purpose: pending.purpose,
+      code: code.trim(),
+      payload: pending.payload,
+    });
+    setModalBusy(false);
+    if (!res.ok) return setModalErr(json.error || "Código incorreto.");
+    if (pending.purpose === "name") setDisplayName(pending.payload.name || "");
+    if (pending.purpose === "email") setNewEmail("");
+    if (pending.purpose === "password") setNewPassword("");
+    const done = pending.purpose;
+    setPending(null);
+    setMsg(done === "email" ? "E-mail atualizado com sucesso." : done === "password" ? "Senha atualizada com sucesso." : "Nome atualizado com sucesso.");
   }
 
   async function openPortal() {
     setPortalLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      router.push("/painel/login");
-      return;
-    }
-    const res = await fetch("/api/stripe/portal", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    });
+    if (!session) return router.push("/painel/login");
+    const res = await fetch("/api/stripe/portal", { method: "POST", headers: { Authorization: `Bearer ${session.access_token}` } });
     const json = await res.json();
     if (json.url) window.location.href = json.url;
-    else {
-      alert(json.error || "Não foi possível abrir o portal de cobrança.");
-      setPortalLoading(false);
-    }
+    else { alert(json.error || "Não foi possível abrir o portal de cobrança."); setPortalLoading(false); }
   }
 
   async function deleteAccount() {
     if (!confirm("Tem certeza que deseja EXCLUIR sua conta? Esta ação é permanente e apaga seu perfil e publicações.")) return;
     if (!confirm("Confirmação final: excluir a conta agora? Não dá para desfazer.")) return;
     setDeleting(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    const res = await fetch("/api/account/delete", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${session?.access_token}` },
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      setDeleting(false);
-      alert(json.error || "Não foi possível excluir a conta.");
-      return;
-    }
+    const { res, json } = await authFetch("/api/account/delete", {});
+    if (!res.ok) { setDeleting(false); return alert(json.error || "Não foi possível excluir a conta."); }
     await supabase.auth.signOut();
     router.push("/");
   }
@@ -144,48 +148,75 @@ export default function ContaPage() {
     router.push("/");
   }
 
+  const name = profile?.display_name || user?.name || "Você";
+
   return (
     <div className="mx-auto max-w-[680px]">
-      <PageHeader eyebrow={<><User size={14} /> Conta</>} title="Configurações" subtitle="Seu perfil, login, assinatura e acesso." />
+      <p className="flex items-center gap-1.5 text-[12px] font-black uppercase tracking-widest text-[#1d9bf0]"><User size={13} /> Conta</p>
+      <h1 className="mt-1 text-[28px] font-extrabold tracking-tight">Configurações</h1>
+      <p className="mb-6 text-[14px] text-zinc-500">Seu perfil, login, assinatura e acesso — com verificação por e-mail.</p>
 
-      {msg && (
-        <p className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[13px] text-zinc-200">{msg}</p>
-      )}
+      {msg && <p className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[13px] text-zinc-200">{msg}</p>}
+
+      {/* Cabeçalho do perfil (estilo rede social) */}
+      <div className="mb-5 flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+        <Avatar name={name} url={profile?.avatar_url} size={56} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[15px] font-extrabold text-white">{name}</p>
+          {profile?.handle && <p className="truncate text-[13px] text-zinc-500">@{profile.handle}</p>}
+        </div>
+        <Link href="/app/perfil" className={btnGhost}>Editar perfil</Link>
+      </div>
 
       <div className="space-y-5">
-        {/* PERFIL */}
-        <Card title="Perfil" icon={User}>
-          <label className={labelCls}>Nome de perfil</label>
+        {/* PERFIL / NOME */}
+        <Card title="Nome de perfil" icon={User}>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input value={displayName} maxLength={40} onChange={(e) => setDisplayName(e.target.value)} className={inputCls} placeholder="Seu nome" />
-            <button onClick={saveName} disabled={savingName} className={`${btnCls} shrink-0`}>
-              {savingName ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Salvar
+            <button
+              onClick={() => requestChange("name", { name: displayName.trim() }, () => (!displayName.trim() ? "Digite um nome." : null))}
+              disabled={busy}
+              className={btnCls}
+            >
+              {busy ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Salvar
             </button>
           </div>
-          {profile?.handle && <p className="mt-2 text-[13px] text-zinc-500">@{profile.handle}</p>}
-          <Link href="/app/perfil" className="mt-3 inline-block text-[13px] font-bold text-[#1d9bf0] hover:underline">
-            Editar perfil completo (foto, capa, bio, link)
-          </Link>
+          <p className="mt-2 text-[12px] text-zinc-500">Por segurança, enviaremos um código ao seu e-mail para confirmar.</p>
         </Card>
 
         {/* LOGIN E SENHA */}
         <Card title="Login e senha" icon={Lock}>
           <label className={labelCls}>E-mail atual</label>
-          <div className="mb-4 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-[14px] text-zinc-400">
+          <div className="mb-5 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-[14px] text-zinc-400">
             <Mail size={15} /> {user?.email}
           </div>
 
           <label className={labelCls}>Trocar e-mail</label>
-          <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row">
             <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="novo@email.com" className={inputCls} />
-            <button onClick={changeEmail} disabled={busy} className={`${btnGhost} shrink-0`}>Atualizar</button>
+            <button
+              onClick={() => requestChange("email", { email: newEmail.trim() }, () => (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(newEmail.trim()) ? "Digite um e-mail válido." : null))}
+              disabled={busy}
+              className={`${btnGhost} shrink-0`}
+            >
+              Atualizar
+            </button>
           </div>
 
           <label className={labelCls}>Trocar senha</label>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Nova senha (mín. 6)" className={inputCls} />
-            <button onClick={changePassword} disabled={busy} className={`${btnGhost} shrink-0`}>Atualizar</button>
+            <button
+              onClick={() => requestChange("password", { password: newPassword }, () => (newPassword.length < 6 ? "A senha deve ter no mínimo 6 caracteres." : null))}
+              disabled={busy}
+              className={`${btnGhost} shrink-0`}
+            >
+              Atualizar
+            </button>
           </div>
+          <p className="mt-3 flex items-center gap-1.5 text-[12px] text-zinc-500">
+            <ShieldCheck size={13} className="text-[#1d9bf0]" /> Toda alteração exige um código enviado ao seu e-mail.
+          </p>
         </Card>
 
         {/* ASSINATURA */}
@@ -205,14 +236,12 @@ export default function ContaPage() {
               <CreditCard size={15} /> {portalLoading ? "Abrindo…" : "Gerenciar cobrança"}
             </button>
             {!profile?.verified && (
-              <Link href="/app/verificacao" className={btnGhost}>
-                <ShieldCheck size={15} /> Obter selo de verificação
-              </Link>
+              <Link href="/app/verificacao" className={btnGhost}><ShieldCheck size={15} /> Obter selo de verificação</Link>
             )}
           </div>
         </Card>
 
-        {/* SAIR */}
+        {/* SESSÃO */}
         <Card title="Sessão" icon={LogOut}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[13px] text-zinc-400">Encerra a sessão neste dispositivo.</p>
@@ -222,22 +251,46 @@ export default function ContaPage() {
 
         {/* EXCLUIR CONTA */}
         <section className="rounded-2xl border border-[#E0263B]/30 p-5 md:p-6">
-          <h2 className="mb-2 flex items-center gap-2 text-[15px] font-extrabold text-[#E0263B]">
-            <Trash2 size={17} /> Excluir conta
-          </h2>
-          <p className="mb-4 text-[13px] leading-relaxed text-zinc-400">
-            Apaga permanentemente o seu perfil, publicações e dados. Esta ação não pode ser desfeita.
-          </p>
-          <button
-            onClick={deleteAccount}
-            disabled={deleting}
-            className="inline-flex items-center gap-2 rounded-full bg-[#E0263B] px-5 py-2.5 text-[13px] font-bold text-white transition hover:bg-[#c01f31] disabled:opacity-50"
-          >
-            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-            {deleting ? "Excluindo…" : "Excluir minha conta"}
+          <h2 className="mb-2 flex items-center gap-2 text-[15px] font-extrabold text-[#E0263B]"><Trash2 size={17} /> Excluir conta</h2>
+          <p className="mb-4 text-[13px] leading-relaxed text-zinc-400">Apaga permanentemente o seu perfil, publicações e dados. Esta ação não pode ser desfeita.</p>
+          <button onClick={deleteAccount} disabled={deleting} className="inline-flex items-center gap-2 rounded-full bg-[#E0263B] px-5 py-2.5 text-[13px] font-bold text-white transition hover:bg-[#c01f31] disabled:opacity-50">
+            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} {deleting ? "Excluindo…" : "Excluir minha conta"}
           </button>
         </section>
       </div>
+
+      {/* MODAL DE CÓDIGO DE VERIFICAÇÃO */}
+      {pending && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onClick={() => setPending(null)}>
+          <div className="pro-pop w-full max-w-[400px] rounded-3xl border border-white/10 bg-[#16181c] p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="flex items-center gap-2 text-[15px] font-extrabold text-white"><KeyRound size={17} className="text-[#1d9bf0]" /> Verificação de segurança</span>
+              <button onClick={() => setPending(null)} className="rounded-full p-1 text-zinc-400 hover:bg-white/10 hover:text-white"><X size={18} /></button>
+            </div>
+            <p className="text-[13px] leading-relaxed text-zinc-400">
+              Enviamos um código de 6 dígitos para <b className="text-zinc-200">{pending.sentTo}</b>. Digite-o abaixo para confirmar.
+            </p>
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              inputMode="numeric"
+              placeholder="______"
+              className="mt-4 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center text-[24px] font-bold tracking-[0.5em] text-white outline-none focus:border-[#1d9bf0]"
+              autoFocus
+            />
+            {modalErr && <p className="mt-2 text-[13px] font-semibold text-[#E0263B]">{modalErr}</p>}
+            <button onClick={confirmCode} disabled={modalBusy || code.length < 6} className={`${btnCls} mt-4 w-full py-3`}>
+              {modalBusy ? <Loader2 size={15} className="animate-spin" /> : null} Confirmar
+            </button>
+            <button
+              onClick={() => requestChange(pending.purpose, pending.payload)}
+              className="mt-3 w-full text-center text-[13px] font-bold text-[#1d9bf0] hover:underline"
+            >
+              Reenviar código
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
