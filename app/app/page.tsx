@@ -229,7 +229,7 @@ export default function PremiumHome() {
         <QuoteOfDay />
 
         {trends.length > 0 && (
-          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+          <section className="rounded-3xl border border-white/10 bg-transparent p-5">
             <h2 className="mb-3 flex items-center gap-2 text-[15px] font-extrabold text-white">
               <TrendingUp size={16} className="text-[#1d9bf0]" /> Assuntos do momento
             </h2>
@@ -244,7 +244,7 @@ export default function PremiumHome() {
           </section>
         )}
 
-        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+        <section className="rounded-3xl border border-white/10 bg-transparent p-5">
           <h2 className="mb-3 flex items-center gap-2 text-[15px] font-extrabold text-white">
             <Newspaper size={16} className="text-[#1d9bf0]" /> Últimas notícias
           </h2>
@@ -266,7 +266,7 @@ export default function PremiumHome() {
         </section>
 
         {people.length > 0 && (
-          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+          <section className="rounded-3xl border border-white/10 bg-transparent p-5">
             <h2 className="mb-3 text-[15px] font-extrabold text-white">Quem seguir</h2>
             <div className="space-y-3">
               {people.map((p) => (
@@ -291,7 +291,7 @@ export default function PremiumHome() {
         {me && !me.verified && (
           <Link
             href="/app/verificacao"
-            className="block rounded-3xl border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.06]"
+            className="block rounded-3xl border border-white/10 bg-transparent p-5 transition hover:bg-white/[0.06]"
           >
             <h2 className="flex items-center gap-2 text-[15px] font-extrabold text-white">
               <ShieldCheck size={16} className="text-[#C9A24B]" /> Selo de verificação

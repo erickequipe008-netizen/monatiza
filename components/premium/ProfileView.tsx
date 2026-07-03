@@ -184,10 +184,7 @@ export default function ProfileView({
           <ArrowLeft size={18} />
         </button>
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-[17px] font-extrabold leading-tight">
-            <span className="truncate">{name}</span>
-            {profile.verified && <VerifiedBadge size={16} tier={profile.verified_tier} />}
-          </div>
+          <div className="truncate text-[17px] font-extrabold leading-tight">{name}</div>
           <p className="text-[12.5px] text-zinc-500">{postCount} {t("posts_word")}</p>
         </div>
       </div>

@@ -107,7 +107,6 @@ export default function ComunidadePage() {
       <PageHeader
         eyebrow={<><MessagesSquare size={14} /> Comunidade</>}
         title="Opinião pública"
-        subtitle="Compartilhe ideias e debata com outros assinantes da Monatiza."
       />
 
       {/* Para você | Seguindo */}

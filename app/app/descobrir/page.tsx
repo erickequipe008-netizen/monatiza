@@ -59,7 +59,18 @@ export default function ExplorarPage() {
       score: scoreArticle(a, it) + recency(a.created_at) + 0.4, // artigos entram no mix
       a,
     }));
-    return [...postItems, ...artItems].sort((x, y) => y.score - x.score || y.t - x.t);
+    postItems.sort((x, y) => y.score - x.score || y.t - x.t);
+    artItems.sort((x, y) => y.score - x.score || y.t - x.t);
+    // Intercala (≈2 posts : 1 artigo) para o feed ficar variado, não um bloco só de artigos.
+    const out: FeedItem[] = [];
+    let pi = 0;
+    let ai = 0;
+    while (pi < postItems.length || ai < artItems.length) {
+      if (pi < postItems.length) out.push(postItems[pi++]);
+      if (pi < postItems.length) out.push(postItems[pi++]);
+      if (ai < artItems.length) out.push(artItems[ai++]);
+    }
+    return out;
   }, []);
 
   useEffect(() => {
@@ -161,7 +172,7 @@ export default function ExplorarPage() {
                 </div>
                 {it.a.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={it.a.image_url} alt="" className="h-[84px] w-[84px] shrink-0 rounded-xl object-cover" />
+                  <img src={it.a.image_url} alt="" className="h-[82px] w-[124px] shrink-0 rounded-xl object-cover" />
                 )}
               </Link>
             )

@@ -55,7 +55,7 @@ export default function QuoteOfDay() {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6 md:p-7">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-transparent p-6 md:p-7">
       <div className="pro-gradient pro-aura pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-25 blur-3xl" />
       <div className="relative">
         <p className="pro-gradient-text text-[11px] font-black uppercase tracking-[0.2em]">Frase do dia</p>

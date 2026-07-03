@@ -29,8 +29,8 @@ export default function RecuperarPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08080b] p-6 text-white">
-      <div className="pointer-events-none absolute -left-40 top-0 h-[460px] w-[560px] rounded-full bg-[#7C3AED]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-40 bottom-0 h-[460px] w-[560px] rounded-full bg-[#FF2D87]/15 blur-[120px]" />
+      <div className="pointer-events-none absolute -left-40 top-0 h-[460px] w-[560px] rounded-full bg-[#1d9bf0]/20 blur-[120px]" />
+      <div className="pointer-events-none absolute -right-40 bottom-0 h-[460px] w-[560px] rounded-full bg-[#1d9bf0]/15 blur-[120px]" />
 
       <div className="relative w-full max-w-md space-y-6">
         <Link href="/painel/login" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white">
@@ -67,7 +67,7 @@ export default function RecuperarPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-13 w-full rounded-2xl border border-white/10 bg-white/[0.04] pl-12 pr-4 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-[#9B72CB] focus:bg-white/[0.06] focus:ring-2 focus:ring-[#9B72CB]/20"
+                className="h-13 w-full rounded-2xl border border-white/10 bg-white/[0.04] pl-12 pr-4 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-[#1d9bf0] focus:bg-white/[0.06] focus:ring-2 focus:ring-[#1d9bf0]/20"
               />
             </div>
 

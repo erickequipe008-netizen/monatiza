@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, Heart, MessageCircle, Repeat2, UserPlus, Mail, AtSign } from "lucide-react";
+import { Bell, Heart, MessageCircle, Repeat2, UserPlus, Mail, AtSign, Play } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { listNotifications, type AppNotification } from "@/lib/premium/notifications";
+
+function isVideo(u?: string | null) {
+  return !!u && /\.(mp4|webm|mov|m4v)($|\?)/i.test(u);
+}
 import { Avatar } from "@/components/premium/PostCard";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import { Spinner, PageHeader, EmptyState } from "@/components/premium/States";
@@ -41,7 +45,7 @@ export default function NotificacoesPage() {
       <PageHeader
         eyebrow={<><Bell size={14} /> Notificações</>}
         title="Atividade"
-        subtitle="Curtidas, comentários, novos seguidores e mensagens."
+        subtitle="Curtidas, comentários e novos seguidores."
       />
 
       {loading ? (
@@ -67,6 +71,15 @@ export default function NotificacoesPage() {
                   {n.actor?.verified && <span className="ml-1 inline-block align-middle"><VerifiedBadge size={13} /></span>}
                   <span className="text-zinc-400"> {meta.text}</span>
                 </div>
+                {n.postImage &&
+                  (isVideo(n.postImage) ? (
+                    <span className="relative flex h-11 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black text-white">
+                      <Play size={16} fill="currentColor" />
+                    </span>
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={n.postImage} alt="" className="h-11 w-16 shrink-0 rounded-lg object-cover" />
+                  ))}
                 <span className="shrink-0 text-[12px] text-zinc-500">{timeAgo(n.created_at)}</span>
               </Link>
             );

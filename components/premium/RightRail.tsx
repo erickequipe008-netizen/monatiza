@@ -11,6 +11,7 @@ import {
   unfollow,
   type CommunityProfile,
 } from "@/lib/premium/community";
+import { fetchLatest, type ArticleCard } from "@/lib/premium/articles";
 import { Avatar } from "@/components/premium/PostCard";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
 import { useLang } from "@/components/premium/useLang";
@@ -42,10 +43,12 @@ export default function RightRail({ className = "" }: { className?: string }) {
   const [q, setQ] = useState("");
   const [people, setPeople] = useState<CommunityProfile[]>([]);
   const [trends, setTrends] = useState<{ tag: string; count: number }[]>([]);
+  const [news, setNews] = useState<ArticleCard[]>([]);
 
   useEffect(() => {
     getRecommendedProfiles(3).then(setPeople);
     getTrendingHashtags(6).then(setTrends);
+    fetchLatest(4).then(setNews);
   }, []);
 
   return (
@@ -103,6 +106,29 @@ export default function RightRail({ className = "" }: { className?: string }) {
               </Link>
             ))}
           </div>
+        </section>
+      )}
+
+      {news.length > 0 && (
+        <section className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+          <h2 className="px-4 pb-1 pt-3 text-[18px] font-extrabold text-white">{t("news")}</h2>
+          <div className="pb-1">
+            {news.map((a) => (
+              <Link key={a.id} href={`/app/ler/${a.slug}`} className="flex gap-3 px-4 py-2.5 transition hover:bg-white/5">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#1d9bf0]">{a.category || "Notícia"}</p>
+                  <h3 className="mt-0.5 line-clamp-2 text-[13.5px] font-bold leading-snug text-zinc-100">{a.title}</h3>
+                </div>
+                {a.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.image_url} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                )}
+              </Link>
+            ))}
+          </div>
+          <Link href="/app/feed" className="block px-4 py-3 text-[13px] text-[#1d9bf0] transition hover:bg-white/5">
+            {t("show_more")}
+          </Link>
         </section>
       )}
     </aside>
