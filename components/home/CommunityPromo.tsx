@@ -8,10 +8,10 @@ import { useSubscriber } from "@/components/premium/SubscriberProvider";
 // Aparece no lugar de um anúncio do feed — escondido para quem já está dentro do app.
 
 const PEOPLE = [
-  { n: "A", g: "linear-gradient(120deg,#4285F4,#9B72CB)" },
-  { n: "R", g: "linear-gradient(120deg,#9B72CB,#FF5C8A)" },
-  { n: "J", g: "linear-gradient(120deg,#FF5C8A,#FF8A5C)" },
-  { n: "C", g: "linear-gradient(120deg,#6D5BFF,#C56CFF)" },
+  { n: "A", g: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" },
+  { n: "R", g: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" },
+  { n: "J", g: "linear-gradient(120deg,#1d9bf0,#FF8A5C)" },
+  { n: "C", g: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" },
 ];
 
 export default function CommunityPromo({
@@ -28,19 +28,19 @@ export default function CommunityPromo({
     return (
       <div className={className}>
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0f] px-5 py-4">
-          <div className="pointer-events-none absolute -left-16 top-0 h-32 w-32 rounded-full bg-[#9B72CB]/30 blur-2xl" />
-          <div className="pointer-events-none absolute -right-12 bottom-0 h-32 w-32 rounded-full bg-[#FF2D87]/25 blur-2xl" />
+          <div className="pointer-events-none absolute -left-16 top-0 h-32 w-32 rounded-full bg-[#1d9bf0]/30 blur-2xl" />
+          <div className="pointer-events-none absolute -right-12 bottom-0 h-32 w-32 rounded-full bg-[#1d9bf0]/25 blur-2xl" />
           <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
             <span
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[16px] font-black text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
+              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
             >
               m
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-[15px] font-black leading-tight text-white">
                 A{" "}
-                <span style={{ backgroundImage: "linear-gradient(120deg,#C56CFF,#FF2D87)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+                <span style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
                   rede social
                 </span>{" "}
                 do Monatiza
@@ -50,7 +50,7 @@ export default function CommunityPromo({
             <Link
               href="/painel/cadastro"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-bold text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
+              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
             >
               Acessar <ArrowUpRight size={15} />
             </Link>
@@ -64,15 +64,15 @@ export default function CommunityPromo({
     <div className={className}>
       <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b0f] px-6 py-8 text-center sm:px-10 sm:py-10">
         {/* brilhos */}
-        <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-[#9B72CB]/30 blur-3xl" />
-        <div className="pointer-events-none absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-[#FF2D87]/25 blur-3xl" />
+        <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-[#1d9bf0]/30 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-[#1d9bf0]/25 blur-3xl" />
 
         <div className="relative mx-auto max-w-[560px]">
           {/* pílula superior */}
           <div className="mx-auto mb-6 flex items-center justify-between gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 backdrop-blur">
             <span
               className="flex h-7 w-7 items-center justify-center rounded-lg text-[14px] font-black text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
+              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
             >
               m
             </span>
@@ -82,7 +82,7 @@ export default function CommunityPromo({
             </div>
             <span
               className="flex h-8 w-8 items-center justify-center rounded-full text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
+              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
             >
               <ArrowUpRight size={16} />
             </span>
@@ -92,7 +92,7 @@ export default function CommunityPromo({
           <h3 className="mt-1 text-[32px] font-black leading-[0.95] tracking-tight sm:text-[42px]">
             <span
               style={{
-                backgroundImage: "linear-gradient(120deg,#C56CFF,#FF2D87)",
+                backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 color: "transparent",
@@ -107,7 +107,7 @@ export default function CommunityPromo({
           {/* pílula "faça parte" */}
           <div
             className="mx-auto mt-6 flex max-w-[460px] items-center justify-center gap-4 rounded-full p-2 pr-6"
-            style={{ backgroundImage: "linear-gradient(120deg,#7C3AED,#FF2D87)" }}
+            style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
           >
             <div className="flex items-center">
               {PEOPLE.map((p, i) => (
@@ -138,7 +138,7 @@ export default function CommunityPromo({
           <Link
             href="/painel/cadastro"
             className="mt-7 inline-flex items-center gap-2 rounded-full px-8 py-4 text-[15px] font-black text-white shadow-[0_18px_50px_-15px_rgba(255,45,135,0.6)] transition hover:opacity-90"
-            style={{ backgroundImage: "linear-gradient(120deg,#9B72CB,#FF2D87)" }}
+            style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
           >
             Acessar <ArrowUpRight size={17} />
           </Link>

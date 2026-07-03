@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useRef } from "react";
-import { Heart, MessageCircle, Trash2, Repeat2, X, Bookmark, Flag, Play } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Heart, MessageCircle, Trash2, Repeat2, X, Bookmark, Flag, Play, Volume2, VolumeX } from "lucide-react";
 import { togglePostLike, togglePostBookmark, reportPost, deletePost, repost, type Post } from "@/lib/premium/community";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
@@ -40,35 +40,67 @@ function isVideoUrl(u?: string | null) {
   return !!u && /\.(mp4|webm|mov|m4v)($|\?)/i.test(u);
 }
 
-// Vídeo do post com botão de play bem visível (some ao tocar).
+// Vídeo estilo X: autoplay mudo ao entrar na tela; toque ativa o som; tocar de novo pausa.
 function PostVideo({ src }: { src: string }) {
   const ref = useRef<HTMLVideoElement | null>(null);
-  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [paused, setPaused] = useState(false);
+
+  // Autoplay mudo quando o vídeo está visível; pausa ao sair da tela.
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      },
+      { threshold: 0.6 }
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+
+  function handleClick(e: React.MouseEvent) {
+    e.stopPropagation();
+    const v = ref.current;
+    if (!v) return;
+    if (v.muted) {
+      // 1º toque: ativa o som (e garante tocando)
+      v.muted = false;
+      if (v.paused) v.play().catch(() => {});
+    } else if (v.paused) {
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }
+
   return (
-    <div className="relative">
+    <div className="relative cursor-pointer bg-black" onClick={handleClick}>
       <video
         ref={ref}
         src={src}
         playsInline
+        muted
+        loop
         preload="metadata"
-        controls={playing}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        className="max-h-[520px] w-full bg-black"
+        onPlay={() => setPaused(false)}
+        onPause={() => setPaused(true)}
+        onVolumeChange={(e) => setMuted(e.currentTarget.muted)}
+        className="max-h-[520px] w-full"
       />
-      {!playing && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            ref.current?.play();
-          }}
-          className="absolute inset-0 flex items-center justify-center bg-black/20 transition hover:bg-black/30"
-          aria-label="Reproduzir vídeo"
-        >
-          <span className="pro-gradient flex h-16 w-16 items-center justify-center rounded-full text-white shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-            <Play size={30} fill="currentColor" className="ml-1" />
+      {/* indicador de som no canto (estilo X) */}
+      <span className="pointer-events-none absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur">
+        {muted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+      </span>
+      {/* play discreto só quando pausado manualmente */}
+      {paused && (
+        <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur">
+            <Play size={26} fill="currentColor" className="ml-0.5" />
           </span>
-        </button>
+        </span>
       )}
     </div>
   );
@@ -83,7 +115,7 @@ function renderContent(text: string) {
           key={i}
           href={`/app/busca?q=${encodeURIComponent(part)}`}
           onClick={(e) => e.stopPropagation()}
-          className="text-[#9B72CB] hover:underline"
+          className="text-[#1d9bf0] hover:underline"
         >
           {part}
         </Link>
@@ -95,7 +127,7 @@ function renderContent(text: string) {
           key={i}
           href={`/app/perfil/${part.slice(1).toLowerCase()}`}
           onClick={(e) => e.stopPropagation()}
-          className="text-[#9B72CB] hover:underline"
+          className="text-[#1d9bf0] hover:underline"
         >
           {part}
         </Link>
@@ -251,7 +283,7 @@ export default function PostCard({
         )}
 
         <div className="-ml-2 mt-2 flex items-center gap-1 text-zinc-400">
-          <span className="flex items-center gap-1 rounded-full px-2 py-1.5 text-[13px] transition hover:bg-[#9B72CB]/10 hover:text-[#9B72CB]">
+          <span className="flex items-center gap-1 rounded-full px-2 py-1.5 text-[13px] transition hover:bg-[#1d9bf0]/10 hover:text-[#1d9bf0]">
             <MessageCircle size={18} />
             {display.replyCount > 0 && <span className="font-semibold">{display.replyCount}</span>}
           </span>
@@ -308,8 +340,8 @@ export default function PostCard({
 
           <button
             onClick={toggleSave}
-            className={`flex items-center gap-1 rounded-full px-2 py-1.5 text-[13px] transition hover:bg-[#4285F4]/10 ${
-              saved ? "text-[#4285F4]" : "hover:text-[#4285F4]"
+            className={`flex items-center gap-1 rounded-full px-2 py-1.5 text-[13px] transition hover:bg-[#1d9bf0]/10 ${
+              saved ? "text-[#1d9bf0]" : "hover:text-[#1d9bf0]"
             }`}
             aria-label="Salvar"
           >

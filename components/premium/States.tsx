@@ -40,7 +40,7 @@ export function PageHeader({
 }) {
   return (
     <header className="mb-8">
-      <p className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-[#9B72CB]">
+      <p className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.2em] text-[#1d9bf0]">
         {eyebrow}
       </p>
       <h1 className="mt-1 text-[28px] font-extrabold tracking-tight md:text-[34px]">{title}</h1>

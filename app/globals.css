@@ -113,17 +113,21 @@ body {
 }
 
 /* ───────────── MonatizaPro — design system (Gemini-style) ───────────── */
+/* Estilo X (Twitter): azul chapado, sem gradiente lilás. */
 .pro-gradient {
-  background-image: linear-gradient(120deg, #4285F4 0%, #9B72CB 48%, #FF5C8A 100%);
+  background-image: none;
+  background-color: #1d9bf0;
 }
 .pro-gradient-text {
-  background-image: linear-gradient(120deg, #4285F4 0%, #9B72CB 48%, #FF5C8A 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background-image: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: #1d9bf0;
+  color: #1d9bf0;
 }
 .pro-ring {
-  background-image: linear-gradient(120deg, #4285F4, #9B72CB, #FF5C8A);
+  background-image: none;
+  background-color: transparent;
 }
 @keyframes pro-pop {
   from { opacity: 0; transform: translateY(10px); }
@@ -148,15 +152,13 @@ body {
   border-color: rgba(255, 255, 255, 0.24);
 }
 
-/* Brilho suave sob botões em gradiente (discreto) */
-.pro-glow { box-shadow: 0 12px 30px -14px rgba(155, 114, 203, 0.4); }
+/* Sem brilho colorido (visual limpo do X). */
+.pro-glow { box-shadow: none; }
 
-/* Contorno em gradiente (botão/realce com fundo translúcido) */
+/* Contorno neutro (estilo X: fundo escuro + borda cinza). */
 .pro-border {
-  background:
-    linear-gradient(rgba(16, 16, 20, 0.6), rgba(16, 16, 20, 0.6)) padding-box,
-    linear-gradient(120deg, #4285F4, #9B72CB, #FF5C8A) border-box;
-  border: 1.5px solid transparent;
+  background: #16181c;
+  border: 1px solid #2f3336;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -173,7 +175,8 @@ body {
   0%, 100% { opacity: 0.18; transform: scale(1); }
   50%      { opacity: 0.34; transform: scale(1.06); }
 }
-.pro-aura { animation: pro-aura 7s ease-in-out infinite; }
+/* Aura desativada — nada de brilhos/manchas de fundo (minimalista). */
+.pro-aura { display: none !important; }
 
 /* ───────── Tema CLARO do app (classe .pro-light no contêiner do /app) ─────────
    Remapeia os padrões escuros mais usados para superfícies claras. */

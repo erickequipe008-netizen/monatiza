@@ -73,7 +73,7 @@ export default function QuoteOfDay() {
           </button>
           <button
             onClick={share}
-            className={`rounded-full p-2 transition hover:bg-[#9B72CB]/10 ${shared ? "text-emerald-400" : "hover:text-[#9B72CB]"}`}
+            className={`rounded-full p-2 transition hover:bg-[#1d9bf0]/10 ${shared ? "text-emerald-400" : "hover:text-[#1d9bf0]"}`}
             aria-label="Compartilhar frase"
           >
             {shared ? <Check size={18} /> : <Share2 size={18} />}

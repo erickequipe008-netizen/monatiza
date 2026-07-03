@@ -190,7 +190,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
   if (!user) {
     return (
       <FullScreen>
-        <Crown size={22} className="text-[#9B72CB]" />
+        <Crown size={22} className="text-[#1d9bf0]" />
         <span className="text-sm">Redirecionando…</span>
       </FullScreen>
     );
@@ -224,7 +224,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                   href={item.href}
                   className={`shrink-0 rounded-full px-4 py-2 text-[13.5px] font-semibold transition ${
                     active
-                      ? "pro-gradient text-white shadow-lg shadow-[#9B72CB]/20"
+                      ? "pro-gradient text-white shadow-lg shadow-[#1d9bf0]/20"
                       : "text-zinc-400 hover:bg-white/5 hover:text-white"
                   }`}
                 >
@@ -375,7 +375,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar"
-              className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-[14px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#9B72CB]"
+              className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-[14px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#1d9bf0]"
             />
           </form>
 
@@ -440,7 +440,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
 
             <Link
               href="/app#publicar"
-              className="pro-gradient pro-glow mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-[15px] font-bold text-white transition hover:opacity-90"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] font-bold text-black transition hover:bg-white/90"
             >
               <PenSquare size={17} /> Publicar
             </Link>

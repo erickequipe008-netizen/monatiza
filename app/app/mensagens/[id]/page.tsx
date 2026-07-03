@@ -258,7 +258,7 @@ export default function ChatPage() {
               if (e.key === "Enter") send();
             }}
             placeholder="Escreva uma mensagem…"
-            className="pro-glass flex-1 rounded-full px-5 py-3.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-[#9B72CB]"
+            className="pro-glass flex-1 rounded-full px-5 py-3.5 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-[#1d9bf0]"
           />
           <button
             onClick={send}

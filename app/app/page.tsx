@@ -39,7 +39,7 @@ function FollowSmall({ userId }: { userId: string }) {
         else await unfollow(userId);
       }}
       className={`shrink-0 rounded-full px-3.5 py-1.5 text-[12.5px] font-bold transition ${
-        on ? "border border-white/15 text-zinc-300" : "pro-gradient text-white hover:opacity-90"
+        on ? "border border-white/15 text-zinc-300" : "bg-white text-black hover:bg-white/90"
       }`}
     >
       {on ? "Seguindo" : "Seguir"}
@@ -231,7 +231,7 @@ export default function PremiumHome() {
         {trends.length > 0 && (
           <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
             <h2 className="mb-3 flex items-center gap-2 text-[15px] font-extrabold text-white">
-              <TrendingUp size={16} className="text-[#9B72CB]" /> Assuntos do momento
+              <TrendingUp size={16} className="text-[#1d9bf0]" /> Assuntos do momento
             </h2>
             <div className="space-y-2.5">
               {trends.map((t) => (
@@ -246,7 +246,7 @@ export default function PremiumHome() {
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
           <h2 className="mb-3 flex items-center gap-2 text-[15px] font-extrabold text-white">
-            <Newspaper size={16} className="text-[#FF5C8A]" /> Últimas notícias
+            <Newspaper size={16} className="text-[#1d9bf0]" /> Últimas notícias
           </h2>
           <div className="space-y-3.5">
             {news.map((a) => (

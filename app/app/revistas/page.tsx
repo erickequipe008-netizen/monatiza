@@ -41,7 +41,7 @@ export default function RevistasPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar edições e reportagens…"
-          className="w-full rounded-full border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#9B72CB]"
+          className="w-full rounded-full border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#1d9bf0]"
         />
       </div>
 

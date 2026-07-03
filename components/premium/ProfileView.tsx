@@ -27,7 +27,7 @@ import ImageAdjuster from "@/components/premium/ImageAdjuster";
 type Tab = "posts" | "fotos" | "followers" | "following";
 
 const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-[#9B72CB]";
+  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-[#1d9bf0]";
 
 function normalizeLink(v: string): string | null {
   const t = v.trim();
@@ -187,7 +187,7 @@ export default function ProfileView({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverShown} alt="" className="h-full w-full object-cover" />
         ) : (
-          <div className="pro-gradient h-full w-full opacity-80" />
+          <div className="h-full w-full bg-white/[0.06]" />
         )}
         {editing && (
           <button
@@ -244,7 +244,7 @@ export default function ProfileView({
                 className={`rounded-full px-5 py-2 text-[13px] font-bold transition ${
                   following
                     ? "border border-white/15 text-zinc-200 hover:border-[#E0263B] hover:text-[#E0263B]"
-                    : "pro-gradient text-white hover:opacity-90"
+                    : "bg-white text-black hover:bg-white/90"
                 }`}
               >
                 {following ? "Seguindo" : "Seguir"}

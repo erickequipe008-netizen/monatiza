@@ -64,7 +64,7 @@ export function BigCard({ a }: { a: ArticleCard }) {
         )}
       </div>
       <div className="mt-3">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff5c8a]">{a.category}</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#1d9bf0]">{a.category}</span>
         <h3 className="mt-1 text-[18px] font-extrabold leading-snug tracking-tight text-zinc-100 transition group-hover:text-[#c79bff]">{a.title}</h3>
         {a.excerpt && <p className="mt-1.5 line-clamp-2 text-[13.5px] leading-relaxed text-zinc-400">{a.excerpt}</p>}
         <div className="mt-2"><Meta a={a} /></div>
@@ -77,7 +77,7 @@ export function RowCard({ a }: { a: ArticleCard }) {
   return (
     <Link href={href(a)} className="group -mx-2 flex gap-4 rounded-2xl px-2 py-4 transition hover:bg-white/5">
       <div className="min-w-0 flex-1">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#ff5c8a]">{a.category}</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#1d9bf0]">{a.category}</span>
         <h3 className="mt-1 text-[16px] font-bold leading-snug tracking-tight text-zinc-100 transition group-hover:text-[#c79bff]">{a.title}</h3>
         <div className="mt-1.5"><Meta a={a} /></div>
       </div>

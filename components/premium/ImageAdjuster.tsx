@@ -121,7 +121,7 @@ export default function ImageAdjuster({
               setZoom(z);
               setOff((o) => clampOff(o.x, o.y, z));
             }}
-            className="w-full accent-[#9B72CB]"
+            className="w-full accent-[#1d9bf0]"
             aria-label="Zoom"
           />
         </div>

@@ -202,7 +202,7 @@ export default function Reader() {
       </h1>
 
       {article.excerpt && (
-        <p className="mt-4 border-l-2 border-[#9B72CB] pl-4 text-[18px] leading-relaxed text-zinc-300">
+        <p className="mt-4 border-l-2 border-[#1d9bf0] pl-4 text-[18px] leading-relaxed text-zinc-300">
           {article.excerpt}
         </p>
       )}
@@ -321,7 +321,7 @@ export default function Reader() {
         .reader-body p { margin-bottom: 1.5em; }
         .reader-body h2 { font-size: 27px; font-weight: 800; line-height: 1.2; color: #fafafa; margin: 2em 0 .7em; font-family: Georgia, serif; }
         .reader-body h3 { font-size: 21px; font-weight: 700; line-height: 1.3; color: #f4f4f5; margin: 1.7em 0 .6em; font-family: Georgia, serif; }
-        .reader-body blockquote { border-left: 3px solid #9B72CB; padding-left: 1.25rem; margin: 2em 0; color: #a1a1aa; font-style: italic; font-size: 20px; }
+        .reader-body blockquote { border-left: 3px solid #1d9bf0; padding-left: 1.25rem; margin: 2em 0; color: #a1a1aa; font-style: italic; font-size: 20px; }
         .reader-body a { color: #ff8db0; text-decoration: underline; text-underline-offset: 3px; }
         .reader-body strong { font-weight: 700; color: #ffffff; }
         .reader-body ul, .reader-body ol { padding-left: 1.5rem; margin-bottom: 1.5em; }
