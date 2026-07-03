@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Pencil, X, Loader2, CreditCard, Camera, Link2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Pencil, X, Loader2, CreditCard, Camera, Link2, ArrowLeft } from "lucide-react";
+import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/premium/useLang";
 import {
   getMyProfile,
   updateProfile,
@@ -46,8 +49,11 @@ export default function ProfileView({
   isMe: boolean;
 }) {
   const { user } = useSubscriber();
+  const router = useRouter();
+  const { t } = useLang();
   const [profile, setProfile] = useState(initial);
   const [counts, setCounts] = useState<FollowCounts>({ followers: 0, following: 0 });
+  const [postCount, setPostCount] = useState(0);
   const [following, setFollowing] = useState(false);
   const [tab, setTab] = useState<Tab>("posts");
   const [posts, setPosts] = useState<Post[]>([]);
@@ -79,12 +85,14 @@ export default function ProfileView({
 
   useEffect(() => {
     (async () => {
-      const [c, f] = await Promise.all([
+      const [c, f, pc] = await Promise.all([
         getFollowCounts(profile.user_id),
         isMe ? Promise.resolve(false) : checkFollowing(profile.user_id),
+        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", profile.user_id).is("parent_id", null),
       ]);
       setCounts(c);
       setFollowing(f);
+      setPostCount(pc.count ?? 0);
     })();
   }, [profile.user_id, isMe]);
 
@@ -169,7 +177,20 @@ export default function ProfileView({
   ];
 
   return (
-    <div className="pro-pop mx-auto max-w-[640px]">
+    <div className="pro-pop w-full">
+      {/* Barra de topo estilo X (desktop) */}
+      <div className="sticky top-0 z-20 mb-1 hidden items-center gap-6 bg-[#0a0a0c]/85 py-1.5 backdrop-blur lg:flex">
+        <button onClick={() => router.back()} className="rounded-full p-2 text-zinc-100 transition hover:bg-white/10" aria-label="Voltar">
+          <ArrowLeft size={18} />
+        </button>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 text-[17px] font-extrabold leading-tight">
+            <span className="truncate">{name}</span>
+            {profile.verified && <VerifiedBadge size={16} tier={profile.verified_tier} />}
+          </div>
+          <p className="text-[12.5px] text-zinc-500">{postCount} {t("posts_word")}</p>
+        </div>
+      </div>
       {adjust && (
         <ImageAdjuster
           file={adjust.file}
@@ -182,7 +203,7 @@ export default function ProfileView({
         />
       )}
       {/* Capa */}
-      <div className="relative h-36 w-full overflow-hidden rounded-3xl ring-1 ring-white/10 sm:h-48">
+      <div className="relative h-40 w-full overflow-hidden rounded-2xl ring-1 ring-white/10 sm:h-52">
         {coverShown ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverShown} alt="" className="h-full w-full object-cover" />
@@ -202,9 +223,9 @@ export default function ProfileView({
 
       {/* Avatar + ações */}
       <div className="flex items-end justify-between px-1">
-        <div className="relative -mt-10 ml-1">
-          <span className="block rounded-full bg-[#0a0a0c] p-1">
-            <Avatar name={form.display_name || name} url={avatarShown} size={84} />
+        <div className="relative -mt-14 ml-1">
+          <span className="block rounded-full bg-[#0a0a0c] p-1.5">
+            <Avatar name={form.display_name || name} url={avatarShown} size={96} />
           </span>
           {editing && (
             <button onClick={() => avatarRef.current?.click()} className="absolute bottom-1 right-1 rounded-full bg-white/15 p-1.5 text-white shadow backdrop-blur" aria-label="Trocar foto">
@@ -274,11 +295,11 @@ export default function ProfileView({
         )}
 
         <div className="mt-3 flex items-center gap-5 text-[14px]">
+          <button onClick={() => setTab("following")} className="hover:underline">
+            <b className="font-extrabold text-white">{counts.following}</b> <span className="text-zinc-500">Seguindo</span>
+          </button>
           <button onClick={() => setTab("followers")} className="hover:underline">
             <b className="font-extrabold text-white">{counts.followers}</b> <span className="text-zinc-500">seguidores</span>
-          </button>
-          <button onClick={() => setTab("following")} className="hover:underline">
-            <b className="font-extrabold text-white">{counts.following}</b> <span className="text-zinc-500">seguindo</span>
           </button>
         </div>
 

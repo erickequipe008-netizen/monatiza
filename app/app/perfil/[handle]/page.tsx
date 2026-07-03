@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getProfileByHandle, type CommunityProfile } from "@/lib/premium/community";
 import ProfileView from "@/components/premium/ProfileView";
+import RightRail from "@/components/premium/RightRail";
 import { Spinner, EmptyState } from "@/components/premium/States";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
@@ -45,5 +46,12 @@ export default function MemberProfilePage() {
       </div>
     );
 
-  return <ProfileView profile={profile} isMe={user?.id === profile.user_id} />;
+  return (
+    <div className="mx-auto flex w-full max-w-[1000px] items-start gap-7">
+      <div className="min-w-0 flex-1 xl:max-w-[600px]">
+        <ProfileView profile={profile} isMe={user?.id === profile.user_id} />
+      </div>
+      <RightRail className="sticky top-4 hidden w-[330px] shrink-0 xl:block" />
+    </div>
+  );
 }

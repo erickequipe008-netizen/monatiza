@@ -45,6 +45,10 @@ const DICT: Record<string, Record<Lang, string>> = {
   accessibility: { pt: "Acessibilidade", en: "Accessibility", es: "Accesibilidad", ja: "アクセシビリティ", fr: "Accessibilité" },
   ads_info: { pt: "Informações sobre anúncios", en: "Ads info", es: "Información de anuncios", ja: "広告情報", fr: "Infos publicités" },
   language: { pt: "Idioma", en: "Language", es: "Idioma", ja: "言語", fr: "Langue" },
+  who_to_follow: { pt: "Quem seguir", en: "Who to follow", es: "A quién seguir", ja: "おすすめユーザー", fr: "Suggestions" },
+  posts_word: { pt: "publicações", en: "posts", es: "publicaciones", ja: "件の投稿", fr: "posts" },
+  follow: { pt: "Seguir", en: "Follow", es: "Seguir", ja: "フォロー", fr: "Suivre" },
+  following_btn: { pt: "Seguindo", en: "Following", es: "Siguiendo", ja: "フォロー中", fr: "Abonné" },
 };
 
 // Idioma do aparelho (navigator.language). Sem correspondência → inglês.

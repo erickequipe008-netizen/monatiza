@@ -8,7 +8,6 @@ import { fetchLatest, type ArticleCard } from "@/lib/premium/articles";
 import { getMyInterests, extractTags, type Interests } from "@/lib/premium/events";
 import { isHidden } from "@/lib/premium/prefs";
 import PostCard from "@/components/premium/PostCard";
-import QuoteOfDay from "@/components/premium/QuoteOfDay";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 import { useLang } from "@/components/premium/useLang";
@@ -110,11 +109,10 @@ export default function ExplorarPage() {
 
   return (
     <div className="mx-auto max-w-[640px]">
-      <div className="mb-1 flex items-center gap-2">
+      <div className="mb-5 flex items-center gap-2">
         <Compass size={20} className="text-[#1d9bf0]" />
         <h1 className="text-[20px] font-extrabold tracking-tight">{t("explore")}</h1>
       </div>
-      <p className="mb-5 text-[13px] text-zinc-500">{t("explore_sub")}</p>
 
       {/* Assuntos do momento */}
       {trends.length > 0 && (
@@ -136,13 +134,8 @@ export default function ExplorarPage() {
         </section>
       )}
 
-      {/* Frase do dia */}
-      <div className="mb-4">
-        <QuoteOfDay />
-      </div>
-
       {/* Feed misturado: posts, vídeos e artigos */}
-      <h2 className="mb-1 border-t border-white/10 pt-4 text-[15px] font-extrabold text-zinc-100">{t("for_you")}</h2>
+      <h2 className="mb-1 mt-2 border-t border-white/10 pt-4 text-[15px] font-extrabold text-zinc-100">{t("for_you")}</h2>
       {loading ? (
         <div className="flex justify-center py-12 text-zinc-400">
           <Loader2 className="animate-spin" size={22} />
