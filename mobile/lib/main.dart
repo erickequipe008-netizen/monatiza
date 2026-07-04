@@ -21,6 +21,32 @@ class _AppleScrollBehavior extends MaterialScrollBehavior {
       const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 }
 
+/// Transição de tela deslizando da direita (estilo iOS), sem depender
+/// de classes que mudam entre versões do Flutter.
+class _SlidePageTransitionsBuilder extends PageTransitionsBuilder {
+  const _SlidePageTransitionsBuilder();
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final slide = Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
+        .chain(CurveTween(curve: Curves.easeOutCubic))
+        .animate(animation);
+    // A tela de trás desliza levemente para a esquerda, como no iOS.
+    final back = Tween<Offset>(begin: Offset.zero, end: const Offset(-0.24, 0))
+        .chain(CurveTween(curve: Curves.easeOutCubic))
+        .animate(secondaryAnimation);
+    return SlideTransition(
+      position: back,
+      child: SlideTransition(position: slide, child: child),
+    );
+  }
+}
+
 class MonatizaApp extends StatelessWidget {
   const MonatizaApp({super.key});
 
@@ -35,9 +61,9 @@ class MonatizaApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(kBg),
         // Transições de tela deslizando (estilo iOS) e toque sem "tinta"
-        pageTransitionsTheme: PageTransitionsTheme(builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {
+          TargetPlatform.android: _SlidePageTransitionsBuilder(),
+          TargetPlatform.iOS: _SlidePageTransitionsBuilder(),
         }),
         splashFactory: NoSplash.splashFactory,
         splashColor: Colors.transparent,
