@@ -222,7 +222,7 @@ class _PostRowState extends State<_PostRow> {
   late bool _saved = widget.post['bookmarkedByMe'] == true;
   bool _reposted = false;
 
-  Future<void> _like() async {
+  Future<void> _toggleLike() async {
     final n = !_liked;
     setState(() { _liked = n; _count += n ? 1 : -1; });
     await togglePostLike(widget.post['id'], n);
@@ -324,7 +324,7 @@ class _PostRowState extends State<_PostRow> {
               child: Row(children: [
                 _Action(icon: Icons.mode_comment_outlined, onTap: _openDetail),
                 _Action(icon: Icons.repeat, color: _reposted ? const Color(0xFF00BA7C) : Colors.white38, onTap: _repost),
-                _Action(icon: _liked ? Icons.favorite : Icons.favorite_border, color: _liked ? _like : Colors.white38, label: _count > 0 ? '$_count' : null, onTap: _like),
+                _Action(icon: _liked ? Icons.favorite : Icons.favorite_border, color: _liked ? _like : Colors.white38, label: _count > 0 ? '$_count' : null, onTap: _toggleLike),
                 _Action(icon: _saved ? Icons.bookmark : Icons.bookmark_border, color: _saved ? _accent : Colors.white38, onTap: _save),
               ]),
             ),
