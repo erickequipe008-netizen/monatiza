@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'feed_screen.dart';
 import 'community_screen.dart';
-import 'reels_screen.dart';
 import 'discover_screen.dart';
 import 'profile_screen.dart';
 import 'messages_screen.dart';
@@ -15,8 +14,8 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _i = 0;
-  final _bodies = const [FeedBody(), CommunityBody(), ReelsBody(), DiscoverBody(), ProfileBody()];
-  final _titles = const ["monatiza", "Comunidade", "Vídeos", "Descobrir", "Perfil"];
+  final _bodies = const [FeedBody(), CommunityBody(), MessagesBody(), DiscoverBody(), ProfileBody()];
+  final _titles = const ["monatiza", "Comunidade", "Mensagens", "Descobrir", "Perfil"];
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +23,6 @@ class _HomeShellState extends State<HomeShell> {
       appBar: AppBar(
         title: Text(_titles[_i], style: const TextStyle(fontWeight: FontWeight.w800)),
         actions: [
-          IconButton(
-            tooltip: "Mensagens",
-            icon: const Icon(Icons.mail_outline),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesScreen())),
-          ),
           IconButton(
             tooltip: "Sair",
             icon: const Icon(Icons.logout),
@@ -43,7 +37,7 @@ class _HomeShellState extends State<HomeShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.article_outlined), selectedIcon: Icon(Icons.article), label: "Notícias"),
           NavigationDestination(icon: Icon(Icons.forum_outlined), selectedIcon: Icon(Icons.forum), label: "Comunidade"),
-          NavigationDestination(icon: Icon(Icons.play_circle_outline), selectedIcon: Icon(Icons.play_circle), label: "Vídeos"),
+          NavigationDestination(icon: Icon(Icons.mail_outline), selectedIcon: Icon(Icons.mail), label: "Mensagens"),
           NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: "Descobrir"),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: "Perfil"),
         ],
