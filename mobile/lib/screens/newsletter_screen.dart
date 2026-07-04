@@ -56,7 +56,7 @@ class _NewsletterScreenState extends State<NewsletterScreen> {
                       label: Text(c),
                       selected: on,
                       onSelected: (v) => setState(() { _saved = false; v ? _selected.add(c) : _selected.remove(c); }),
-                      selectedColor: const Color(0xFF9B72CB),
+                      selectedColor: const Color(0xFF1D9BF0),
                     );
                   }).toList(),
                 ),
@@ -71,14 +71,14 @@ class _NewsletterScreenState extends State<NewsletterScreen> {
                       label: Text(e.value),
                       selected: on,
                       onSelected: (_) => setState(() { _freq = e.key; _saved = false; }),
-                      selectedColor: const Color(0xFF9B72CB),
+                      selectedColor: const Color(0xFF1D9BF0),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: 28),
                 FilledButton(
                   onPressed: _saving ? null : _save,
-                  style: FilledButton.styleFrom(backgroundColor: const Color(0xFF9B72CB), padding: const EdgeInsets.symmetric(vertical: 14)),
+                  style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1D9BF0), padding: const EdgeInsets.symmetric(vertical: 14)),
                   child: Text(_saving ? "Salvando…" : "Salvar preferências"),
                 ),
                 if (_saved) const Padding(padding: EdgeInsets.only(top: 12), child: Text("✓ Preferências salvas", style: TextStyle(color: Colors.green))),

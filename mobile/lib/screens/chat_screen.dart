@@ -148,7 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: InputDecoration(
                         hintText: "Escreva uma mensagem…",
                         filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.06),
+                        fillColor: Colors.white.withOpacity(0.06),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(26), borderSide: BorderSide.none),
                         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(26), borderSide: BorderSide.none),

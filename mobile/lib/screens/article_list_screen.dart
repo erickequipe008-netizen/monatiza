@@ -50,7 +50,7 @@ class _ArticleListViewState extends State<ArticleListView> {
                     children: [
                       Row(children: [
                         Text((a['category'] ?? '').toString().toUpperCase(),
-                            style: const TextStyle(color: Color(0xFFFF5C8A), fontSize: 10, fontWeight: FontWeight.w800)),
+                            style: const TextStyle(color: Color(0xFF1D9BF0), fontSize: 10, fontWeight: FontWeight.w800)),
                         if (a['is_premium'] == true)
                           const Padding(padding: EdgeInsets.only(left: 6), child: Icon(Icons.workspace_premium, size: 13, color: Color(0xFFC9A24B))),
                       ]),

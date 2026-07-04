@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config.dart';
 import 'screens/splash_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   runApp(const MonatizaApp());
 }
+
+/// Cliente Supabase compartilhado (mesmo banco/API do site).
+final supabase = Supabase.instance.client;
 
 class MonatizaApp extends StatelessWidget {
   const MonatizaApp({super.key});
@@ -16,7 +24,34 @@ class MonatizaApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF000000),
+        scaffoldBackgroundColor: const Color(kBg),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(kAccent),
+          brightness: Brightness.dark,
+          surface: const Color(kBg),
+        ),
+        textTheme: GoogleFonts.manropeTextTheme(ThemeData(brightness: Brightness.dark).textTheme),
+        appBarTheme: AppBarTheme(
+          backgroundColor: const Color(kBg),
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          centerTitle: false,
+          titleTextStyle: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: const Color(0xFF000000),
+          elevation: 0,
+          height: 64,
+          indicatorColor: const Color(0xFF1D9BF0).withOpacity(0.22),
+          labelTextStyle: WidgetStatePropertyAll(
+            GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.05),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        ),
       ),
       home: const SplashScreen(),
     );

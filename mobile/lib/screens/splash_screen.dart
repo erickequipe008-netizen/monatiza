@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'webview_screen.dart';
+import '../auth_gate.dart';
 
 /// Abertura minimalista: apenas a logo "m" (sem texto), depois entra no app.
 class SplashScreen extends StatefulWidget {
@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 450),
-          pageBuilder: (_, __, ___) => const WebViewScreen(),
+          pageBuilder: (_, __, ___) => const AuthGate(),
           transitionsBuilder: (_, anim, __, child) => FadeTransition(opacity: anim, child: child),
         ),
       );

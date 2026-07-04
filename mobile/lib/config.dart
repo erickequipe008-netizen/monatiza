@@ -3,6 +3,6 @@
 const String supabaseUrl = 'https://cmfuphjxdhqslhvlvesu.supabase.co';
 const String supabaseAnonKey = 'sb_publishable_RJW98-CWQNX5CEwRpA-Ajg_k7lhOM46';
 
-// Paleta MonatizaPro
-const int kBg = 0xFF0A0A0C;
-const int kAccent = 0xFF9B72CB;
+// Paleta (estilo X): preto puro + azul.
+const int kBg = 0xFF000000;
+const int kAccent = 0xFF1D9BF0;

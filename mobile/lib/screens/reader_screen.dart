@@ -76,7 +76,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
         padding: const EdgeInsets.all(20),
         children: [
           Text((a['category'] ?? '').toString().toUpperCase(),
-              style: const TextStyle(color: Color(0xFFFF5C8A), fontSize: 11, fontWeight: FontWeight.w800)),
+              style: const TextStyle(color: Color(0xFF1D9BF0), fontSize: 11, fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
           Text(a['title'] ?? '', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, height: 1.15)),
           const SizedBox(height: 16),

@@ -50,7 +50,7 @@ class _VerificacaoScreenState extends State<VerificacaoScreen> {
                               const SizedBox(height: 24),
                               FilledButton(
                                 onPressed: () => launchUrl(Uri.parse("https://www.monatiza.com/app/verificacao"), mode: LaunchMode.externalApplication),
-                                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF9B72CB), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14)),
+                                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1D9BF0), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14)),
                                 child: const Text("Continuar · R\$ 39,90"),
                               ),
                             ],

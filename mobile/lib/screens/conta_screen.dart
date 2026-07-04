@@ -48,7 +48,7 @@ class _ContaScreenState extends State<ContaScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: status == "active" ? Colors.green.withValues(alpha: 0.2) : Colors.amber.withValues(alpha: 0.2),
+                            color: status == "active" ? Colors.green.withOpacity(0.2) : Colors.amber.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(status == "active" ? "Ativa" : status,

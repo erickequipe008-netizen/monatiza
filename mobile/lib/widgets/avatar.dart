@@ -8,7 +8,7 @@ Widget memberAvatar(Map<String, dynamic>? prof, double radius) {
   }
   return CircleAvatar(
     radius: radius,
-    backgroundColor: const Color(0xFF9B72CB),
+    backgroundColor: const Color(0xFF1D9BF0),
     child: Text(
       name.isNotEmpty ? name[0].toUpperCase() : '?',
       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: radius * 0.8),

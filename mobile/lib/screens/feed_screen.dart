@@ -45,7 +45,7 @@ class _FeedBodyState extends State<FeedBody> {
                     children: [
                       Row(children: [
                         Text((a['category'] ?? '').toString().toUpperCase(),
-                            style: const TextStyle(color: Color(0xFFFF5C8A), fontSize: 10, fontWeight: FontWeight.w800)),
+                            style: const TextStyle(color: Color(0xFF1D9BF0), fontSize: 10, fontWeight: FontWeight.w800)),
                         if (a['is_premium'] == true)
                           const Padding(
                             padding: EdgeInsets.only(left: 6),

@@ -93,7 +93,7 @@ class _ProfileRowState extends State<_ProfileRow> {
           OutlinedButton(
             onPressed: _busy ? null : _toggle,
             style: OutlinedButton.styleFrom(
-              backgroundColor: _following ? Colors.transparent : const Color(0xFF9B72CB),
+              backgroundColor: _following ? Colors.transparent : const Color(0xFF1D9BF0),
               foregroundColor: _following ? Colors.white70 : Colors.white,
               side: BorderSide(color: _following ? Colors.white24 : Colors.transparent),
             ),

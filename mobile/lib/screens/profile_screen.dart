@@ -60,11 +60,11 @@ class _ProfileBodyState extends State<ProfileBody> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
-                colors: [const Color(0xFF9B72CB).withValues(alpha: 0.18), Colors.white.withValues(alpha: 0.03)],
+                colors: [const Color(0xFF1D9BF0).withOpacity(0.18), Colors.white.withOpacity(0.03)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              border: Border.all(color: Colors.white.withOpacity(0.06)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

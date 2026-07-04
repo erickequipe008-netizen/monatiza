@@ -59,7 +59,7 @@ class _SignupScreenState extends State<SignupScreen> {
         prefixText: prefix,
         suffixIcon: suffix,
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.05),
+        fillColor: Colors.white.withOpacity(0.05),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
       );
 

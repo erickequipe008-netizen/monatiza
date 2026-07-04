@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-// Gradiente "Gemini" (azul → roxo → rosa)
+// Cor da marca (estilo X): azul chapado, sem roxo.
 const kProGradient = LinearGradient(
-  colors: [Color(0xFF4285F4), Color(0xFF9B72CB), Color(0xFFFF5C8A)],
+  colors: [Color(0xFF1D9BF0), Color(0xFF1D9BF0)],
   begin: Alignment.centerLeft,
   end: Alignment.centerRight,
 );
@@ -68,7 +68,7 @@ class GradientAvatarRing extends StatelessWidget {
       decoration: const BoxDecoration(shape: BoxShape.circle, gradient: kProGradient),
       child: Container(
         padding: const EdgeInsets.all(2),
-        decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF0A0A0C)),
+        decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF000000)),
         child: child,
       ),
     );

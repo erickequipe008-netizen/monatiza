@@ -1,7 +1,7 @@
 name: monatiza
 description: Monatiza — app de notícias e comunidade (Android & iOS).
 publish_to: "none"
-version: 2.0.2+4
+version: 2.1.0+5
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -10,12 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  # O app carrega o próprio web app (mesmo layout/login/tudo, sempre em sincronia).
-  webview_flutter: ^4.7.0
-  url_launcher: ^6.3.0
-  # Mantidos para compatibilidade de código legado (não usados no fluxo atual).
   supabase_flutter: ^2.5.0
   video_player: ^2.9.1
+  url_launcher: ^6.3.0
   google_fonts: ^6.2.1
   share_plus: ^10.1.1
 
