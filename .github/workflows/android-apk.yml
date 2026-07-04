@@ -62,8 +62,68 @@ jobs:
             sed -i 's/minSdkVersion = flutter.minSdkVersion/minSdkVersion = 21/' android/app/build.gradle
           fi
 
+      # Identidade definitiva na loja: com.monatiza.app + nome "Monatiza"
+      - name: Definir applicationId e nome do app
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i -E 's/applicationId = "[^"]*"/applicationId = "com.monatiza.app"/' android/app/build.gradle.kts
+          fi
+          if [ -f android/app/build.gradle ]; then
+            sed -i -E 's/applicationId "[^"]*"/applicationId "com.monatiza.app"/' android/app/build.gradle
+          fi
+          sed -i 's/android:label="monatiza"/android:label="Monatiza"/' android/app/src/main/AndroidManifest.xml
+
       - run: flutter pub get
-      # Gera os dois: release (loja) e debug (mais fácil de instalar p/ teste)
+
+      - name: Gerar ícone do app
+        run: dart run flutter_launcher_icons
+
+      # Assinatura de release (secrets ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD).
+      # Sem as secrets, o build continua com assinatura debug (só para testes).
+      - name: Configurar assinatura de release
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KS_B64" ]; then
+            echo "AVISO: sem keystore — release sairá com assinatura debug."
+            exit 0
+          fi
+          echo "$KS_B64" | base64 -d > android/app/upload-keystore.jks
+          printf 'storePassword=%s\nkeyPassword=%s\nkeyAlias=upload\nstoreFile=upload-keystore.jks\n' "$KS_PASS" "$KS_PASS" > android/key.properties
+          python3 - <<'PY'
+          gradle = 'android/app/build.gradle.kts'
+          s = open(gradle).read()
+          header = (
+              'import java.util.Properties\n'
+              'import java.io.FileInputStream\n'
+              'val keystoreProperties = Properties()\n'
+              'val keystorePropertiesFile = rootProject.file("key.properties")\n'
+              'if (keystorePropertiesFile.exists()) {\n'
+              '    keystoreProperties.load(FileInputStream(keystorePropertiesFile))\n'
+              '}\n'
+          )
+          sign = (
+              '\n    signingConfigs {\n'
+              '        create("release") {\n'
+              '            keyAlias = keystoreProperties["keyAlias"] as String\n'
+              '            keyPassword = keystoreProperties["keyPassword"] as String\n'
+              '            storeFile = keystoreProperties["storeFile"]?.let { file(it) }\n'
+              '            storePassword = keystoreProperties["storePassword"] as String\n'
+              '        }\n'
+              '    }\n'
+          )
+          s = header + s
+          s = s.replace('android {', 'android {' + sign, 1)
+          before = s
+          s = s.replace('signingConfig = signingConfigs.getByName("debug")',
+                        'signingConfig = signingConfigs.getByName("release")')
+          print('assinatura release aplicada' if s != before else 'ATENCAO: linha de signingConfig nao encontrada')
+          open(gradle, 'w').write(s)
+          PY
+
+      # Gera os três: AAB (loja), APK release e APK debug (teste rápido)
+      - run: flutter build appbundle --release
       - run: flutter build apk --release
       - run: flutter build apk --debug
 
@@ -74,4 +134,11 @@ jobs:
           path: |
             mobile/build/app/outputs/flutter-apk/app-release.apk
             mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publicar AAB (Play Store) como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: monatiza-aab
+          path: mobile/build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
