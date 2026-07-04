@@ -1,7 +1,7 @@
 name: monatiza
 description: Monatiza — app de notícias e comunidade (Android & iOS).
 publish_to: "none"
-version: 2.3.0+10
+version: 2.4.0+11
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

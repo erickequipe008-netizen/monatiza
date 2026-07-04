@@ -4,11 +4,6 @@ import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import '../widgets/ui.dart';
-import 'biblioteca_screen.dart';
-import 'article_list_screen.dart';
-import 'newsletter_screen.dart';
-import 'verificacao_screen.dart';
-import 'conta_screen.dart';
 import 'post_detail_screen.dart';
 import 'member_profile_screen.dart';
 
@@ -113,28 +108,14 @@ class _ProfileBodyState extends State<ProfileBody> {
               bottom: -34,
               child: GradientAvatarRing(padding: 3, child: memberAvatar(p, 38)),
             ),
-            Positioned(
-              right: 12,
-              bottom: -44,
-              child: OutlinedButton(
-                onPressed: () => _open(const ContaScreen()),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.white24),
-                  shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Editar perfil', style: TextStyle(fontWeight: FontWeight.w700)),
-              ),
-            ),
           ]),
-          const SizedBox(height: 52),
+          const SizedBox(height: 50),
           // ---- Nome / handle / bio / link / contagens ----
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Flexible(child: Text(name, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800))),
+                Flexible(child: Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.3))),
                 if (p?['verified'] == true)
                   const Padding(padding: EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18)),
               ]),
@@ -166,32 +147,15 @@ class _ProfileBodyState extends State<ProfileBody> {
                     ]),
                   ),
                 ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(children: [
                 _CountLink(value: _counts['following'] ?? 0, label: 'Seguindo', onTap: () => _switchTab(2)),
-                const SizedBox(width: 20),
+                const SizedBox(width: 22),
                 _CountLink(value: _counts['followers'] ?? 0, label: 'Seguidores', onTap: () => _switchTab(1)),
               ]),
             ]),
           ),
-          const SizedBox(height: 14),
-          // ---- Atalhos (Biblioteca, Revistas, Exclusivo, Newsletter, Verificação, Conta) ----
-          SizedBox(
-            height: 38,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: [
-                _Chip(icon: Icons.bookmark_border, label: 'Biblioteca', onTap: () => _open(const BibliotecaScreen())),
-                _Chip(icon: Icons.menu_book_outlined, label: 'Revistas', onTap: () => _open(ArticleListScreen(title: 'Revistas', load: () => fetchByCategory('%Revista%')))),
-                _Chip(icon: Icons.workspace_premium_outlined, label: 'Exclusivo', onTap: () => _open(ArticleListScreen(title: 'Exclusivo', load: fetchPremium))),
-                _Chip(icon: Icons.mail_outline, label: 'Newsletter', onTap: () => _open(const NewsletterScreen())),
-                _Chip(icon: Icons.verified_outlined, label: 'Verificação', onTap: () => _open(const VerificacaoScreen())),
-                _Chip(icon: Icons.settings_outlined, label: 'Conta', onTap: () => _open(const ContaScreen())),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 18),
           // ---- Abas ----
           Row(children: [
             _Tab(label: 'Publicações', active: _tab == 0, onTap: () => _switchTab(0)),
@@ -239,33 +203,6 @@ class _CountLink extends StatelessWidget {
           Text('$value ', style: const TextStyle(fontWeight: FontWeight.w800)),
           Text(label, style: const TextStyle(color: Colors.white54)),
         ]),
-      );
-}
-
-class _Chip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  const _Chip({required this.icon, required this.label, required this.onTap});
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white24),
-            ),
-            child: Row(children: [
-              Icon(icon, size: 15, color: Colors.white70),
-              const SizedBox(width: 6),
-              Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
-            ]),
-          ),
-        ),
       );
 }
 

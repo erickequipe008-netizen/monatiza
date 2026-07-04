@@ -4,6 +4,7 @@ import 'reader_screen.dart';
 
 const _accent = Color(0xFF1D9BF0);
 
+/// Notícias: todos os artigos em cards iguais (estilo Apple News / Discover).
 class FeedBody extends StatefulWidget {
   const FeedBody({super.key});
   @override
@@ -25,72 +26,86 @@ class _FeedBodyState extends State<FeedBody> {
     if (mounted) setState(() { _items = d; _loading = false; });
   }
 
-  void _open(BuildContext c, Map<String, dynamic> a) =>
-      Navigator.push(c, MaterialPageRoute(builder: (_) => ReaderScreen(article: a)));
-
-  Widget _cat(Map<String, dynamic> a) => Row(children: [
-        Text((a['category'] ?? '').toString().toUpperCase(),
-            style: const TextStyle(color: _accent, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
-        if (a['is_premium'] == true)
-          const Padding(padding: EdgeInsets.only(left: 6), child: Icon(Icons.workspace_premium, size: 13, color: Color(0xFFC9A24B))),
-      ]);
-
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_items.isEmpty) {
+      return const Center(child: Text('Nada por aqui ainda.', style: TextStyle(color: Colors.white38)));
+    }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.all(16),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 28),
         itemCount: _items.length,
-        separatorBuilder: (_, __) => const Divider(height: 26, color: Colors.white12),
-        itemBuilder: (c, i) {
-          final a = _items[i];
-          // Primeira matéria em destaque (hero)
-          if (i == 0) {
-            return InkWell(
-              onTap: () => _open(c, a),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if (a['image_url'] != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Image.network(a['image_url'], fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: Colors.white10)),
-                    ),
-                  ),
-                const SizedBox(height: 10),
-                _cat(a),
-                const SizedBox(height: 4),
-                Text(a['title'] ?? '', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, height: 1.2)),
-                if ((a['excerpt'] ?? '').toString().isNotEmpty)
-                  Padding(padding: const EdgeInsets.only(top: 6), child: Text(a['excerpt'], maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white54, height: 1.35))),
-              ]),
-            );
-          }
-          // Demais: linha compacta com miniatura
-          return InkWell(
-            onTap: () => _open(c, a),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _cat(a),
-                  const SizedBox(height: 4),
-                  Text(a['title'] ?? '', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, height: 1.2)),
-                ]),
-              ),
-              if (a['image_url'] != null)
+        separatorBuilder: (_, __) => const SizedBox(height: 14),
+        itemBuilder: (c, i) => _ArticleCard(article: _items[i]),
+      ),
+    );
+  }
+}
+
+class _ArticleCard extends StatelessWidget {
+  final Map<String, dynamic> article;
+  const _ArticleCard({required this.article});
+
+  @override
+  Widget build(BuildContext context) {
+    final a = article;
+    final category = (a['category'] ?? '').toString();
+    final excerpt = (a['excerpt'] ?? '').toString();
+    final premium = a['is_premium'] == true;
+
+    return Material(
+      color: Colors.white.withOpacity(0.05),
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: Colors.white.withOpacity(0.06)),
+      ),
+      child: InkWell(
+        onTap: () => Navigator.push(
+            context, MaterialPageRoute(builder: (_) => ReaderScreen(article: a))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          if (a['image_url'] != null)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.network(a['image_url'], fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(color: Colors.white10)),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (category.isNotEmpty || premium)
                 Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(a['image_url'], width: 104, height: 76, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox(width: 104, height: 76)),
-                  ),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(children: [
+                    if (category.isNotEmpty)
+                      Text(category.toUpperCase(),
+                          style: const TextStyle(
+                              color: _accent, fontSize: 10.5, fontWeight: FontWeight.w800, letterSpacing: 0.6)),
+                    if (premium)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 6),
+                        child: Icon(Icons.workspace_premium, size: 13, color: Color(0xFFC9A24B)),
+                      ),
+                  ]),
+                ),
+              Text(a['title'] ?? '',
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 17.5, fontWeight: FontWeight.w800, height: 1.22, letterSpacing: -0.2)),
+              if (excerpt.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(excerpt,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white54, fontSize: 13.5, height: 1.4)),
                 ),
             ]),
-          );
-        },
+          ),
+        ]),
       ),
     );
   }
