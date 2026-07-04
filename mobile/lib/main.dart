@@ -35,7 +35,7 @@ class MonatizaApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(kBg),
         // Transições de tela deslizando (estilo iOS) e toque sem "tinta"
-        pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        pageTransitionsTheme: PageTransitionsTheme(builders: {
           TargetPlatform.android: CupertinoPageTransitionsBuilder(),
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
         }),
