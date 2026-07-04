@@ -441,6 +441,21 @@ Future<void> sendMessage(String otherId, String content) async {
   await _sb.from('direct_messages').insert({'sender_id': me, 'recipient_id': otherId, 'content': content.trim()});
 }
 
+Future<List<Map<String, dynamic>>> listFollowers(String userId) async {
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('follows')
+      .select('follower_id')
+      .eq('following_id', userId)
+      .order('created_at', ascending: false)
+      .limit(100));
+  if (rows.isEmpty) return [];
+  final ids = rows.map((r) => r['follower_id']).toList();
+  return List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, bio, verified')
+      .inFilter('user_id', ids));
+}
+
 Future<List<Map<String, dynamic>>> listFollowing([String? userId]) async {
   final uid = userId ?? myId;
   if (uid == null) return [];

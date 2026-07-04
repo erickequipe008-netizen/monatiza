@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
@@ -8,7 +9,16 @@ import 'article_list_screen.dart';
 import 'newsletter_screen.dart';
 import 'verificacao_screen.dart';
 import 'conta_screen.dart';
+import 'post_detail_screen.dart';
+import 'member_profile_screen.dart';
 
+const _accent = Color(0xFF1D9BF0);
+const _like = Color(0xFFE0263B);
+
+bool _isVideo(String? u) =>
+    u != null && RegExp(r'\.(mp4|webm|mov|m4v)($|\?)', caseSensitive: false).hasMatch(u);
+
+/// Perfil no estilo X: capa + avatar sobreposto + abas (Publicações/Seguidores/Seguindo).
 class ProfileBody extends StatefulWidget {
   const ProfileBody({super.key});
   @override
@@ -20,6 +30,10 @@ class _ProfileBodyState extends State<ProfileBody> {
   List<Map<String, dynamic>> _posts = [];
   Map<String, int> _counts = {'followers': 0, 'following': 0};
   bool _loading = true;
+
+  int _tab = 0; // 0 = Publicações, 1 = Seguidores, 2 = Seguindo
+  List<Map<String, dynamic>>? _followers;
+  List<Map<String, dynamic>>? _following;
 
   @override
   void initState() {
@@ -35,109 +49,437 @@ class _ProfileBodyState extends State<ProfileBody> {
       posts = await fetchUserPosts(prof['user_id']);
       counts = await followCounts(prof['user_id']);
     }
-    if (mounted) setState(() { _profile = prof; _posts = posts; _counts = counts; _loading = false; });
+    if (mounted) {
+      setState(() {
+        _profile = prof;
+        _posts = posts;
+        _counts = counts;
+        _loading = false;
+        _followers = null;
+        _following = null;
+      });
+    }
   }
 
-  Widget _tile(BuildContext c, IconData icon, String label, Widget screen) => ListTile(
-        leading: Icon(icon, color: Colors.white70),
-        title: Text(label),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white24),
-        onTap: () => Navigator.push(c, MaterialPageRoute(builder: (_) => screen)),
-      );
+  Future<void> _switchTab(int t) async {
+    setState(() => _tab = t);
+    final uid = _profile?['user_id'];
+    if (uid == null) return;
+    if (t == 1 && _followers == null) {
+      final f = await listFollowers(uid);
+      if (mounted) setState(() => _followers = f);
+    } else if (t == 2 && _following == null) {
+      final f = await listFollowing(uid);
+      if (mounted) setState(() => _following = f);
+    }
+  }
+
+  void _open(Widget screen) =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     final p = _profile;
     final name = (p?['display_name'] ?? p?['handle'] ?? 'Membro').toString();
+    final handle = (p?['handle'] ?? '').toString();
+    final bio = (p?['bio'] ?? '').toString();
+    final link = (p?['link'] ?? '').toString();
+    final cover = p?['cover_url'] as String?;
+
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.zero,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                colors: [const Color(0xFF1D9BF0).withOpacity(0.18), Colors.white.withOpacity(0.03)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    GradientAvatarRing(child: memberAvatar(p, 34)),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(children: [
-                            Flexible(child: Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
-                            if (p?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18)),
-                          ]),
-                          Text("@${p?['handle'] ?? ''}", style: const TextStyle(color: Colors.white60)),
-                        ],
-                      ),
-                    ),
-                  ],
+          // ---- Capa + avatar sobreposto ----
+          Stack(clipBehavior: Clip.none, children: [
+            Container(
+              height: 118,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1D9BF0), Color(0xFF0A0A0A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                if ((p?['bio'] ?? '').toString().isNotEmpty)
-                  Padding(padding: const EdgeInsets.only(top: 12), child: Text(p!['bio'], style: const TextStyle(color: Colors.white70, height: 1.4))),
-                const SizedBox(height: 14),
-                Row(children: [
-                  Text("${_counts['followers']} ", style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const Text("seguidores     ", style: TextStyle(color: Colors.white54)),
-                  Text("${_counts['following']} ", style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const Text("seguindo", style: TextStyle(color: Colors.white54)),
-                ]),
+                image: (cover != null && cover.isNotEmpty)
+                    ? DecorationImage(image: NetworkImage(cover), fit: BoxFit.cover)
+                    : null,
+              ),
+            ),
+            Positioned(
+              left: 16,
+              bottom: -34,
+              child: GradientAvatarRing(padding: 3, child: memberAvatar(p, 38)),
+            ),
+            Positioned(
+              right: 12,
+              bottom: -44,
+              child: OutlinedButton(
+                onPressed: () => _open(const ContaScreen()),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.white24),
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Editar perfil', style: TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 52),
+          // ---- Nome / handle / bio / link / contagens ----
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Flexible(child: Text(name, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800))),
+                if (p?['verified'] == true)
+                  const Padding(padding: EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18)),
+              ]),
+              if (handle.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text('@$handle', style: const TextStyle(color: Colors.white54)),
+                ),
+              if (bio.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(bio, style: const TextStyle(height: 1.4)),
+                ),
+              if (link.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: InkWell(
+                    onTap: () => launchUrl(
+                      Uri.parse(link.startsWith('http') ? link : 'https://$link'),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      const Icon(Icons.link, size: 16, color: _accent),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(link.replaceAll(RegExp(r'^https?://'), ''),
+                            overflow: TextOverflow.ellipsis, style: const TextStyle(color: _accent)),
+                      ),
+                    ]),
+                  ),
+                ),
+              const SizedBox(height: 12),
+              Row(children: [
+                _CountLink(value: _counts['following'] ?? 0, label: 'Seguindo', onTap: () => _switchTab(2)),
+                const SizedBox(width: 20),
+                _CountLink(value: _counts['followers'] ?? 0, label: 'Seguidores', onTap: () => _switchTab(1)),
+              ]),
+            ]),
+          ),
+          const SizedBox(height: 14),
+          // ---- Atalhos (Biblioteca, Revistas, Exclusivo, Newsletter, Verificação, Conta) ----
+          SizedBox(
+            height: 38,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                _Chip(icon: Icons.bookmark_border, label: 'Biblioteca', onTap: () => _open(const BibliotecaScreen())),
+                _Chip(icon: Icons.menu_book_outlined, label: 'Revistas', onTap: () => _open(ArticleListScreen(title: 'Revistas', load: () => fetchByCategory('%Revista%')))),
+                _Chip(icon: Icons.workspace_premium_outlined, label: 'Exclusivo', onTap: () => _open(ArticleListScreen(title: 'Exclusivo', load: fetchPremium))),
+                _Chip(icon: Icons.mail_outline, label: 'Newsletter', onTap: () => _open(const NewsletterScreen())),
+                _Chip(icon: Icons.verified_outlined, label: 'Verificação', onTap: () => _open(const VerificacaoScreen())),
+                _Chip(icon: Icons.settings_outlined, label: 'Conta', onTap: () => _open(const ContaScreen())),
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(16)),
-            child: Column(children: [
-              _tile(context, Icons.bookmark_border, "Biblioteca", const BibliotecaScreen()),
-              _tile(context, Icons.menu_book_outlined, "Revistas", ArticleListScreen(title: "Revistas", load: () => fetchByCategory("%Revista%"))),
-              _tile(context, Icons.workspace_premium_outlined, "Exclusivo", ArticleListScreen(title: "Exclusivo", load: fetchPremium)),
-              _tile(context, Icons.mail_outline, "Newsletter", const NewsletterScreen()),
-              _tile(context, Icons.verified_outlined, "Verificação", const VerificacaoScreen()),
-              _tile(context, Icons.account_circle_outlined, "Minha conta", const ContaScreen()),
-            ]),
-          ),
-          const SizedBox(height: 22),
-          const Text("MINHAS PUBLICAÇÕES",
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white54, letterSpacing: 1.2)),
           const SizedBox(height: 10),
-          if (_posts.isEmpty)
-            const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: Text("Você ainda não publicou nada.", style: TextStyle(color: Colors.white38)))
-          else
-            ..._posts.map((post) => Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(14)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(timeAgo(post['created_at']), style: const TextStyle(color: Colors.white38, fontSize: 12)),
-                      if ((post['content'] ?? '').toString().isNotEmpty)
-                        Padding(padding: const EdgeInsets.only(top: 4), child: Text(post['content'])),
-                      if (post['image_url'] != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(post['image_url'], errorBuilder: (_, __, ___) => const SizedBox())),
-                        ),
-                    ],
-                  ),
-                )),
+          // ---- Abas ----
+          Row(children: [
+            _Tab(label: 'Publicações', active: _tab == 0, onTap: () => _switchTab(0)),
+            _Tab(label: 'Seguidores', active: _tab == 1, onTap: () => _switchTab(1)),
+            _Tab(label: 'Seguindo', active: _tab == 2, onTap: () => _switchTab(2)),
+          ]),
+          const Divider(height: 1, color: Colors.white12),
+          // ---- Conteúdo da aba ----
+          ..._tabContent(),
+          const SizedBox(height: 30),
         ],
       ),
     );
   }
+
+  List<Widget> _tabContent() {
+    if (_tab == 0) {
+      if (_posts.isEmpty) return [const _Empty('Você ainda não publicou nada.')];
+      return _posts.map((post) => _MyPost(post: post, me: _profile, onChanged: _load)).toList();
+    }
+    if (_tab == 1) {
+      if (_followers == null) return [const _Loading()];
+      if (_followers!.isEmpty) return [const _Empty('Ninguém ainda te segue.')];
+      return _followers!
+          .map((u) => _PersonRow(profile: u, onTap: () => _open(MemberProfileScreen(profile: u))))
+          .toList();
+    }
+    if (_following == null) return [const _Loading()];
+    if (_following!.isEmpty) return [const _Empty('Você ainda não segue ninguém.')];
+    return _following!
+        .map((u) => _PersonRow(profile: u, onTap: () => _open(MemberProfileScreen(profile: u))))
+        .toList();
+  }
+}
+
+class _CountLink extends StatelessWidget {
+  final int value;
+  final String label;
+  final VoidCallback onTap;
+  const _CountLink({required this.value, required this.label, required this.onTap});
+  @override
+  Widget build(BuildContext context) => InkWell(
+        onTap: onTap,
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Text('$value ', style: const TextStyle(fontWeight: FontWeight.w800)),
+          Text(label, style: const TextStyle(color: Colors.white54)),
+        ]),
+      );
+}
+
+class _Chip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _Chip({required this.icon, required this.label, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: Row(children: [
+              Icon(icon, size: 15, color: Colors.white70),
+              const SizedBox(width: 6),
+              Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
+            ]),
+          ),
+        ),
+      );
+}
+
+class _Tab extends StatelessWidget {
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+  const _Tab({required this.label, required this.active, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            alignment: Alignment.center,
+            child: Column(children: [
+              Text(label,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w800, fontSize: 13, color: active ? Colors.white : Colors.white54)),
+              const SizedBox(height: 8),
+              Container(
+                height: 3,
+                width: 40,
+                decoration: BoxDecoration(
+                    color: active ? _accent : Colors.transparent, borderRadius: BorderRadius.circular(2)),
+              ),
+            ]),
+          ),
+        ),
+      );
+}
+
+class _Empty extends StatelessWidget {
+  final String text;
+  const _Empty(this.text);
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Center(child: Text(text, style: const TextStyle(color: Colors.white38))),
+      );
+}
+
+class _Loading extends StatelessWidget {
+  const _Loading();
+  @override
+  Widget build(BuildContext context) =>
+      const Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator()));
+}
+
+class _PersonRow extends StatelessWidget {
+  final Map<String, dynamic> profile;
+  final VoidCallback onTap;
+  const _PersonRow({required this.profile, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    final name = (profile['display_name'] ?? profile['handle'] ?? 'Membro').toString();
+    final handle = (profile['handle'] ?? '').toString();
+    final bio = (profile['bio'] ?? '').toString();
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12))),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          memberAvatar(profile, 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
+                if (profile['verified'] == true)
+                  const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13)),
+              ]),
+              if (handle.isNotEmpty)
+                Text('@$handle', style: const TextStyle(color: Colors.white38, fontSize: 13)),
+              if (bio.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                ),
+            ]),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Publicação do próprio usuário (linha estilo X, com excluir).
+class _MyPost extends StatefulWidget {
+  final Map<String, dynamic> post;
+  final Map<String, dynamic>? me;
+  final VoidCallback onChanged;
+  const _MyPost({required this.post, required this.me, required this.onChanged});
+  @override
+  State<_MyPost> createState() => _MyPostState();
+}
+
+class _MyPostState extends State<_MyPost> {
+  late bool _liked = widget.post['likedByMe'] == true;
+  late int _count = (widget.post['likeCount'] ?? 0) as int;
+  late bool _saved = widget.post['bookmarkedByMe'] == true;
+
+  Future<void> _likeToggle() async {
+    final n = !_liked;
+    setState(() {
+      _liked = n;
+      _count += n ? 1 : -1;
+    });
+    await togglePostLike(widget.post['id'], n);
+  }
+
+  Future<void> _saveToggle() async {
+    final n = !_saved;
+    setState(() => _saved = n);
+    await togglePostBookmark(widget.post['id'], n);
+  }
+
+  void _detail() =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailScreen(post: widget.post)));
+
+  void _menu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF16181C),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.delete_outline, color: _like),
+            title: const Text('Excluir', style: TextStyle(color: _like)),
+            onTap: () async {
+              Navigator.pop(context);
+              await deletePost(widget.post['id']);
+              widget.onChanged();
+            },
+          ),
+        ]),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.post;
+    final name = (widget.me?['display_name'] ?? widget.me?['handle'] ?? 'Você').toString();
+    final handle = (widget.me?['handle'] ?? '').toString();
+    final content = (p['content'] ?? '').toString();
+    final media = p['image_url'] as String?;
+    return InkWell(
+      onTap: _detail,
+      child: Container(
+        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12))),
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 6),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          memberAvatar(widget.me, 21),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Expanded(
+                  child: Row(children: [
+                    Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
+                    if (widget.me?['verified'] == true)
+                      const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
+                    const SizedBox(width: 5),
+                    Flexible(child: Text('@$handle · ${timeAgo(p['created_at'])}', overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white38, fontSize: 13))),
+                  ]),
+                ),
+                GestureDetector(
+                  onTap: _menu,
+                  child: const Padding(padding: EdgeInsets.only(left: 6, right: 2), child: Icon(Icons.more_horiz, size: 18, color: Colors.white38)),
+                ),
+              ]),
+              if (content.isNotEmpty)
+                Padding(padding: const EdgeInsets.only(top: 4), child: Text(content, style: const TextStyle(fontSize: 15, height: 1.35))),
+              if (media != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: _isVideo(media)
+                        ? GestureDetector(
+                            onTap: _detail,
+                            child: Container(height: 200, color: Colors.black, alignment: Alignment.center, child: const Icon(Icons.play_circle_fill, size: 50, color: Colors.white70)),
+                          )
+                        : Image.network(media, errorBuilder: (_, __, ___) => const SizedBox()),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 2),
+                child: Row(children: [
+                  _act(Icons.mode_comment_outlined, Colors.white38, null, _detail),
+                  _act(_liked ? Icons.favorite : Icons.favorite_border, _liked ? _like : Colors.white38, _count > 0 ? '$_count' : null, _likeToggle),
+                  _act(_saved ? Icons.bookmark : Icons.bookmark_border, _saved ? _accent : Colors.white38, null, _saveToggle),
+                  const Spacer(),
+                ]),
+              ),
+            ]),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _act(IconData icon, Color color, String? label, VoidCallback onTap) => InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.only(right: 28, top: 6, bottom: 6),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, size: 18, color: color),
+            if (label != null) Padding(padding: const EdgeInsets.only(left: 6), child: Text(label, style: TextStyle(color: color, fontSize: 13))),
+          ]),
+        ),
+      );
 }
