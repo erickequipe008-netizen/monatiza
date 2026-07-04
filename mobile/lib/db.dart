@@ -187,7 +187,7 @@ Future<List<Map<String, dynamic>>> recommendedProfiles() async {
   final exclude = <dynamic>{me, ...fol.map((f) => f['following_id'])}..remove(null);
   final list = List<Map<String, dynamic>>.from(await _sb
       .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, bio, verified')
+      .select('user_id, handle, display_name, avatar_url, bio, verified, verified_tier')
       .order('created_at', ascending: false)
       .limit(40));
   return list.where((p) => !exclude.contains(p['user_id'])).toList();
@@ -256,7 +256,7 @@ Future<List<Map<String, dynamic>>> fetchReels() async {
   final authorIds = reels.map((r) => r['user_id']).toSet().toList();
   final profs = List<Map<String, dynamic>>.from(await _sb
       .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, verified')
+      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
       .inFilter('user_id', authorIds));
   final pmap = {for (final p in profs) p['user_id']: p};
   final likes = List<Map<String, dynamic>>.from(
@@ -414,7 +414,7 @@ Future<List<Map<String, dynamic>>> listConversations() async {
   if (latest.isEmpty) return [];
   final profs = List<Map<String, dynamic>>.from(await _sb
       .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, verified')
+      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
       .inFilter('user_id', latest.keys.toList()));
   final pmap = {for (final p in profs) p['user_id']: p};
   return latest.values.map((c) {
@@ -452,7 +452,7 @@ Future<List<Map<String, dynamic>>> listFollowers(String userId) async {
   final ids = rows.map((r) => r['follower_id']).toList();
   return List<Map<String, dynamic>>.from(await _sb
       .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, bio, verified')
+      .select('user_id, handle, display_name, avatar_url, bio, verified, verified_tier')
       .inFilter('user_id', ids));
 }
 
@@ -469,6 +469,6 @@ Future<List<Map<String, dynamic>>> listFollowing([String? userId]) async {
   final ids = rows.map((r) => r['following_id']).toList();
   return List<Map<String, dynamic>>.from(await _sb
       .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, verified')
+      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
       .inFilter('user_id', ids));
 }

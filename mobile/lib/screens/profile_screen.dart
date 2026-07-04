@@ -117,7 +117,7 @@ class _ProfileBodyState extends State<ProfileBody> {
               Row(children: [
                 Flexible(child: Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.3))),
                 if (p?['verified'] == true)
-                  const Padding(padding: EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18)),
+                  Padding(padding: const EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18, tier: p?['verified_tier'])),
               ]),
               if (handle.isNotEmpty)
                 Padding(
@@ -274,7 +274,7 @@ class _PersonRow extends StatelessWidget {
               Row(children: [
                 Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
                 if (profile['verified'] == true)
-                  const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13)),
+                  Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13, tier: profile['verified_tier'])),
               ]),
               if (handle.isNotEmpty)
                 Text('@$handle', style: const TextStyle(color: Colors.white38, fontSize: 13)),
@@ -367,7 +367,7 @@ class _MyPostState extends State<_MyPost> {
                   child: Row(children: [
                     Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
                     if (widget.me?['verified'] == true)
-                      const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
+                      Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: widget.me?['verified_tier'])),
                     const SizedBox(width: 5),
                     Flexible(child: Text('@$handle · ${timeAgo(p['created_at'])}', overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white38, fontSize: 13))),
                   ]),

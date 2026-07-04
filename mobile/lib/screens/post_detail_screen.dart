@@ -54,7 +54,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               memberAvatar(author, 16),
               const SizedBox(width: 8),
               Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
-              if (author?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
+              if (author?['verified'] == true) Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: author?['verified_tier'])),
               const SizedBox(width: 6),
               Text(timeAgo(p['created_at']), style: const TextStyle(color: Colors.white38, fontSize: 12)),
             ]),

@@ -300,7 +300,7 @@ class _PostRowState extends State<_PostRow> {
               Expanded(
                 child: Row(children: [
                   Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
-                  if (author?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
+                  if (author?['verified'] == true) Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: author?['verified_tier'])),
                   const SizedBox(width: 5),
                   Flexible(child: Text('@$handle · ${timeAgo(p['created_at'])}', overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white38, fontSize: 13))),
                 ]),

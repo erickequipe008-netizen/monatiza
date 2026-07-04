@@ -131,7 +131,7 @@ class _MessagesBodyState extends State<MessagesBody> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [
                           Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
-                          if (prof?['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
+                          if (prof?['verified'] == true) Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: prof?['verified_tier'])),
                         ]),
                         const SizedBox(height: 2),
                         Row(children: [

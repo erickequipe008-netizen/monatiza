@@ -13,6 +13,14 @@ Future<void> main() async {
 /// Cliente Supabase compartilhado (mesmo banco/API do site).
 final supabase = Supabase.instance.client;
 
+/// Rolagem com "molinha" em todo o app (sensação iOS).
+class _AppleScrollBehavior extends MaterialScrollBehavior {
+  const _AppleScrollBehavior();
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+}
+
 class MonatizaApp extends StatelessWidget {
   const MonatizaApp({super.key});
 
@@ -21,10 +29,19 @@ class MonatizaApp extends StatelessWidget {
     return MaterialApp(
       title: 'Monatiza',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const _AppleScrollBehavior(),
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(kBg),
+        // Transições de tela deslizando (estilo iOS) e toque sem "tinta"
+        pageTransitionsTheme: const PageTransitionsTheme(builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        }),
+        splashFactory: NoSplash.splashFactory,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.white.withOpacity(0.06),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(kAccent),
           brightness: Brightness.dark,

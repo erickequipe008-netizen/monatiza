@@ -71,7 +71,7 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                       children: [
                         Row(children: [
                           Flexible(child: Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800))),
-                          if (p['verified'] == true) const Padding(padding: EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18)),
+                          if (p['verified'] == true) Padding(padding: const EdgeInsets.only(left: 6), child: VerifiedBadge(size: 18, tier: p['verified_tier'])),
                         ]),
                         Text("@${p['handle'] ?? ''}", style: const TextStyle(color: Colors.white38)),
                       ],

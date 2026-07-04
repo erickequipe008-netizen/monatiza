@@ -88,7 +88,7 @@ class _ChatScreenState extends State<ChatScreen> {
           memberAvatar(widget.other, 16),
           const SizedBox(width: 8),
           Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16))),
-          if (widget.other['verified'] == true) const Padding(padding: EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14)),
+          if (widget.other['verified'] == true) Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: widget.other['verified_tier'])),
         ]),
       ),
       body: Column(
