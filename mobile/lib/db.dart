@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final _sb = Supabase.instance.client;
@@ -55,21 +56,44 @@ Future<List<Map<String, dynamic>>> fetchUserPosts(String userId) async {
   return posts;
 }
 
+// Feed "Seguindo": posts de quem eu sigo (+ os meus).
+Future<List<Map<String, dynamic>>> fetchFollowingPosts() async {
+  final me = myId;
+  if (me == null) return [];
+  final fol = List<Map<String, dynamic>>.from(
+      await _sb.from('follows').select('following_id').eq('follower_id', me));
+  final ids = <dynamic>{me, ...fol.map((f) => f['following_id'])}.toList();
+  final posts = List<Map<String, dynamic>>.from(await _sb
+      .from('posts')
+      .select('id, user_id, content, image_url, created_at')
+      .isFilter('parent_id', null)
+      .inFilter('user_id', ids)
+      .order('created_at', ascending: false)
+      .limit(40));
+  if (posts.isEmpty) return posts;
+  await _enrich(posts);
+  return posts;
+}
+
 Future<void> _enrich(List<Map<String, dynamic>> posts) async {
   final ids = posts.map((p) => p['id']).toList();
   final authorIds = posts.map((p) => p['user_id']).toSet().toList();
   final profs = List<Map<String, dynamic>>.from(await _sb
       .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, verified')
+      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
       .inFilter('user_id', authorIds));
   final pmap = {for (final p in profs) p['user_id']: p};
   final likes = List<Map<String, dynamic>>.from(
       await _sb.from('post_likes').select('post_id, user_id').inFilter('post_id', ids));
+  final marks = List<Map<String, dynamic>>.from(
+      await _sb.from('post_bookmarks').select('post_id').inFilter('post_id', ids)); // RLS: só os meus
+  final bset = marks.map((m) => m['post_id']).toSet();
   final me = myId;
   for (final p in posts) {
     p['author'] = pmap[p['user_id']];
     p['likeCount'] = likes.where((l) => l['post_id'] == p['id']).length;
     p['likedByMe'] = likes.any((l) => l['post_id'] == p['id'] && l['user_id'] == me);
+    p['bookmarkedByMe'] = bset.contains(p['id']);
   }
 }
 
@@ -83,10 +107,51 @@ Future<void> togglePostLike(int postId, bool on) async {
   }
 }
 
-Future<void> createPost(String content) async {
+Future<void> togglePostBookmark(int postId, bool on) async {
   final me = myId;
-  if (me == null || content.trim().isEmpty) return;
-  await _sb.from('posts').insert({'user_id': me, 'content': content.trim()});
+  if (me == null) return;
+  if (on) {
+    await _sb.from('post_bookmarks').upsert({'post_id': postId, 'user_id': me});
+  } else {
+    await _sb.from('post_bookmarks').delete().eq('post_id', postId).eq('user_id', me);
+  }
+}
+
+Future<void> repost(int postId) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('posts').insert({'user_id': me, 'content': '', 'repost_of': postId});
+}
+
+Future<void> reportPost(int postId, String reason) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('reports').insert({'reporter_id': me, 'post_id': postId, 'reason': reason.trim().isEmpty ? null : reason.trim()});
+}
+
+Future<void> deletePost(int postId) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('posts').delete().eq('id', postId).eq('user_id', me);
+}
+
+Future<String?> uploadPostMedia(File file) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/posts/${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('community').upload(path, file);
+  return _sb.storage.from('community').getPublicUrl(path);
+}
+
+Future<void> createPost(String content, {String? imageUrl}) async {
+  final me = myId;
+  if (me == null || (content.trim().isEmpty && imageUrl == null)) return;
+  await _sb.from('posts').insert({
+    'user_id': me,
+    'content': content.trim(),
+    if (imageUrl != null) 'image_url': imageUrl,
+  });
 }
 
 // ── Perfis ──
