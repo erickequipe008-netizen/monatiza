@@ -31,14 +31,14 @@ class OnboardingScreen extends StatelessWidget {
               Positioned(
                 top: 34,
                 left: 46,
-                child: Transform.rotate(angle: -0.14, child: const _EmojiCard(emoji: '🙋‍♂️', size: 84)),
+                child: Transform.rotate(angle: -0.14, child: const _EmojiCard(asset: 'assets/emoji/man.png', size: 84)),
               ),
               Positioned(
                 top: 34,
                 right: 46,
-                child: Transform.rotate(angle: 0.14, child: const _EmojiCard(emoji: '🙋‍♀️', size: 84)),
+                child: Transform.rotate(angle: 0.14, child: const _EmojiCard(asset: 'assets/emoji/woman.png', size: 84)),
               ),
-              const Positioned(top: 0, child: _EmojiCard(emoji: '😄', size: 110)),
+              const Positioned(top: 0, child: _EmojiCard(asset: 'assets/emoji/smile.png', size: 110)),
               // Cartão preto do app com o "m"
               Positioned(
                 top: 128,
@@ -123,11 +123,11 @@ class OnboardingScreen extends StatelessWidget {
   }
 }
 
-/// Cartão branco arredondado com um emoji grande (estilo memoji).
+/// Cartão branco arredondado com emoji 3D (estilo memoji da Apple).
 class _EmojiCard extends StatelessWidget {
-  final String emoji;
+  final String asset;
   final double size;
-  const _EmojiCard({required this.emoji, required this.size});
+  const _EmojiCard({required this.asset, required this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +142,7 @@ class _EmojiCard extends StatelessWidget {
           BoxShadow(color: Colors.black.withOpacity(0.18), blurRadius: 18, offset: const Offset(0, 8)),
         ],
       ),
-      child: Text(emoji, style: TextStyle(fontSize: size * 0.5)),
+      child: Image.asset(asset, width: size * 0.62, height: size * 0.62),
     );
   }
 }

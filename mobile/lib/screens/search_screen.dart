@@ -170,7 +170,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: const EdgeInsets.only(left: 10),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(a['image_url'], width: 84, height: 64, fit: BoxFit.cover,
+                      child: Image.network(a['image_url'], width: 84, height: 64, fit: BoxFit.cover, cacheWidth: 200,
                           errorBuilder: (_, __, ___) => const SizedBox(width: 84, height: 64)),
                     ),
                   ),

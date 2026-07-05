@@ -81,14 +81,16 @@ class MonatizaApp extends StatelessWidget {
         brightness: b,
         surface: dark ? const Color(kBg) : Colors.white,
       ),
-      textTheme: GoogleFonts.manropeTextTheme(base.textTheme),
+      // Tipografia de portal de notícias: Inter, com títulos fortes.
+      textTheme: GoogleFonts.interTextTheme(base.textTheme),
       appBarTheme: AppBarTheme(
         backgroundColor: dark ? const Color(kBg) : const Color(0xFFF7F7FA),
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.manrope(
-            fontSize: 20, fontWeight: FontWeight.w800, color: dark ? Colors.white : const Color(0xFF0B0B10)),
+        titleTextStyle: GoogleFonts.inter(
+            fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.4,
+            color: dark ? Colors.white : const Color(0xFF0B0B10)),
         iconTheme: IconThemeData(color: dark ? Colors.white : const Color(0xFF0B0B10)),
       ),
       inputDecorationTheme: InputDecorationTheme(

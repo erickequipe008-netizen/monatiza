@@ -1,7 +1,7 @@
 name: monatiza
 description: Monatiza — app de notícias e comunidade (Android & iOS).
 publish_to: "none"
-version: 3.3.0+18
+version: 3.4.0+19
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -26,6 +26,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/emoji/
 
 # Ícone do app (o "m" preto no branco, contraste com apps escuros) — gerado no CI.
 flutter_launcher_icons:

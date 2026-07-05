@@ -206,7 +206,7 @@ class _FeedBodyState extends State<FeedBody> {
                   Expanded(
                     child: _HeroCard(article: destaque, onTap: () => _push(ReaderScreen(article: destaque))),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(children: [
                       Expanded(
@@ -218,7 +218,7 @@ class _FeedBodyState extends State<FeedBody> {
                           onTap: () => _push(ArticleListScreen(title: 'Exclusivo', load: fetchPremium)),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       Expanded(
                         child: _MiniCard(
                           icon: Icons.menu_book_outlined,
@@ -304,7 +304,8 @@ class _HeroCard extends StatelessWidget {
         onTap: onTap,
         child: Stack(fit: StackFit.expand, children: [
           if (a['image_url'] != null)
-            Image.network(a['image_url'], fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()),
+            Image.network(a['image_url'], fit: BoxFit.cover, cacheWidth: 640,
+                errorBuilder: (_, __, ___) => const SizedBox()),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -358,10 +359,15 @@ class _MiniCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(icon, size: 28, color: iconColor),
-            const SizedBox(height: 10),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16.5)),
+          // Preenche o quadro: ícone no topo, textos ancorados embaixo.
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              padding: const EdgeInsets.all(11),
+              decoration: BoxDecoration(color: iconColor.withOpacity(0.15), shape: BoxShape.circle),
+              child: Icon(icon, size: 26, color: iconColor),
+            ),
+            const Spacer(),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
             const SizedBox(height: 3),
             Text(subtitle,
                 maxLines: 1,
@@ -401,7 +407,7 @@ class _ArticleCard extends StatelessWidget {
           if (a['image_url'] != null)
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(a['image_url'], fit: BoxFit.cover,
+              child: Image.network(a['image_url'], fit: BoxFit.cover, cacheWidth: 1000,
                   errorBuilder: (_, __, ___) => Container(color: Colors.white10)),
             ),
           Padding(

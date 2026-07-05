@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 1750), () {
+    Future.delayed(const Duration(milliseconds: 1150), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
