@@ -134,10 +134,11 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: _i == 0
-            ? const Text('monatiza', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22, letterSpacing: -0.5))
-            : Text(_titles[_i], style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 19)),
+      // Na aba Início o cabeçalho fica dentro do conteúdo (avatar + busca).
+      appBar: _i == 0
+          ? null
+          : AppBar(
+        title: Text(_titles[_i], style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 19)),
         actions: [
           if (_i == 4)
             OutlinedButton(

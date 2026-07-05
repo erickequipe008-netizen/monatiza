@@ -178,6 +178,11 @@ Future<Map<String, dynamic>?> ensureProfile() async {
   }
 }
 
+/// Perfil completo de um membro (capa, link, bio etc.).
+Future<Map<String, dynamic>?> fetchProfile(String userId) async {
+  return await _sb.from('community_profiles').select().eq('user_id', userId).maybeSingle();
+}
+
 Future<List<Map<String, dynamic>>> recommendedProfiles() async {
   final me = myId;
   final fol = me == null

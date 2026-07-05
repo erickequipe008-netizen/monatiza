@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import '../db.dart';
+import '../widgets/avatar.dart';
 import 'reader_screen.dart';
+import 'search_screen.dart';
+import 'compose_screen.dart';
+import 'people_screen.dart';
+import 'member_profile_screen.dart';
+import 'article_list_screen.dart';
+import 'profile_screen.dart';
 
 const _accent = Color(0xFF1D9BF0);
 
-/// Notícias: todos os artigos em cards iguais (estilo Apple News / Discover).
+/// Início — saudação, pessoas, composer e destaques (estilo apps premium).
 class FeedBody extends StatefulWidget {
   const FeedBody({super.key});
   @override
@@ -12,6 +19,8 @@ class FeedBody extends StatefulWidget {
 }
 
 class _FeedBodyState extends State<FeedBody> {
+  Map<String, dynamic>? _me;
+  List<Map<String, dynamic>> _people = [];
   List<Map<String, dynamic>> _items = [];
   bool _loading = true;
 
@@ -22,29 +31,307 @@ class _FeedBodyState extends State<FeedBody> {
   }
 
   Future<void> _load() async {
-    final d = await fetchArticles();
-    if (mounted) setState(() { _items = d; _loading = false; });
+    final results = await Future.wait([
+      ensureProfile(),
+      recommendedProfiles(),
+      fetchArticles(),
+    ]);
+    if (mounted) {
+      setState(() {
+        _me = results[0] as Map<String, dynamic>?;
+        _people = (results[1] as List<Map<String, dynamic>>).take(12).toList();
+        _items = results[2] as List<Map<String, dynamic>>;
+        _loading = false;
+      });
+    }
   }
+
+  void _push(Widget s) => Navigator.push(context, MaterialPageRoute(builder: (_) => s));
 
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_items.isEmpty) {
-      return const Center(child: Text('Nada por aqui ainda.', style: TextStyle(color: Colors.white38)));
-    }
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 28),
-        itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 14),
-        itemBuilder: (c, i) => _ArticleCard(article: _items[i]),
+    final destaque = _items.isNotEmpty ? _items.first : null;
+    final rest = _items.length > 1 ? _items.sublist(1) : <Map<String, dynamic>>[];
+
+    return SafeArea(
+      bottom: false,
+      child: RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
+          children: [
+            // ---- Topo: avatar + busca ----
+            Row(children: [
+              GestureDetector(
+                onTap: () => _push(Scaffold(
+                  appBar: AppBar(title: const Text('Perfil', style: TextStyle(fontSize: 17))),
+                  body: const ProfileBody(),
+                )),
+                child: memberAvatar(_me, 21),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => _push(const SearchScreen()),
+                child: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.05),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: const Icon(Icons.search, size: 20, color: Colors.white70),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 20),
+            // ---- Título grande em dois tons ----
+            const Text.rich(
+              TextSpan(children: [
+                TextSpan(text: 'Seu mundo,\n', style: TextStyle(color: Colors.white)),
+                TextSpan(text: 'bem informado.', style: TextStyle(color: Colors.white38)),
+              ]),
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, height: 1.18, letterSpacing: -0.6),
+            ),
+            const SizedBox(height: 18),
+            // ---- Pessoas (sugestões) ----
+            if (_people.isNotEmpty) ...[
+              SizedBox(
+                height: 92,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _PersonBubble(
+                      label: 'Descobrir',
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.05),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: const Icon(Icons.add, size: 24, color: Colors.white70),
+                      ),
+                      onTap: () => _push(const PeopleScreen()),
+                    ),
+                    ..._people.map((p) => _PersonBubble(
+                          label: (p['display_name'] ?? p['handle'] ?? '').toString().split(' ').first,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: _accent.withOpacity(0.6), width: 1.6),
+                            ),
+                            child: memberAvatar(p, 25),
+                          ),
+                          onTap: () => _push(MemberProfileScreen(profile: p)),
+                        )),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            // ---- Composer ----
+            Material(
+              color: Colors.white.withOpacity(0.05),
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: Colors.white.withOpacity(0.06)),
+              ),
+              child: InkWell(
+                onTap: () => _push(const ComposeScreen()),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(children: [
+                    memberAvatar(_me, 17),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text('Comece uma publicação…',
+                          style: TextStyle(color: Colors.white38, fontSize: 14.5)),
+                    ),
+                    const Icon(Icons.image_outlined, size: 20, color: Colors.white38),
+                    const SizedBox(width: 14),
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: const BoxDecoration(shape: BoxShape.circle, color: _accent),
+                      child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                    ),
+                  ]),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // ---- Cartões: destaque + atalhos ----
+            if (destaque != null)
+              SizedBox(
+                height: 216,
+                child: Row(children: [
+                  Expanded(
+                    flex: 5,
+                    child: _HeroCard(article: destaque, onTap: () => _push(ReaderScreen(article: destaque))),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 4,
+                    child: Column(children: [
+                      Expanded(
+                        child: _MiniCard(
+                          icon: Icons.workspace_premium,
+                          iconColor: const Color(0xFFC9A24B),
+                          title: 'Exclusivo',
+                          subtitle: 'Para assinantes',
+                          onTap: () => _push(ArticleListScreen(title: 'Exclusivo', load: fetchPremium)),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: _MiniCard(
+                          icon: Icons.menu_book_outlined,
+                          iconColor: _accent,
+                          title: 'Revistas',
+                          subtitle: 'Edições especiais',
+                          onTap: () => _push(ArticleListScreen(title: 'Revistas', load: () => fetchByCategory('%Revista%'))),
+                        ),
+                      ),
+                    ]),
+                  ),
+                ]),
+              ),
+            const SizedBox(height: 26),
+            // ---- Últimas notícias ----
+            const Text('ÚLTIMAS NOTÍCIAS',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.white54, letterSpacing: 1.2)),
+            const SizedBox(height: 12),
+            ...rest.map((a) => Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: _ArticleCard(article: a),
+                )),
+            if (_items.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Center(child: Text('Nada por aqui ainda.', style: TextStyle(color: Colors.white38))),
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
+class _PersonBubble extends StatelessWidget {
+  final String label;
+  final Widget child;
+  final VoidCallback onTap;
+  const _PersonBubble({required this.label, required this.child, required this.onTap});
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 14),
+          child: Column(children: [
+            child,
+            const SizedBox(height: 6),
+            SizedBox(
+              width: 60,
+              child: Text(label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 11, color: Colors.white70)),
+            ),
+          ]),
+        ),
+      );
+}
+
+/// Cartão grande do destaque do dia (imagem de fundo + título).
+class _HeroCard extends StatelessWidget {
+  final Map<String, dynamic> article;
+  final VoidCallback onTap;
+  const _HeroCard({required this.article, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    final a = article;
+    return Material(
+      clipBehavior: Clip.antiAlias,
+      borderRadius: BorderRadius.circular(22),
+      color: const Color(0xFF101216),
+      child: InkWell(
+        onTap: onTap,
+        child: Stack(fit: StackFit.expand, children: [
+          if (a['image_url'] != null)
+            Image.network(a['image_url'], fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox()),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.transparent, Colors.black87],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.35, 1],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.end, children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(color: _accent, borderRadius: BorderRadius.circular(20)),
+                child: Text((a['category'] ?? 'DESTAQUE').toString().toUpperCase(),
+                    style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.4)),
+              ),
+              const SizedBox(height: 8),
+              Text(a['title'] ?? '',
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800, height: 1.2, color: Colors.white)),
+            ]),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _MiniCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _MiniCard({required this.icon, required this.iconColor, required this.title, required this.subtitle, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withOpacity(0.05),
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Colors.white.withOpacity(0.06)),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(icon, size: 22, color: iconColor),
+            const SizedBox(height: 8),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5)),
+            const SizedBox(height: 2),
+            Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Card padrão de notícia (imagem em cima, categoria, título, resumo).
 class _ArticleCard extends StatelessWidget {
   final Map<String, dynamic> article;
   const _ArticleCard({required this.article});
