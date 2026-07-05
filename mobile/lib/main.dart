@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config.dart';
 import 'screens/splash_screen.dart';
 
+/// Tema atual do app (escuro por padrão; o usuário alterna na home).
+final themeMode = ValueNotifier<ThemeMode>(ThemeMode.dark);
+
+Future<void> toggleTheme() async {
+  themeMode.value = themeMode.value == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('lightMode', themeMode.value == ThemeMode.light);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  final prefs = await SharedPreferences.getInstance();
+  if (prefs.getBool('lightMode') == true) themeMode.value = ThemeMode.light;
   runApp(const MonatizaApp());
 }
 
@@ -50,53 +62,56 @@ class _SlidePageTransitionsBuilder extends PageTransitionsBuilder {
 class MonatizaApp extends StatelessWidget {
   const MonatizaApp({super.key});
 
+  ThemeData _theme(Brightness b) {
+    final dark = b == Brightness.dark;
+    final base = ThemeData(brightness: b);
+    return ThemeData(
+      useMaterial3: true,
+      brightness: b,
+      scaffoldBackgroundColor: dark ? const Color(kBg) : const Color(0xFFF7F7FA),
+      pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        TargetPlatform.android: _SlidePageTransitionsBuilder(),
+        TargetPlatform.iOS: _SlidePageTransitionsBuilder(),
+      }),
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: dark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(kAccent),
+        brightness: b,
+        surface: dark ? const Color(kBg) : Colors.white,
+      ),
+      textTheme: GoogleFonts.manropeTextTheme(base.textTheme),
+      appBarTheme: AppBarTheme(
+        backgroundColor: dark ? const Color(kBg) : const Color(0xFFF7F7FA),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        titleTextStyle: GoogleFonts.manrope(
+            fontSize: 20, fontWeight: FontWeight.w800, color: dark ? Colors.white : const Color(0xFF0B0B10)),
+        iconTheme: IconThemeData(color: dark ? Colors.white : const Color(0xFF0B0B10)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.045),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Monatiza',
-      debugShowCheckedModeBanner: false,
-      scrollBehavior: const _AppleScrollBehavior(),
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(kBg),
-        // Transições de tela deslizando (estilo iOS) e toque sem "tinta"
-        pageTransitionsTheme: const PageTransitionsTheme(builders: {
-          TargetPlatform.android: _SlidePageTransitionsBuilder(),
-          TargetPlatform.iOS: _SlidePageTransitionsBuilder(),
-        }),
-        splashFactory: NoSplash.splashFactory,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.white.withOpacity(0.06),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(kAccent),
-          brightness: Brightness.dark,
-          surface: const Color(kBg),
-        ),
-        textTheme: GoogleFonts.manropeTextTheme(ThemeData(brightness: Brightness.dark).textTheme),
-        appBarTheme: AppBarTheme(
-          backgroundColor: const Color(kBg),
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          centerTitle: true,
-          titleTextStyle: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: const Color(0xFF000000),
-          elevation: 0,
-          height: 64,
-          indicatorColor: const Color(0xFF8B5CF6).withOpacity(0.22),
-          labelTextStyle: WidgetStatePropertyAll(
-            GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-        ),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeMode,
+      builder: (context, mode, _) => MaterialApp(
+        title: 'Monatiza',
+        debugShowCheckedModeBanner: false,
+        scrollBehavior: const _AppleScrollBehavior(),
+        theme: _theme(Brightness.light),
+        darkTheme: _theme(Brightness.dark),
+        themeMode: mode,
+        home: const SplashScreen(),
       ),
-      home: const SplashScreen(),
     );
   }
 }

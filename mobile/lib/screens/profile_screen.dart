@@ -142,34 +142,44 @@ class _ProfileBodyState extends State<ProfileBody> {
         padding: EdgeInsets.zero,
         children: [
           // ---- Capa + avatar sobreposto ----
-          Stack(clipBehavior: Clip.none, children: [
-            Container(
-              height: 118,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF8B5CF6), Color(0xFF0A0A0A)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          // Tudo dentro de uma área com altura própria: assim o botão de
+          // trocar a foto do avatar recebe o toque (fora dos limites do
+          // Stack o Flutter desenha, mas não deixa clicar).
+          SizedBox(
+            height: 176,
+            child: Stack(children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 118,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF8B5CF6), Color(0xFF0A0A0A)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    image: (cover != null && cover.isNotEmpty)
+                        ? DecorationImage(image: NetworkImage(cover), fit: BoxFit.cover)
+                        : null,
+                  ),
                 ),
-                image: (cover != null && cover.isNotEmpty)
-                    ? DecorationImage(image: NetworkImage(cover), fit: BoxFit.cover)
-                    : null,
               ),
-            ),
-            // Trocar capa
-            Positioned(right: 12, top: 12, child: _editDot(34, () => _changePhoto('cover'))),
-            Positioned(
-              left: 16,
-              bottom: -34,
-              child: Stack(clipBehavior: Clip.none, children: [
-                GradientAvatarRing(padding: 3, child: memberAvatar(p, 38)),
-                // Trocar foto de perfil
-                Positioned(right: -2, bottom: -2, child: _editDot(28, () => _changePhoto('avatar'))),
-              ]),
-            ),
-          ]),
-          const SizedBox(height: 50),
+              // Trocar capa
+              Positioned(right: 12, top: 12, child: _editDot(34, () => _changePhoto('cover'))),
+              Positioned(
+                left: 16,
+                top: 84,
+                child: Stack(children: [
+                  GradientAvatarRing(padding: 3, child: memberAvatar(p, 38)),
+                  // Trocar foto de perfil
+                  Positioned(right: 0, bottom: 0, child: _editDot(28, () => _changePhoto('avatar'))),
+                ]),
+              ),
+            ]),
+          ),
+          const SizedBox(height: 12),
           // ---- Nome / handle / bio / link / contagens ----
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),

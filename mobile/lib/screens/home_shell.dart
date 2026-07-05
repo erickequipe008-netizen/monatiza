@@ -42,7 +42,6 @@ class _HomeShellState extends State<HomeShell> {
   void _openMenu() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF16181C),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => SafeArea(
@@ -52,7 +51,7 @@ class _HomeShellState extends State<HomeShell> {
               margin: const EdgeInsets.only(top: 10, bottom: 6),
               width: 36,
               height: 4,
-              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(4)),
+              decoration: BoxDecoration(color: Colors.grey.withOpacity(0.4), borderRadius: BorderRadius.circular(4)),
             ),
             _MenuTile(icon: Icons.bookmark_border, label: 'Biblioteca', onTap: () => _go(const BibliotecaScreen())),
             _MenuTile(icon: Icons.menu_book_outlined, label: 'Revistas', onTap: () => _go(ArticleListScreen(title: 'Revistas', load: () => fetchByCategory('%Revista%')))),
@@ -77,7 +76,6 @@ class _HomeShellState extends State<HomeShell> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF16181C),
         title: const Text('Ajuda'),
         content: const Text('Precisa de ajuda ou quer falar com a gente?\n\ncontato@monatiza.com'),
         actions: [
@@ -99,7 +97,6 @@ class _HomeShellState extends State<HomeShell> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF16181C),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(
@@ -109,16 +106,17 @@ class _HomeShellState extends State<HomeShell> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.black12),
             ),
             child: const Text('m', style: TextStyle(color: Colors.black, fontSize: 28, fontWeight: FontWeight.w800)),
           ),
           const SizedBox(height: 14),
           const Text('Monatiza', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          const Text('Versão 3.1.0', style: TextStyle(color: Colors.white38, fontSize: 12)),
+          Text('Versão 3.3.0', style: TextStyle(color: Colors.grey.withOpacity(0.7), fontSize: 12)),
           const SizedBox(height: 10),
-          const Text('© 2026 Monatiza — notícias e comunidade.',
-              textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 13)),
+          Text('© 2026 Monatiza — notícias e comunidade.',
+              textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.withOpacity(0.85), fontSize: 13)),
         ]),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Fechar')),
@@ -132,7 +130,6 @@ class _HomeShellState extends State<HomeShell> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF16181C),
         title: const Text('Sair da conta?'),
         content: const Text('Você pode entrar de novo quando quiser.'),
         actions: [
@@ -157,12 +154,14 @@ class _HomeShellState extends State<HomeShell> {
             OutlinedButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContaScreen())),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.white24),
+                side: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.black26),
                 shape: const StadiumBorder(),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 minimumSize: const Size(0, 32),
                 visualDensity: VisualDensity.compact,
-                foregroundColor: Colors.white,
+                foregroundColor:
+                    Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF0B0B10),
               ),
               child: const Text('Editar perfil', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
             ),
@@ -185,13 +184,14 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = danger ? _danger : Colors.white;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = danger ? _danger : (dark ? Colors.white : const Color(0xFF0B0B10));
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 24),
       horizontalTitleGap: 14,
       visualDensity: const VisualDensity(vertical: -1),
-      leading: Icon(icon, size: 22, color: danger ? _danger : Colors.white70),
+      leading: Icon(icon, size: 22, color: danger ? _danger : (dark ? Colors.white70 : Colors.black54)),
       title: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 15)),
     );
   }
@@ -214,6 +214,7 @@ class _NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return SafeArea(
       top: false,
       child: Padding(
@@ -224,11 +225,15 @@ class _NavBar extends StatelessWidget {
               height: 62,
               padding: const EdgeInsets.symmetric(horizontal: 7),
               decoration: BoxDecoration(
-                color: const Color(0xFF14171B),
+                color: dark ? const Color(0xFF14171B) : Colors.white,
                 borderRadius: BorderRadius.circular(34),
-                border: Border.all(color: Colors.white.withOpacity(0.07)),
+                border: Border.all(
+                    color: dark ? Colors.white.withOpacity(0.07) : Colors.black.withOpacity(0.08)),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.55), blurRadius: 18, offset: const Offset(0, 6)),
+                  BoxShadow(
+                      color: Colors.black.withOpacity(dark ? 0.55 : 0.12),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6)),
                 ],
               ),
               child: Row(children: [
@@ -265,9 +270,9 @@ class _NavBar extends StatelessWidget {
                             height: 44,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.05),
+                              color: dark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                             ),
-                            child: Icon(_tabs[i].$1, size: 20, color: Colors.white60),
+                            child: Icon(_tabs[i].$1, size: 20, color: dark ? Colors.white60 : Colors.black54),
                           ),
                         ),
                       ),
@@ -287,12 +292,15 @@ class _NavBar extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
+                color: dark ? Colors.white : const Color(0xFF0B0B10),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 16, offset: const Offset(0, 5)),
+                  BoxShadow(
+                      color: Colors.black.withOpacity(dark ? 0.5 : 0.2),
+                      blurRadius: 16,
+                      offset: const Offset(0, 5)),
                 ],
               ),
-              child: const Icon(Icons.edit_outlined, size: 22, color: Colors.black),
+              child: Icon(Icons.edit_outlined, size: 22, color: dark ? Colors.black : Colors.white),
             ),
           ),
         ]),
