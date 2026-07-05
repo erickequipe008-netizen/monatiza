@@ -73,6 +73,15 @@ jobs:
           fi
           sed -i 's/android:label="monatiza"/android:label="Monatiza"/' android/app/src/main/AndroidManifest.xml
 
+      # Segurança: só HTTPS (sem tráfego em texto puro) e sem backup da
+      # sessão para fora do app.
+      - name: Endurecer segurança do app
+        run: |
+          MAN="android/app/src/main/AndroidManifest.xml"
+          grep -q 'usesCleartextTraffic' "$MAN" || \
+            sed -i 's/<application/<application android:usesCleartextTraffic="false" android:allowBackup="false"/' "$MAN"
+          grep -o 'android:usesCleartextTraffic="false"' "$MAN"
+
       - run: flutter pub get
 
       - name: Gerar ícone do app
@@ -122,9 +131,10 @@ jobs:
           open(gradle, 'w').write(s)
           PY
 
-      # Gera os três: AAB (loja), APK release e APK debug (teste rápido)
-      - run: flutter build appbundle --release
-      - run: flutter build apk --release
+      # Gera os três: AAB (loja), APK release e APK debug (teste rápido).
+      # Release com código ofuscado (dificulta engenharia reversa).
+      - run: flutter build appbundle --release --obfuscate --split-debug-info=build/symbols
+      - run: flutter build apk --release --obfuscate --split-debug-info=build/symbols
       - run: flutter build apk --debug
 
       - name: Publicar APKs como artefato

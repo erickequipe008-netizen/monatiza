@@ -78,7 +78,7 @@ class MonatizaApp extends StatelessWidget {
           backgroundColor: const Color(kBg),
           elevation: 0,
           scrolledUnderElevation: 0,
-          centerTitle: false,
+          centerTitle: true,
           titleTextStyle: GoogleFonts.manrope(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
         ),
         navigationBarTheme: NavigationBarThemeData(

@@ -249,42 +249,6 @@ Future<List<Map<String, dynamic>>> fetchPremium() async {
   return List<Map<String, dynamic>>.from(d);
 }
 
-// ── Reels (vídeos) ──
-Future<List<Map<String, dynamic>>> fetchReels() async {
-  final reels = List<Map<String, dynamic>>.from(await _sb
-      .from('reels')
-      .select('id, user_id, video_url, caption, created_at')
-      .order('created_at', ascending: false)
-      .limit(30));
-  if (reels.isEmpty) return reels;
-  final ids = reels.map((r) => r['id']).toList();
-  final authorIds = reels.map((r) => r['user_id']).toSet().toList();
-  final profs = List<Map<String, dynamic>>.from(await _sb
-      .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
-      .inFilter('user_id', authorIds));
-  final pmap = {for (final p in profs) p['user_id']: p};
-  final likes = List<Map<String, dynamic>>.from(
-      await _sb.from('reel_likes').select('reel_id, user_id').inFilter('reel_id', ids));
-  final me = myId;
-  for (final r in reels) {
-    r['author'] = pmap[r['user_id']];
-    r['likeCount'] = likes.where((l) => l['reel_id'] == r['id']).length;
-    r['likedByMe'] = likes.any((l) => l['reel_id'] == r['id'] && l['user_id'] == me);
-  }
-  return reels;
-}
-
-Future<void> toggleReelLike(int reelId, bool on) async {
-  final me = myId;
-  if (me == null) return;
-  if (on) {
-    await _sb.from('reel_likes').upsert({'reel_id': reelId, 'user_id': me});
-  } else {
-    await _sb.from('reel_likes').delete().eq('reel_id', reelId).eq('user_id', me);
-  }
-}
-
 // ── Biblioteca (salvar / curtir / histórico de matérias) ──
 Future<bool> isBookmarked(int articleId) async {
   final me = myId;

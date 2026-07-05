@@ -12,6 +12,7 @@ import 'article_list_screen.dart';
 import 'newsletter_screen.dart';
 import 'verificacao_screen.dart';
 import 'conta_screen.dart';
+import 'compose_screen.dart';
 
 const _danger = Color(0xFFE0263B);
 
@@ -184,72 +185,105 @@ class _MenuTile extends StatelessWidget {
   }
 }
 
-/// Barra inferior minimalista: ícones pequenos, rótulo discreto,
-/// ativo em branco com leve "pop" animado (estilo X/Threads).
+/// Dock flutuante: pílula escura com a aba ativa expandida (ícone +
+/// nome em azul) e botão de ação redondo separado — estilo iOS.
 class _NavBar extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTap;
   const _NavBar({required this.index, required this.onTap});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF000000),
-        border: Border(top: BorderSide(color: Colors.white10, width: 0.6)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 58,
-          child: Row(children: [
-            _NavItem(active: index == 0, icon: Icons.article_outlined, activeIcon: Icons.article, label: 'Notícias', onTap: () => onTap(0)),
-            _NavItem(active: index == 1, icon: Icons.people_outline, activeIcon: Icons.people, label: 'Comunidade', onTap: () => onTap(1)),
-            _NavItem(active: index == 2, icon: Icons.mail_outline, activeIcon: Icons.mail, label: 'Mensagens', onTap: () => onTap(2)),
-            _NavItem(active: index == 3, icon: Icons.explore_outlined, activeIcon: Icons.explore, label: 'Descobrir', onTap: () => onTap(3)),
-            _NavItem(active: index == 4, icon: Icons.person_outline, activeIcon: Icons.person, label: 'Perfil', onTap: () => onTap(4)),
-          ]),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final bool active;
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final VoidCallback onTap;
-  const _NavItem({required this.active, required this.icon, required this.activeIcon, required this.label, required this.onTap});
+  static const _tabs = [
+    (Icons.article_outlined, Icons.article, 'Notícias'),
+    (Icons.people_outline, Icons.people, 'Comunidade'),
+    (Icons.mail_outline, Icons.mail, 'Mensagens'),
+    (Icons.explore_outlined, Icons.explore, 'Descobrir'),
+    (Icons.person_outline, Icons.person, 'Perfil'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: active ? 1.0 : 0.0),
-          duration: const Duration(milliseconds: 260),
-          curve: Curves.easeOutCubic,
-          builder: (context, t, _) {
-            final color = Color.lerp(Colors.white38, Colors.white, t)!;
-            return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Transform.scale(
-                scale: 0.92 + 0.08 * t,
-                child: Icon(t > 0.5 ? activeIcon : icon, size: 23, color: color),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+        child: Row(children: [
+          Expanded(
+            child: Container(
+              height: 62,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              decoration: BoxDecoration(
+                color: const Color(0xFF14171B),
+                borderRadius: BorderRadius.circular(34),
+                border: Border.all(color: Colors.white.withOpacity(0.07)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.55), blurRadius: 18, offset: const Offset(0, 6)),
+                ],
               ),
-              const SizedBox(height: 3),
-              Text(label,
-                  style: TextStyle(
-                      fontSize: 10,
-                      color: color,
-                      fontWeight: t > 0.5 ? FontWeight.w700 : FontWeight.w500,
-                      letterSpacing: 0.1)),
-            ]);
-          },
-        ),
+              child: Row(children: [
+                for (var i = 0; i < _tabs.length; i++)
+                  if (i == index)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: Container(
+                        height: 46,
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1D9BF0),
+                          borderRadius: BorderRadius.circular(26),
+                        ),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Icon(_tabs[i].$2, size: 18, color: Colors.white),
+                          const SizedBox(width: 7),
+                          Text(_tabs[i].$3,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12.5)),
+                        ]),
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => onTap(i),
+                        child: Center(
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withOpacity(0.05),
+                            ),
+                            child: Icon(_tabs[i].$1, size: 20, color: Colors.white60),
+                          ),
+                        ),
+                      ),
+                    ),
+              ]),
+            ),
+          ),
+          const SizedBox(width: 10),
+          // Botão de ação: nova publicação
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ComposeScreen()));
+            },
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 16, offset: const Offset(0, 5)),
+                ],
+              ),
+              child: const Icon(Icons.edit_outlined, size: 22, color: Colors.black),
+            ),
+          ),
+        ]),
       ),
     );
   }
