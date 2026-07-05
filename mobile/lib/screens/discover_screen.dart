@@ -55,7 +55,7 @@ class _DiscoverBodyState extends State<DiscoverBody> {
               ),
               const SizedBox(height: 8),
               Text((a['category'] ?? '').toString().toUpperCase(),
-                  style: const TextStyle(color: Color(0xFF1D9BF0), fontSize: 10, fontWeight: FontWeight.w800)),
+                  style: const TextStyle(color: Color(0xFF8B5CF6), fontSize: 10, fontWeight: FontWeight.w800)),
               const SizedBox(height: 2),
               Expanded(
                 child: Text(a['title'] ?? '', maxLines: 3, overflow: TextOverflow.ellipsis,

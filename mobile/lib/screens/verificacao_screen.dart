@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
 import '../widgets/verified_badge.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 const _gold = Color(0xFFC9A24B);
 
 /// Verificação — igual ao site: escolha entre Selo Prata e Selo Ouro,

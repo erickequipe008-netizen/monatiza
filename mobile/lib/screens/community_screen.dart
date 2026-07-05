@@ -9,7 +9,7 @@ import '../widgets/verified_badge.dart';
 import 'member_profile_screen.dart';
 import 'post_detail_screen.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 const _like = Color(0xFFE0263B);
 
 bool _isVideo(String? u) => u != null && RegExp(r'\.(mp4|webm|mov|m4v)($|\?)', caseSensitive: false).hasMatch(u);
@@ -337,7 +337,7 @@ class _PostRowState extends State<_PostRow> {
               padding: const EdgeInsets.only(top: 8, bottom: 2),
               child: Row(children: [
                 _Action(icon: Icons.mode_comment_outlined, onTap: _openDetail),
-                _Action(icon: Icons.repeat, color: _reposted ? const Color(0xFF00BA7C) : Colors.white38, onTap: _repost),
+                _Action(icon: Icons.repeat, color: _reposted ? const Color(0xFF8B5CF6) : Colors.white38, onTap: _repost),
                 _Action(icon: _liked ? Icons.favorite : Icons.favorite_border, color: _liked ? _like : Colors.white38, label: _count > 0 ? '$_count' : null, onTap: _toggleLike),
                 _Action(icon: _saved ? Icons.bookmark : Icons.bookmark_border, color: _saved ? _accent : Colors.white38, onTap: _save),
               ]),

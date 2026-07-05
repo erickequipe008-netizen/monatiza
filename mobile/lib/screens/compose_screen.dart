@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 
 /// Compor publicação (aberto pela home) — texto + foto/vídeo.
 class ComposeScreen extends StatefulWidget {

@@ -10,7 +10,7 @@ import 'member_profile_screen.dart';
 import 'article_list_screen.dart';
 import 'profile_screen.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 
 /// Início — saudação, pessoas, composer e destaques (estilo apps premium).
 class FeedBody extends StatefulWidget {

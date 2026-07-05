@@ -85,7 +85,7 @@ class MonatizaApp extends StatelessWidget {
           backgroundColor: const Color(0xFF000000),
           elevation: 0,
           height: 64,
-          indicatorColor: const Color(0xFF1D9BF0).withOpacity(0.22),
+          indicatorColor: const Color(0xFF8B5CF6).withOpacity(0.22),
           labelTextStyle: WidgetStatePropertyAll(
             GoogleFonts.manrope(fontSize: 11, fontWeight: FontWeight.w600),
           ),

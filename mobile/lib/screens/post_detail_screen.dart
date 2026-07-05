@@ -119,7 +119,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   IconButton.filled(
                     onPressed: _sending ? null : _reply,
                     icon: _sending ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.send),
-                    style: IconButton.styleFrom(backgroundColor: const Color(0xFF1D9BF0)),
+                    style: IconButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
                   ),
                 ],
               ),

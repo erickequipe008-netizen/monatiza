@@ -6,7 +6,7 @@ import '../widgets/verified_badge.dart';
 import 'reader_screen.dart';
 import 'member_profile_screen.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 
 /// Busca — notícias e pessoas (contas por nome ou @).
 class SearchScreen extends StatefulWidget {

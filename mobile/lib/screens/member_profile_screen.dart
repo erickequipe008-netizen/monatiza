@@ -7,7 +7,7 @@ import '../widgets/ui.dart';
 import 'chat_screen.dart';
 import 'post_detail_screen.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 const _like = Color(0xFFE0263B);
 
 bool _isVideo(String? u) =>
@@ -92,7 +92,7 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF1D9BF0), Color(0xFF0A0A0A)],
+                          colors: [Color(0xFF8B5CF6), Color(0xFF0A0A0A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),

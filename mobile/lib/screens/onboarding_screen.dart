@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 
 /// Boas-vindas em 3 páginas (estilo grandes jornais): logo no topo,
 /// ilustração, título forte, texto de apoio, bolinhas e ações embaixo.
@@ -19,17 +19,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   static const _pages = [
     _PageData(
-      icon: Icons.article_outlined,
+      icon: Icons.language,
       title: 'As principais notícias\nem um só lugar',
       text: 'Jornalismo direto e rápido, do Brasil e do mundo, sem enrolação.',
     ),
     _PageData(
-      icon: Icons.people_outline,
+      icon: Icons.chat_bubble_outline,
       title: 'Participe da conversa',
       text: 'Publique, responda e siga quem pensa grande — a comunidade é sua.',
     ),
     _PageData(
-      icon: Icons.bookmark_border,
+      icon: Icons.auto_awesome,
       title: 'Salve para ler\nquando quiser',
       text: 'Biblioteca, revistas e conteúdo exclusivo para assinantes.',
     ),
@@ -156,16 +156,23 @@ class _Page extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        // Ilustração minimalista: ícone grande num anel fino
+        // Ilustração futurista: brilho lilás + cartão com borda em gradiente
         Container(
-          width: 148,
-          height: 148,
+          width: 132,
+          height: 132,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white12, width: 1.4),
-            color: Colors.white.withOpacity(0.04),
+            borderRadius: BorderRadius.circular(38),
+            gradient: LinearGradient(
+              colors: [_accent.withOpacity(0.35), Colors.white.withOpacity(0.02)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: _accent.withOpacity(0.5), width: 1.2),
+            boxShadow: [
+              BoxShadow(color: _accent.withOpacity(0.35), blurRadius: 70, spreadRadius: 6),
+            ],
           ),
-          child: Icon(data.icon, size: 62, color: _accent),
+          child: Icon(data.icon, size: 54, color: Colors.white),
         ),
         const SizedBox(height: 40),
         Text(data.title,

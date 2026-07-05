@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
 
-const _accent = Color(0xFF1D9BF0);
+const _accent = Color(0xFF8B5CF6);
 const _danger = Color(0xFFE0263B);
 const _base = 'https://www.monatiza.com/api/account';
 
@@ -169,11 +169,11 @@ class _ContaScreenState extends State<ContaScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: (active ? Colors.green : Colors.amber).withOpacity(0.2),
+                            color: (active ? const Color(0xFF8B5CF6) : Colors.amber).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(active ? 'Assinatura ativa' : status,
-                              style: TextStyle(color: active ? Colors.green : Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
+                              style: TextStyle(color: active ? const Color(0xFF8B5CF6) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
                         ),
                         if (plan != null)
                           Padding(padding: const EdgeInsets.only(left: 10), child: Text('Plano $plan', style: const TextStyle(color: Colors.white54))),

@@ -5,4 +5,4 @@ const String supabaseAnonKey = 'sb_publishable_RJW98-CWQNX5CEwRpA-Ajg_k7lhOM46';
 
 // Paleta (estilo X): preto puro + azul.
 const int kBg = 0xFF000000;
-const int kAccent = 0xFF1D9BF0;
+const int kAccent = 0xFF8B5CF6;

@@ -240,7 +240,7 @@ class _NavBar extends StatelessWidget {
                         height: 46,
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1D9BF0),
+                          color: const Color(0xFF8B5CF6),
                           borderRadius: BorderRadius.circular(26),
                         ),
                         child: Row(mainAxisSize: MainAxisSize.min, children: [

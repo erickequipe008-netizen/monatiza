@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-// Cor da marca (estilo X): azul chapado, sem roxo.
+// Marca: lilás futurista em gradiente (claro → profundo).
 const kProGradient = LinearGradient(
-  colors: [Color(0xFF1D9BF0), Color(0xFF1D9BF0)],
-  begin: Alignment.centerLeft,
-  end: Alignment.centerRight,
+  colors: [Color(0xFFA78BFA), Color(0xFF7C3AED)],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
 );
 
 class GradientButton extends StatelessWidget {
