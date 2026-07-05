@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
@@ -72,6 +75,57 @@ class _ProfileBodyState extends State<ProfileBody> {
   void _open(Widget screen) =>
       Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 
+  /// Escolhe, ajusta (centraliza) e sobe a foto de perfil ou capa.
+  Future<void> _changePhoto(String kind) async {
+    final x = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 92);
+    if (x == null) return;
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: x.path,
+      aspectRatio: kind == 'avatar'
+          ? const CropAspectRatio(ratioX: 1, ratioY: 1)
+          : const CropAspectRatio(ratioX: 3, ratioY: 1),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: kind == 'avatar' ? 'Ajustar foto' : 'Ajustar capa',
+          toolbarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          backgroundColor: Colors.black,
+          activeControlsWidgetColor: _accent,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(title: 'Ajustar', aspectRatioLockEnabled: true),
+      ],
+    );
+    if (cropped == null || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enviando foto…')));
+    final url = await uploadProfileImage(File(cropped.path), kind);
+    if (url == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Não foi possível enviar. Tente de novo.')));
+      }
+      return;
+    }
+    await updateMyProfile({kind == 'avatar' ? 'avatar_url' : 'cover_url': url});
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      _load();
+    }
+  }
+
+  Widget _editDot(double size, VoidCallback onTap) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black.withOpacity(0.75),
+            border: Border.all(color: Colors.white24),
+          ),
+          child: Icon(Icons.camera_alt_outlined, size: size * 0.52, color: Colors.white),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
@@ -103,10 +157,16 @@ class _ProfileBodyState extends State<ProfileBody> {
                     : null,
               ),
             ),
+            // Trocar capa
+            Positioned(right: 12, top: 12, child: _editDot(34, () => _changePhoto('cover'))),
             Positioned(
               left: 16,
               bottom: -34,
-              child: GradientAvatarRing(padding: 3, child: memberAvatar(p, 38)),
+              child: Stack(clipBehavior: Clip.none, children: [
+                GradientAvatarRing(padding: 3, child: memberAvatar(p, 38)),
+                // Trocar foto de perfil
+                Positioned(right: -2, bottom: -2, child: _editDot(28, () => _changePhoto('avatar'))),
+              ]),
             ),
           ]),
           const SizedBox(height: 50),

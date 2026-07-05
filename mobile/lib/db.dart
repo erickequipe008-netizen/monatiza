@@ -166,16 +166,28 @@ Future<Map<String, dynamic>?> ensureProfile() async {
       .first
       .replaceAll(RegExp(r'[^a-z0-9_]', caseSensitive: false), '')
       .toLowerCase();
-  final handle = base.isEmpty ? 'membro' : base;
-  try {
-    return await _sb
-        .from('community_profiles')
-        .insert({'user_id': u.id, 'handle': handle, 'display_name': u.userMetadata?['name'] ?? handle})
-        .select()
-        .maybeSingle();
-  } catch (_) {
-    return await _sb.from('community_profiles').select().eq('user_id', u.id).maybeSingle();
+  final base2 = base.isEmpty ? 'membro' : base;
+  final name = u.userMetadata?['name'] ?? base2;
+  // Tenta o @ do e-mail; se já existir, tenta variações com números.
+  for (final handle in [
+    base2,
+    '$base2${DateTime.now().millisecondsSinceEpoch % 1000}',
+    '$base2${DateTime.now().millisecondsSinceEpoch % 100000}',
+  ]) {
+    try {
+      final created = await _sb
+          .from('community_profiles')
+          .insert({'user_id': u.id, 'handle': handle, 'display_name': name})
+          .select()
+          .maybeSingle();
+      if (created != null) return created;
+    } catch (_) {
+      // handle em uso ou corrida — verifica se o perfil já foi criado
+      final mine = await _sb.from('community_profiles').select().eq('user_id', u.id).maybeSingle();
+      if (mine != null) return mine;
+    }
   }
+  return await _sb.from('community_profiles').select().eq('user_id', u.id).maybeSingle();
 }
 
 /// Perfil completo de um membro (capa, link, bio etc.).
@@ -343,9 +355,73 @@ Future<Map<String, dynamic>?> getSubscription() async {
 Future<Map<String, dynamic>> getVerification() async {
   final me = myId;
   if (me == null) return {'verified': false, 'status': null};
-  final prof = await _sb.from('community_profiles').select('verified').eq('user_id', me).maybeSingle();
-  final req = await _sb.from('verification_requests').select('status').eq('user_id', me).maybeSingle();
-  return {'verified': prof?['verified'] == true, 'status': req?['status']};
+  final prof = await _sb.from('community_profiles').select('verified, verified_tier').eq('user_id', me).maybeSingle();
+  final req = await _sb.from('verification_requests').select('status, tier').eq('user_id', me).maybeSingle();
+  return {
+    'verified': prof?['verified'] == true,
+    'tier': prof?['verified_tier'] ?? req?['tier'],
+    'status': req?['status'],
+  };
+}
+
+/// Marca a intenção de compra do selo (igual ao site) antes do checkout.
+Future<void> upsertVerificationRequest(String tier) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('verification_requests').upsert(
+    {'user_id': me, 'status': 'pending', 'tier': tier, 'updated_at': DateTime.now().toUtc().toIso8601String()},
+    onConflict: 'user_id',
+  );
+}
+
+/// Sobe documento/selfie no bucket privado `verification`. Retorna o caminho.
+Future<String?> uploadVerificationFile(File file, String kind) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/${kind}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('verification').upload(path, file);
+  return path;
+}
+
+Future<void> submitVerificationDocs(String docPath, String selfiePath) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('verification_requests').update({
+    'doc_url': docPath,
+    'selfie_url': selfiePath,
+    'status': 'review',
+    'updated_at': DateTime.now().toUtc().toIso8601String(),
+  }).eq('user_id', me);
+}
+
+/// Busca contas por nome ou @ (para a busca do app).
+Future<List<Map<String, dynamic>>> searchProfiles(String q) async {
+  final t = q.trim();
+  if (t.isEmpty) return [];
+  return List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, bio, verified, verified_tier')
+      .or('handle.ilike.%$t%,display_name.ilike.%$t%')
+      .limit(30));
+}
+
+/// Atualiza campos do meu perfil (ex.: avatar_url / cover_url).
+Future<void> updateMyProfile(Map<String, dynamic> fields) async {
+  final me = myId;
+  if (me == null) return;
+  fields['updated_at'] = DateTime.now().toUtc().toIso8601String();
+  await _sb.from('community_profiles').update(fields).eq('user_id', me);
+}
+
+/// Sobe imagem de perfil/capa no bucket público `community`.
+Future<String?> uploadProfileImage(File file, String kind) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/$kind/${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('community').upload(path, file);
+  return _sb.storage.from('community').getPublicUrl(path);
 }
 
 // ── Comentários (respostas a posts) ──

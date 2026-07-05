@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
@@ -29,22 +30,35 @@ class _CommunityBodyState extends State<CommunityBody> {
   bool _posting = false;
   File? _file;
   bool _fileIsVideo = false;
+  RealtimeChannel? _rt;
 
   @override
   void initState() {
     super.initState();
     ensureProfile().then((p) { if (mounted) setState(() => _me = p); });
     _load();
+    // Tempo real: nova publicação de qualquer pessoa aparece sozinha.
+    _rt = Supabase.instance.client
+        .channel('rt-community')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'posts',
+          callback: (_) { if (mounted && !_posting) _load(silent: true); },
+        )
+        .subscribe();
   }
 
   @override
   void dispose() {
+    final ch = _rt;
+    if (ch != null) Supabase.instance.client.removeChannel(ch);
     _ctrl.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    setState(() => _loading = true);
+  Future<void> _load({bool silent = false}) async {
+    if (!silent) setState(() => _loading = true);
     final d = _tab == 1 ? await fetchFollowingPosts() : await fetchPosts();
     if (mounted) setState(() { _posts = d; _loading = false; });
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../db.dart';
 import '../widgets/avatar.dart';
 import 'reader_screen.dart';
@@ -23,11 +24,35 @@ class _FeedBodyState extends State<FeedBody> {
   List<Map<String, dynamic>> _people = [];
   List<Map<String, dynamic>> _items = [];
   bool _loading = true;
+  RealtimeChannel? _rt;
 
   @override
   void initState() {
     super.initState();
     _load();
+    // Tempo real: matéria nova e conta nova aparecem sozinhas.
+    _rt = Supabase.instance.client
+        .channel('rt-home')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'articles',
+          callback: (_) { if (mounted) _load(); },
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'community_profiles',
+          callback: (_) { if (mounted) _load(); },
+        )
+        .subscribe();
+  }
+
+  @override
+  void dispose() {
+    final ch = _rt;
+    if (ch != null) Supabase.instance.client.removeChannel(ch);
+    super.dispose();
   }
 
   Future<void> _load() async {

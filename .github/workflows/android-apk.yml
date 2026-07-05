@@ -81,6 +81,10 @@ jobs:
           grep -q 'usesCleartextTraffic' "$MAN" || \
             sed -i 's/<application/<application android:usesCleartextTraffic="false" android:allowBackup="false"/' "$MAN"
           grep -o 'android:usesCleartextTraffic="false"' "$MAN"
+          # Tela nativa de ajuste/centralização de foto (image_cropper)
+          grep -q 'UCropActivity' "$MAN" || \
+            sed -i 's|</application>|    <activity android:name="com.yalantis.ucrop.UCropActivity" android:screenOrientation="portrait" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>\n    </application>|' "$MAN"
+          grep -o 'UCropActivity' "$MAN"
 
       - run: flutter pub get
 

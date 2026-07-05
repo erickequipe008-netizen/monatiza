@@ -96,21 +96,33 @@ class _HomeShellState extends State<HomeShell> {
 
   void _about() {
     Navigator.pop(context);
-    showAboutDialog(
+    showDialog(
       context: context,
-      applicationName: 'Monatiza',
-      applicationVersion: '2.4.0',
-      applicationLegalese: '© 2026 Monatiza — notícias e comunidade.',
-      applicationIcon: Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white12),
-        ),
-        child: const Text('m', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF16181C),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            width: 56,
+            height: 56,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Text('m', style: TextStyle(color: Colors.black, fontSize: 28, fontWeight: FontWeight.w800)),
+          ),
+          const SizedBox(height: 14),
+          const Text('Monatiza', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          const Text('Versão 3.1.0', style: TextStyle(color: Colors.white38, fontSize: 12)),
+          const SizedBox(height: 10),
+          const Text('© 2026 Monatiza — notícias e comunidade.',
+              textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 13)),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Fechar')),
+        ],
       ),
     );
   }
