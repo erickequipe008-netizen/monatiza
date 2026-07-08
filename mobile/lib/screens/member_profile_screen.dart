@@ -216,8 +216,8 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                   Divider(height: 1, color: t12(context)),
                   // ---- Publicações (estilo X) ----
                   if (_posts.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
                       child: Center(
                           child: Text('Nenhuma publicação ainda.',
                               style: TextStyle(color: t38(context)))),

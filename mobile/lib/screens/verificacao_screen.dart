@@ -195,9 +195,9 @@ class _VerificacaoScreenState extends State<VerificacaoScreen> {
           Row(children: [
             const VerifiedBadge(size: 30),
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Confirme sua identidade', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                const Text('Confirme sua identidade', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                 Text('Pagamento confirmado · falta só verificar', style: TextStyle(color: t38(context), fontSize: 12)),
               ]),
             ),
