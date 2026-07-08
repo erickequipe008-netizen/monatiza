@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import '../widgets/ui.dart';
@@ -63,10 +64,10 @@ class _MessagesBodyState extends State<MessagesBody> {
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           if (startable.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 14, 16, 10),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
               child: Text("INICIAR CONVERSA",
-                  style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+                  style: TextStyle(color: t38(context), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
             ),
             SizedBox(
               height: 92,
@@ -88,33 +89,33 @@ class _MessagesBodyState extends State<MessagesBody> {
                           decoration: const BoxDecoration(shape: BoxShape.circle, gradient: kProGradient),
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF000000)),
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(c).scaffoldBackgroundColor),
                             child: memberAvatar(p, 25),
                           ),
                         ),
                         const SizedBox(height: 5),
-                        Text(nm, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: Colors.white54)),
+                        Text(nm, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: t54(c))),
                       ]),
                     ),
                   );
                 },
               ),
             ),
-            const Divider(height: 18, color: Colors.white10),
+            Divider(height: 18, color: t12(context)),
           ],
           if (_convs.isEmpty && startable.isEmpty)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(32, 80, 32, 32),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 80, 32, 32),
               child: Center(
                 child: Text("Nenhuma conversa ainda.\nAbra o perfil de alguém e toque em Mensagem.",
-                    textAlign: TextAlign.center, style: TextStyle(color: Colors.white38)),
+                    textAlign: TextAlign.center, style: TextStyle(color: t38(context))),
               ),
             )
           else if (_convs.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 6, 16, 4),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
               child: Text("RECENTES",
-                  style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+                  style: TextStyle(color: t38(context), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
             ),
             ..._convs.map((conv) {
               final prof = conv['profile'] as Map<String, dynamic>?;
@@ -135,13 +136,13 @@ class _MessagesBodyState extends State<MessagesBody> {
                         ]),
                         const SizedBox(height: 2),
                         Row(children: [
-                          if (fromMe) const Text("Você: ", style: TextStyle(color: Colors.white38, fontSize: 13)),
-                          Expanded(child: Text(conv['content'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white54, fontSize: 13))),
+                          if (fromMe) Text("Você: ", style: TextStyle(color: t38(context), fontSize: 13)),
+                          Expanded(child: Text(conv['content'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: t54(context), fontSize: 13))),
                         ]),
                       ]),
                     ),
                     const SizedBox(width: 8),
-                    Text(timeAgo(conv['created_at']), style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                    Text(timeAgo(conv['created_at']), style: TextStyle(color: t38(context), fontSize: 11)),
                   ]),
                 ),
               );

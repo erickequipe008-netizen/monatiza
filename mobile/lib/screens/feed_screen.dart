@@ -201,7 +201,7 @@ class _FeedBodyState extends State<FeedBody> {
             // ---- Cartões: destaque + atalhos (mesmo tamanho, mais presença) ----
             if (destaque != null)
               SizedBox(
-                height: 244,
+                height: 256,
                 child: Row(children: [
                   Expanded(
                     child: _HeroCard(article: destaque, onTap: () => _push(ReaderScreen(article: destaque))),
@@ -362,17 +362,20 @@ class _MiniCard extends StatelessWidget {
           // Preenche o quadro: ícone no topo, textos ancorados embaixo.
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
-              padding: const EdgeInsets.all(11),
+              padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(color: iconColor.withOpacity(0.15), shape: BoxShape.circle),
-              child: Icon(icon, size: 26, color: iconColor),
+              child: Icon(icon, size: 22, color: iconColor),
             ),
             const Spacer(),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17)),
-            const SizedBox(height: 3),
+            Text(title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            const SizedBox(height: 2),
             Text(subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: dark ? Colors.white38 : Colors.black45, fontSize: 12)),
+                style: TextStyle(color: dark ? Colors.white38 : Colors.black45, fontSize: 11.5)),
           ]),
         ),
       ),

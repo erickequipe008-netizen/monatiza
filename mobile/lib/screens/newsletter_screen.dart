@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 
 const _cats = ["Negócios", "IA", "Mercado", "Brasil", "Política", "Tech", "Empreende", "Startups", "Carreira", "Saúde", "Revista"];
 const _freqs = {"diaria": "Diária", "semanal": "Semanal", "mensal": "Mensal"};
@@ -45,7 +46,7 @@ class _NewsletterScreenState extends State<NewsletterScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const Text("Temas", style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white70)),
+                Text("Temas", style: TextStyle(fontWeight: FontWeight.w800, color: t70(context))),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -61,7 +62,7 @@ class _NewsletterScreenState extends State<NewsletterScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: 24),
-                const Text("Frequência", style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white70)),
+                Text("Frequência", style: TextStyle(fontWeight: FontWeight.w800, color: t70(context))),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,

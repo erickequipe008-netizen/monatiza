@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/verified_badge.dart';
 
 const _accent = Color(0xFF8B5CF6);
@@ -127,8 +128,8 @@ class _VerificacaoScreenState extends State<VerificacaoScreen> {
       const Text('Escolha seu selo',
           textAlign: TextAlign.center, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
       const SizedBox(height: 6),
-      const Text('Autentique sua conta e ganhe mais credibilidade e alcance.',
-          textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 13.5)),
+      Text('Autentique sua conta e ganhe mais credibilidade e alcance.',
+          textAlign: TextAlign.center, style: TextStyle(color: t54(context), fontSize: 13.5)),
       if (_error != null)
         Padding(
           padding: const EdgeInsets.only(top: 12),
@@ -166,30 +167,30 @@ class _VerificacaoScreenState extends State<VerificacaoScreen> {
         onBuy: () => _buy('gold'),
       ),
       const SizedBox(height: 14),
-      const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.lock_outline, size: 12, color: Colors.white38),
-        SizedBox(width: 5),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(Icons.lock_outline, size: 12, color: t38(context)),
+        const SizedBox(width: 5),
         Text('Assinatura mensal e segura • cancele quando quiser',
-            style: TextStyle(color: Colors.white38, fontSize: 11)),
+            style: TextStyle(color: t38(context), fontSize: 11)),
       ]),
     ]);
   }
 
   Widget _stateBox(Widget icon, String title, String sub) => Container(
         padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(22)),
+        decoration: BoxDecoration(color: tCardC(context), borderRadius: BorderRadius.circular(22), border: Border.all(color: t12(context))),
         child: Column(children: [
           icon,
           const SizedBox(height: 16),
           Text(title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
-          Text(sub, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white54)),
+          Text(sub, textAlign: TextAlign.center, style: TextStyle(color: t54(context))),
         ]),
       );
 
   Widget _uploadBox() => Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(22)),
+        decoration: BoxDecoration(color: tCardC(context), borderRadius: BorderRadius.circular(22), border: Border.all(color: t12(context))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
             const VerifiedBadge(size: 30),
@@ -197,7 +198,7 @@ class _VerificacaoScreenState extends State<VerificacaoScreen> {
             const Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Confirme sua identidade', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                Text('Pagamento confirmado · falta só verificar', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                Text('Pagamento confirmado · falta só verificar', style: TextStyle(color: t38(context), fontSize: 12)),
               ]),
             ),
           ]),
@@ -227,10 +228,10 @@ class _VerificacaoScreenState extends State<VerificacaoScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(Icons.lock_outline, size: 11, color: Colors.white38),
-            SizedBox(width: 5),
-            Text('Envio privado e criptografado', style: TextStyle(color: Colors.white38, fontSize: 11)),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.lock_outline, size: 11, color: t38(context)),
+            const SizedBox(width: 5),
+            Text('Envio privado e criptografado', style: TextStyle(color: t38(context), fontSize: 11)),
           ]),
         ]),
       );
@@ -242,14 +243,14 @@ class _VerificacaoScreenState extends State<VerificacaoScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: file != null ? _accent : Colors.white24),
+            border: Border.all(color: file != null ? _accent : t24(context)),
           ),
           child: Row(children: [
-            Icon(icon, size: 20, color: file != null ? _accent : Colors.white54),
+            Icon(icon, size: 20, color: file != null ? _accent : t54(context)),
             const SizedBox(width: 10),
             Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
             Icon(file != null ? Icons.check_circle : Icons.add_circle_outline,
-                size: 20, color: file != null ? _accent : Colors.white38),
+                size: 20, color: file != null ? _accent : t38(context)),
           ]),
         ),
       );
@@ -281,9 +282,9 @@ class _SeloCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: tCardC(context),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: highlight ? _gold.withOpacity(0.5) : Colors.white.withOpacity(0.08)),
+        border: Border.all(color: highlight ? _gold.withOpacity(0.5) : t12(context)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
@@ -301,16 +302,16 @@ class _SeloCard extends StatelessWidget {
                     child: const Text('POPULAR', style: TextStyle(color: _gold, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
                   ),
               ]),
-              Text(desc, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+              Text(desc, style: TextStyle(color: t54(context), fontSize: 12)),
             ]),
           ),
         ]),
         const SizedBox(height: 14),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(price, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 3, left: 4),
-            child: Text('/mês', style: TextStyle(color: Colors.white38, fontSize: 12)),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 3, left: 4),
+            child: Text('/mês', style: TextStyle(color: t38(context), fontSize: 12)),
           ),
         ]),
         const SizedBox(height: 12),
@@ -324,7 +325,7 @@ class _SeloCard extends StatelessWidget {
                   child: Icon(Icons.check, size: 11, color: tint),
                 ),
                 const SizedBox(width: 8),
-                Expanded(child: Text(b, style: const TextStyle(fontSize: 13, height: 1.35, color: Colors.white70))),
+                Expanded(child: Text(b, style: TextStyle(fontSize: 13, height: 1.35, color: t70(context)))),
               ]),
             )),
         const SizedBox(height: 8),

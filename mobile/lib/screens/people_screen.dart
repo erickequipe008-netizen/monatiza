@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import 'member_profile_screen.dart';
@@ -30,7 +31,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _people.isEmpty
-              ? const Center(child: Text('Nenhuma sugestão no momento.', style: TextStyle(color: Colors.white38)))
+              ? Center(child: Text('Nenhuma sugestão no momento.', style: TextStyle(color: t38(context))))
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: _people.length,
@@ -52,15 +53,15 @@ class _PeopleScreenState extends State<PeopleScreen> {
                                 if (p['verified'] == true)
                                   Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13, tier: p['verified_tier'])),
                               ]),
-                              Text('@${p['handle'] ?? ''}', style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                              Text('@${p['handle'] ?? ''}', style: TextStyle(color: t38(c), fontSize: 13)),
                               if (bio.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
-                                  child: Text(bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.35)),
+                                  child: Text(bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: t70(c), fontSize: 13, height: 1.35)),
                                 ),
                             ]),
                           ),
-                          const Icon(Icons.chevron_right, color: Colors.white24),
+                          Icon(Icons.chevron_right, color: t24(c)),
                         ]),
                       ),
                     );

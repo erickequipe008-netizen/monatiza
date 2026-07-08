@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import '../widgets/ui.dart';
@@ -97,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _msgs.isEmpty
-                    ? const Center(child: Text("Diga olá 👋", style: TextStyle(color: Colors.white38)))
+                    ? Center(child: Text("Diga olá 👋", style: TextStyle(color: t38(context))))
                     : ListView.builder(
                         controller: _scroll,
                         padding: const EdgeInsets.all(12),
@@ -118,7 +119,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                     decoration: BoxDecoration(
                                       gradient: mine ? kProGradient : null,
-                                      color: mine ? null : Colors.white10,
+                                      color: mine ? null : t10(context),
                                       borderRadius: BorderRadius.only(
                                         topLeft: const Radius.circular(18),
                                         topRight: const Radius.circular(18),
@@ -126,7 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         bottomRight: Radius.circular(mine ? 4 : 18),
                                       ),
                                     ),
-                                    child: Text(m['content'] ?? '', style: const TextStyle(color: Colors.white)),
+                                    child: Text(m['content'] ?? '', style: TextStyle(color: mine ? Colors.white : tInk(context))),
                                   ),
                                 ),
                               ],
@@ -148,7 +149,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       decoration: InputDecoration(
                         hintText: "Escreva uma mensagem…",
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.06),
+                        fillColor: tFillC(context),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(26), borderSide: BorderSide.none),
                         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(26), borderSide: BorderSide.none),

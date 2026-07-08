@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 
 class ReaderScreen extends StatefulWidget {
   final Map<String, dynamic> article;
@@ -89,21 +90,21 @@ class _ReaderScreenState extends State<ReaderScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white10,
+                color: t10(context),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: t12(context)),
               ),
-              child: const Column(children: [
-                Icon(Icons.lock_outline, color: Color(kAccent)),
-                SizedBox(height: 12),
-                Text('Conteúdo de assinante', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800), textAlign: TextAlign.center),
-                SizedBox(height: 8),
+              child: Column(children: [
+                const Icon(Icons.lock_outline, color: Color(kAccent)),
+                const SizedBox(height: 12),
+                const Text('Conteúdo de assinante', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800), textAlign: TextAlign.center),
+                const SizedBox(height: 8),
                 Text('Assine a Monatiza para ler esta e outras matérias exclusivas.',
-                    style: TextStyle(color: Colors.white60), textAlign: TextAlign.center),
+                    style: TextStyle(color: t60(context)), textAlign: TextAlign.center),
               ]),
             )
           else
-            Text(_plain(_body ?? ''), style: const TextStyle(fontSize: 17, height: 1.7, color: Color(0xFFD4D4D8))),
+            Text(_plain(_body ?? ''), style: TextStyle(fontSize: 17, height: 1.7, color: tBody(context))),
         ],
       ),
     );

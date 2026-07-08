@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import 'member_profile_screen.dart';
@@ -44,7 +45,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final name = (author?['display_name'] ?? author?['handle'] ?? 'Membro').toString();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white10))),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t12(context)))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,7 +57,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold))),
               if (author?['verified'] == true) Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: author?['verified_tier'])),
               const SizedBox(width: 6),
-              Text(timeAgo(p['created_at']), style: const TextStyle(color: Colors.white38, fontSize: 12)),
+              Text(timeAgo(p['created_at']), style: TextStyle(color: t38(context), fontSize: 12)),
             ]),
           ),
           if ((p['content'] ?? '').toString().isNotEmpty)
@@ -91,14 +92,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 _postRow(widget.post, big: true),
-                const Padding(
-                  padding: EdgeInsets.only(top: 14, bottom: 4),
-                  child: Text("RESPOSTAS", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white38, letterSpacing: 1.2)),
+                Padding(
+                  padding: const EdgeInsets.only(top: 14, bottom: 4),
+                  child: Text("RESPOSTAS", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: t38(context), letterSpacing: 1.2)),
                 ),
                 if (_loading)
                   const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()))
                 else if (_replies.isEmpty)
-                  const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text("Seja o primeiro a responder.", style: TextStyle(color: Colors.white38)))
+                  Padding(padding: const EdgeInsets.symmetric(vertical: 20), child: Text("Seja o primeiro a responder.", style: TextStyle(color: t38(context))))
                 else
                   ..._replies.map((r) => _postRow(r)),
               ],

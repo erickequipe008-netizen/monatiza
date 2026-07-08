@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import 'reader_screen.dart';
@@ -82,10 +83,10 @@ class _SearchScreenState extends State<SearchScreen> {
             style: const TextStyle(fontSize: 15),
             decoration: InputDecoration(
               hintText: _tab == 0 ? 'Buscar notícias…' : 'Buscar contas (@ ou nome)…',
-              hintStyle: const TextStyle(color: Colors.white38),
-              prefixIcon: const Icon(Icons.search, size: 20, color: Colors.white38),
+              hintStyle: TextStyle(color: t38(context)),
+              prefixIcon: Icon(Icons.search, size: 20, color: t38(context)),
               filled: true,
-              fillColor: const Color(0xFF101216),
+              fillColor: tFillC(context),
               contentPadding: EdgeInsets.zero,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
             ),
@@ -99,7 +100,7 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: const Color(0xFF101216),
+              color: tFillC(context),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Row(children: [
@@ -128,7 +129,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
-                    color: _tab == i ? Colors.white : Colors.white54)),
+                    color: _tab == i ? Colors.white : t54(context))),
           ),
         ),
       );
@@ -137,7 +138,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (_loading) return const Center(child: CircularProgressIndicator());
     final items = _articleResults;
     if (items.isEmpty) {
-      return const Center(child: Text('Nada encontrado.', style: TextStyle(color: Colors.white38)));
+      return Center(child: Text('Nada encontrado.', style: TextStyle(color: t38(context))));
     }
     return ListView.separated(
       padding: const EdgeInsets.all(16),
@@ -146,7 +147,7 @@ class _SearchScreenState extends State<SearchScreen> {
       itemBuilder: (c, i) {
         final a = items[i];
         return Material(
-          color: Colors.white.withOpacity(0.05),
+          color: tCardC(context),
           clipBehavior: Clip.antiAlias,
           borderRadius: BorderRadius.circular(16),
           child: InkWell(
@@ -184,13 +185,13 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _peopleList() {
     if (_q.trim().isEmpty) {
-      return const Center(
+      return Center(
           child: Text('Digite um nome ou @ para buscar contas.',
-              style: TextStyle(color: Colors.white38)));
+              style: TextStyle(color: t38(context))));
     }
     if (_searchingPeople) return const Center(child: CircularProgressIndicator());
     if (_people.isEmpty) {
-      return const Center(child: Text('Nenhuma conta encontrada.', style: TextStyle(color: Colors.white38)));
+      return Center(child: Text('Nenhuma conta encontrada.', style: TextStyle(color: t38(context))));
     }
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -213,15 +214,15 @@ class _SearchScreenState extends State<SearchScreen> {
                     if (p['verified'] == true)
                       Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13, tier: p['verified_tier'])),
                   ]),
-                  Text('@${p['handle'] ?? ''}', style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                  Text('@${p['handle'] ?? ''}', style: TextStyle(color: t38(context), fontSize: 13)),
                   if (bio.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text(bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.35)),
+                      child: Text(bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: t70(context), fontSize: 13, height: 1.35)),
                     ),
                 ]),
               ),
-              const Icon(Icons.chevron_right, color: Colors.white24),
+              Icon(Icons.chevron_right, color: t24(context)),
             ]),
           ),
         );

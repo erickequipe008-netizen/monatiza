@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/tone.dart';
 import 'reader_screen.dart';
 
 /// Lista de matérias reutilizável (Revistas, Exclusivo, Biblioteca…).
@@ -29,14 +30,14 @@ class _ArticleListViewState extends State<ArticleListView> {
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_items.isEmpty) {
-      return Center(child: Text(widget.emptyText, style: const TextStyle(color: Colors.white38)));
+      return Center(child: Text(widget.emptyText, style: TextStyle(color: t38(context))));
     }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: _items.length,
-        separatorBuilder: (_, __) => const Divider(height: 28, color: Colors.white12),
+        separatorBuilder: (_, __) => Divider(height: 28, color: t12(context)),
         itemBuilder: (c, i) {
           final a = _items[i];
           return InkWell(

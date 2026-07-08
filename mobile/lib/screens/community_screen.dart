@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import 'member_profile_screen.dart';
@@ -72,7 +73,6 @@ class _CommunityBodyState extends State<CommunityBody> {
   Future<void> _pickMedia() async {
     final choice = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: const Color(0xFF16181C),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -112,7 +112,7 @@ class _CommunityBodyState extends State<CommunityBody> {
             _TabBtn(label: 'Seguindo', active: _tab == 1, onTap: () => _switch(1)),
           ],
         ),
-        const Divider(height: 1, color: Colors.white12),
+        Divider(height: 1, color: t12(context)),
         Expanded(
           child: RefreshIndicator(
             onRefresh: _load,
@@ -121,11 +121,11 @@ class _CommunityBodyState extends State<CommunityBody> {
               padding: EdgeInsets.zero,
               children: [
                 _composer(),
-                const Divider(height: 1, color: Colors.white12),
+                Divider(height: 1, color: t12(context)),
                 if (_loading)
                   const Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator()))
                 else if (_posts.isEmpty)
-                  const Padding(padding: EdgeInsets.all(40), child: Center(child: Text('Seja o primeiro a publicar.', style: TextStyle(color: Colors.white38))))
+                  Padding(padding: const EdgeInsets.all(40), child: Center(child: Text('Seja o primeiro a publicar.', style: TextStyle(color: t38(context)))))
                 else
                   ..._posts.map((p) => _PostRow(post: p, onChanged: _load)),
               ],
@@ -183,12 +183,12 @@ class _CommunityBodyState extends State<CommunityBody> {
             ElevatedButton(
               onPressed: _posting ? null : _publish,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white, foregroundColor: Colors.black,
+                backgroundColor: tInk(context), foregroundColor: isDarkC(context) ? Colors.black : Colors.white,
                 shape: const StadiumBorder(), padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
                 textStyle: const TextStyle(fontWeight: FontWeight.w800),
               ),
               child: _posting
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                  ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: isDarkC(context) ? Colors.black : Colors.white))
                   : const Text('Publicar'),
             ),
           ]),
@@ -212,7 +212,7 @@ class _TabBtn extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
           alignment: Alignment.center,
           child: Column(children: [
-            Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: active ? Colors.white : Colors.white54)),
+            Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: active ? tInk(context) : t54(context))),
             const SizedBox(height: 8),
             Container(height: 3, width: 44, decoration: BoxDecoration(color: active ? _accent : Colors.transparent, borderRadius: BorderRadius.circular(2))),
           ]),
@@ -260,7 +260,6 @@ class _PostRowState extends State<_PostRow> {
     final mine = widget.post['user_id'] == myId;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF16181C),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -301,7 +300,7 @@ class _PostRowState extends State<_PostRow> {
     return InkWell(
       onTap: _openDetail,
       child: Container(
-        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12))),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t12(context)))),
         padding: const EdgeInsets.fromLTRB(12, 12, 6, 8),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           GestureDetector(
@@ -316,10 +315,10 @@ class _PostRowState extends State<_PostRow> {
                   Flexible(child: Text(name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
                   if (author?['verified'] == true) Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: author?['verified_tier'])),
                   const SizedBox(width: 5),
-                  Flexible(child: Text('@$handle · ${timeAgo(p['created_at'])}', overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white38, fontSize: 13))),
+                  Flexible(child: Text('@$handle · ${timeAgo(p['created_at'])}', overflow: TextOverflow.ellipsis, style: TextStyle(color: t38(context), fontSize: 13))),
                 ]),
               ),
-              GestureDetector(onTap: _openMenu, child: const Padding(padding: EdgeInsets.only(left: 6, right: 2), child: Icon(Icons.more_horiz, size: 18, color: Colors.white38))),
+              GestureDetector(onTap: _openMenu, child: Padding(padding: const EdgeInsets.only(left: 6, right: 2), child: Icon(Icons.more_horiz, size: 18, color: t38(context)))),
             ]),
             if (content.isNotEmpty)
               Padding(padding: const EdgeInsets.only(top: 4), child: Text(content, style: const TextStyle(fontSize: 15, height: 1.35))),
@@ -336,10 +335,10 @@ class _PostRowState extends State<_PostRow> {
             Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 2),
               child: Row(children: [
-                _Action(icon: Icons.mode_comment_outlined, onTap: _openDetail),
-                _Action(icon: Icons.repeat, color: _reposted ? const Color(0xFF8B5CF6) : Colors.white38, onTap: _repost),
-                _Action(icon: _liked ? Icons.favorite : Icons.favorite_border, color: _liked ? _like : Colors.white38, label: _count > 0 ? '$_count' : null, onTap: _toggleLike),
-                _Action(icon: _saved ? Icons.bookmark : Icons.bookmark_border, color: _saved ? _accent : Colors.white38, onTap: _save),
+                _Action(icon: Icons.mode_comment_outlined, color: t38(context), onTap: _openDetail),
+                _Action(icon: Icons.repeat, color: _reposted ? _accent : t38(context), onTap: _repost),
+                _Action(icon: _liked ? Icons.favorite : Icons.favorite_border, color: _liked ? _like : t38(context), label: _count > 0 ? '$_count' : null, onTap: _toggleLike),
+                _Action(icon: _saved ? Icons.bookmark : Icons.bookmark_border, color: _saved ? _accent : t38(context), onTap: _save),
               ]),
             ),
           ])),

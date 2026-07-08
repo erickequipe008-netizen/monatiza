@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 
 const _accent = Color(0xFF8B5CF6);
 const _danger = Color(0xFFE0263B);
@@ -159,9 +160,9 @@ class _ContaScreenState extends State<ContaScreen> {
                   // ---- Cartão da conta ----
                   Container(
                     padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(18)),
+                    decoration: BoxDecoration(color: t10(context), borderRadius: BorderRadius.circular(18)),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      const Text('CONTA', style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+                      Text('CONTA', style: TextStyle(color: t38(context), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
                       const SizedBox(height: 8),
                       Text(_email, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 10),
@@ -176,7 +177,7 @@ class _ContaScreenState extends State<ContaScreen> {
                               style: TextStyle(color: active ? const Color(0xFF8B5CF6) : Colors.amber, fontWeight: FontWeight.bold, fontSize: 12)),
                         ),
                         if (plan != null)
-                          Padding(padding: const EdgeInsets.only(left: 10), child: Text('Plano $plan', style: const TextStyle(color: Colors.white54))),
+                          Padding(padding: const EdgeInsets.only(left: 10), child: Text('Plano $plan', style: TextStyle(color: t54(context)))),
                       ]),
                     ]),
                   ),
@@ -200,7 +201,7 @@ class _ContaScreenState extends State<ContaScreen> {
                   _ActionTile(icon: Icons.logout, label: 'Sair', onTap: () => Supabase.instance.client.auth.signOut()),
                   _ActionTile(icon: Icons.delete_outline, label: 'Excluir conta', danger: true, onTap: _deleteAccount),
                   const SizedBox(height: 24),
-                  const Center(child: Text('Monatiza', style: TextStyle(color: Colors.white24, fontWeight: FontWeight.w800, letterSpacing: 1))),
+                  Center(child: Text('Monatiza', style: TextStyle(color: t24(context), fontWeight: FontWeight.w800, letterSpacing: 1))),
                 ],
               ),
               if (_busy)
@@ -219,7 +220,7 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(left: 4, bottom: 8),
-        child: Text(text, style: const TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+        child: Text(text, style: TextStyle(color: t38(context), fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
       );
 }
 
@@ -231,15 +232,15 @@ class _ActionTile extends StatelessWidget {
   const _ActionTile({required this.icon, required this.label, required this.onTap, this.danger = false});
   @override
   Widget build(BuildContext context) {
-    final color = danger ? _danger : Colors.white;
+    final color = danger ? _danger : tInk(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: t10(context), borderRadius: BorderRadius.circular(14)),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         leading: Icon(icon, color: danger ? _danger : _accent, size: 22),
         title: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
-        trailing: Icon(Icons.chevron_right, color: danger ? _danger.withOpacity(0.6) : Colors.white24),
+        trailing: Icon(Icons.chevron_right, color: danger ? _danger.withOpacity(0.6) : t24(context)),
         onTap: onTap,
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 
 const _accent = Color(0xFF8B5CF6);
@@ -37,7 +38,6 @@ class _ComposeScreenState extends State<ComposeScreen> {
   Future<void> _pickMedia() async {
     final choice = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: const Color(0xFF16181C),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -109,9 +109,9 @@ class _ComposeScreenState extends State<ComposeScreen> {
                       maxLines: 12,
                       maxLength: 500,
                       style: const TextStyle(fontSize: 17, height: 1.4),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'O que está acontecendo?',
-                        hintStyle: TextStyle(color: Colors.white38, fontSize: 17),
+                        hintStyle: TextStyle(color: t38(context), fontSize: 17),
                         border: InputBorder.none,
                         filled: false,
                         counterText: '',
@@ -122,7 +122,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: _fileIsVideo
-                              ? Container(height: 160, width: double.infinity, color: const Color(0xFF101216), alignment: Alignment.center, child: const Icon(Icons.play_circle_fill, color: Colors.white70, size: 44))
+                              ? Container(height: 160, width: double.infinity, color: tFillC(context), alignment: Alignment.center, child: const Icon(Icons.play_circle_fill, color: Colors.white70, size: 44))
                               : Image.file(_file!, height: 200, width: double.infinity, fit: BoxFit.cover),
                         ),
                         Positioned(
@@ -138,7 +138,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
               ]),
             ),
           ),
-          const Divider(height: 1, color: Colors.white12),
+          Divider(height: 1, color: t12(context)),
           SafeArea(
             top: false,
             child: Padding(

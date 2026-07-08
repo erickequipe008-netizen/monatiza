@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import 'reader_screen.dart';
 
 /// Explorar (igual ao site): grade de artigos.
@@ -28,7 +29,7 @@ class _DiscoverBodyState extends State<DiscoverBody> {
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_items.isEmpty) {
-      return const Center(child: Text("Nada por aqui ainda.", style: TextStyle(color: Colors.white38)));
+      return Center(child: Text("Nada por aqui ainda.", style: TextStyle(color: t38(context))));
     }
     return RefreshIndicator(
       onRefresh: _load,
@@ -49,8 +50,8 @@ class _DiscoverBodyState extends State<DiscoverBody> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: a['image_url'] != null
-                      ? Image.network(a['image_url'], fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: Colors.white10))
-                      : Container(color: Colors.white10),
+                      ? Image.network(a['image_url'], fit: BoxFit.cover, cacheWidth: 500, errorBuilder: (_, __, ___) => Container(color: t10(context)))
+                      : Container(color: t10(context)),
                 ),
               ),
               const SizedBox(height: 8),

@@ -4,6 +4,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import '../widgets/ui.dart';
@@ -192,7 +193,7 @@ class _ProfileBodyState extends State<ProfileBody> {
               if (handle.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
-                  child: Text('@$handle', style: const TextStyle(color: Colors.white54)),
+                  child: Text('@$handle', style: TextStyle(color: t54(context))),
                 ),
               if (bio.isNotEmpty)
                 Padding(
@@ -232,7 +233,7 @@ class _ProfileBodyState extends State<ProfileBody> {
             _Tab(label: 'Seguidores', active: _tab == 1, onTap: () => _switchTab(1)),
             _Tab(label: 'Seguindo', active: _tab == 2, onTap: () => _switchTab(2)),
           ]),
-          const Divider(height: 1, color: Colors.white12),
+          Divider(height: 1, color: t12(context)),
           // ---- Conteúdo da aba ----
           ..._tabContent(),
           const SizedBox(height: 30),
@@ -271,7 +272,7 @@ class _CountLink extends StatelessWidget {
         onTap: onTap,
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Text('$value ', style: const TextStyle(fontWeight: FontWeight.w800)),
-          Text(label, style: const TextStyle(color: Colors.white54)),
+          Text(label, style: TextStyle(color: t54(context))),
         ]),
       );
 }
@@ -291,7 +292,7 @@ class _Tab extends StatelessWidget {
             child: Column(children: [
               Text(label,
                   style: TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 13, color: active ? Colors.white : Colors.white54)),
+                      fontWeight: FontWeight.w800, fontSize: 13, color: active ? tInk(context) : t54(context))),
               const SizedBox(height: 8),
               Container(
                 height: 3,
@@ -311,7 +312,7 @@ class _Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),
-        child: Center(child: Text(text, style: const TextStyle(color: Colors.white38))),
+        child: Center(child: Text(text, style: TextStyle(color: t38(context)))),
       );
 }
 
@@ -334,7 +335,7 @@ class _PersonRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12))),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t12(context)))),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           memberAvatar(profile, 22),
@@ -347,7 +348,7 @@ class _PersonRow extends StatelessWidget {
                   Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 13, tier: profile['verified_tier'])),
               ]),
               if (handle.isNotEmpty)
-                Text('@$handle', style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                Text('@$handle', style: TextStyle(color: t38(context), fontSize: 13)),
               if (bio.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
@@ -397,7 +398,6 @@ class _MyPostState extends State<_MyPost> {
   void _menu() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF16181C),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -425,7 +425,7 @@ class _MyPostState extends State<_MyPost> {
     return InkWell(
       onTap: _detail,
       child: Container(
-        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12))),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t12(context)))),
         padding: const EdgeInsets.fromLTRB(16, 12, 8, 6),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           memberAvatar(widget.me, 21),
@@ -439,12 +439,12 @@ class _MyPostState extends State<_MyPost> {
                     if (widget.me?['verified'] == true)
                       Padding(padding: const EdgeInsets.only(left: 4), child: VerifiedBadge(size: 14, tier: widget.me?['verified_tier'])),
                     const SizedBox(width: 5),
-                    Flexible(child: Text('@$handle · ${timeAgo(p['created_at'])}', overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white38, fontSize: 13))),
+                    Flexible(child: Text('@$handle · ${timeAgo(p['created_at'])}', overflow: TextOverflow.ellipsis, style: TextStyle(color: t38(context), fontSize: 13))),
                   ]),
                 ),
                 GestureDetector(
                   onTap: _menu,
-                  child: const Padding(padding: EdgeInsets.only(left: 6, right: 2), child: Icon(Icons.more_horiz, size: 18, color: Colors.white38)),
+                  child: Padding(padding: const EdgeInsets.only(left: 6, right: 2), child: Icon(Icons.more_horiz, size: 18, color: t38(context))),
                 ),
               ]),
               if (content.isNotEmpty)
@@ -465,9 +465,9 @@ class _MyPostState extends State<_MyPost> {
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 2),
                 child: Row(children: [
-                  _act(Icons.mode_comment_outlined, Colors.white38, null, _detail),
-                  _act(_liked ? Icons.favorite : Icons.favorite_border, _liked ? _like : Colors.white38, _count > 0 ? '$_count' : null, _likeToggle),
-                  _act(_saved ? Icons.bookmark : Icons.bookmark_border, _saved ? _accent : Colors.white38, null, _saveToggle),
+                  _act(Icons.mode_comment_outlined, t38(context), null, _detail),
+                  _act(_liked ? Icons.favorite : Icons.favorite_border, _liked ? _like : t38(context), _count > 0 ? '$_count' : null, _likeToggle),
+                  _act(_saved ? Icons.bookmark : Icons.bookmark_border, _saved ? _accent : t38(context), null, _saveToggle),
                   const Spacer(),
                 ]),
               ),

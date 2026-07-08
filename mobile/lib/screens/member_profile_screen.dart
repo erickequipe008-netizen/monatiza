@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../db.dart';
+import '../widgets/tone.dart';
 import '../widgets/avatar.dart';
 import '../widgets/verified_badge.dart';
 import '../widgets/ui.dart';
@@ -118,9 +119,9 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                             onPressed: () => Navigator.push(context,
                                 MaterialPageRoute(builder: (_) => ChatScreen(other: _p))),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Colors.white24),
+                              side: BorderSide(color: t24(context)),
                               shape: const StadiumBorder(),
-                              foregroundColor: Colors.white,
+                              foregroundColor: tInk(context),
                               padding: const EdgeInsets.symmetric(horizontal: 14),
                             ),
                             icon: const Icon(Icons.mail_outline, size: 16),
@@ -135,9 +136,9 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                               ? OutlinedButton(
                                   onPressed: _busy ? null : _toggleFollow,
                                   style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(color: Colors.white24),
+                                    side: BorderSide(color: t24(context)),
                                     shape: const StadiumBorder(),
-                                    foregroundColor: Colors.white,
+                                    foregroundColor: tInk(context),
                                     padding: const EdgeInsets.symmetric(horizontal: 18),
                                   ),
                                   child: const Text('Seguindo',
@@ -146,8 +147,8 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                               : FilledButton(
                                   onPressed: _busy ? null : _toggleFollow,
                                   style: FilledButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: Colors.black,
+                                    backgroundColor: tInk(context),
+                                    foregroundColor: isDarkC(context) ? Colors.black : Colors.white,
                                     shape: const StadiumBorder(),
                                     padding: const EdgeInsets.symmetric(horizontal: 22),
                                   ),
@@ -175,7 +176,7 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                       ]),
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Text('@$handle', style: const TextStyle(color: Colors.white54)),
+                        child: Text('@$handle', style: TextStyle(color: t54(context))),
                       ),
                       if (bio.isNotEmpty)
                         Padding(
@@ -204,22 +205,22 @@ class _MemberProfileScreenState extends State<MemberProfileScreen> {
                       const SizedBox(height: 14),
                       Row(children: [
                         Text('${_counts['following']} ', style: const TextStyle(fontWeight: FontWeight.w800)),
-                        const Text('Seguindo', style: TextStyle(color: Colors.white54)),
+                        Text('Seguindo', style: TextStyle(color: t54(context))),
                         const SizedBox(width: 22),
                         Text('${_counts['followers']} ', style: const TextStyle(fontWeight: FontWeight.w800)),
-                        const Text('Seguidores', style: TextStyle(color: Colors.white54)),
+                        Text('Seguidores', style: TextStyle(color: t54(context))),
                       ]),
                     ]),
                   ),
                   const SizedBox(height: 18),
-                  const Divider(height: 1, color: Colors.white12),
+                  Divider(height: 1, color: t12(context)),
                   // ---- Publicações (estilo X) ----
                   if (_posts.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 40),
                       child: Center(
                           child: Text('Nenhuma publicação ainda.',
-                              style: TextStyle(color: Colors.white38))),
+                              style: TextStyle(color: t38(context)))),
                     )
                   else
                     ..._posts.map((post) => _MemberPost(post: post, author: _p)),
@@ -273,7 +274,7 @@ class _MemberPostState extends State<_MemberPost> {
     return InkWell(
       onTap: _detail,
       child: Container(
-        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white12))),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t12(context)))),
         padding: const EdgeInsets.fromLTRB(16, 12, 10, 6),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           memberAvatar(a, 21),
@@ -293,7 +294,7 @@ class _MemberPostState extends State<_MemberPost> {
                 Flexible(
                     child: Text('@$handle · ${timeAgo(p['created_at'])}',
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white38, fontSize: 13))),
+                        style: TextStyle(color: t38(context), fontSize: 13))),
               ]),
               if (content.isNotEmpty)
                 Padding(
@@ -320,11 +321,11 @@ class _MemberPostState extends State<_MemberPost> {
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 2),
                 child: Row(children: [
-                  _act(Icons.mode_comment_outlined, Colors.white38, null, _detail),
+                  _act(Icons.mode_comment_outlined, t38(context), null, _detail),
                   _act(_liked ? Icons.favorite : Icons.favorite_border,
-                      _liked ? _like : Colors.white38, _count > 0 ? '$_count' : null, _toggleLike),
+                      _liked ? _like : t38(context), _count > 0 ? '$_count' : null, _toggleLike),
                   _act(_saved ? Icons.bookmark : Icons.bookmark_border,
-                      _saved ? _accent : Colors.white38, null, _toggleSave),
+                      _saved ? _accent : t38(context), null, _toggleSave),
                   const Spacer(),
                 ]),
               ),
