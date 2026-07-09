@@ -420,9 +420,9 @@ export default function ColunistasClient() {
                     {busy ? "Abrindo pagamento seguro…" : "Continuar para o pagamento"}
                   </button>
                   <p className="pay-hint">
-                    Pagamento em ambiente seguro e criptografado. Após a confirmação, você é direcionado ao
-                    seu painel de colunista para começar a publicar. Os dados de acesso são enviados ao seu
-                    e-mail.
+                    O pagamento é processado em ambiente seguro e criptografado. Concluída a confirmação,
+                    você será direcionado ao painel do colunista, onde poderá redigir e enviar suas matérias
+                    para a revisão da Redação antes da publicação.
                   </p>
                 </div>
               </form>
@@ -588,7 +588,7 @@ html{scroll-behavior:smooth;}
 .colu .columnists{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:28px 0 12px;}
 @media (max-width:900px){ .colu .columnists{grid-template-columns:1fr;} }
 .colu .col-card{border:1px solid var(--line); border-radius:12px; padding:28px 22px 22px; text-align:center; display:flex; flex-direction:column; align-items:center;}
-.colu .col-avatar{width:96px; height:96px; border-radius:50%; object-fit:cover; margin-bottom:16px; border:3px solid var(--gold-soft); box-shadow:0 4px 16px rgba(0,0,0,0.10); display:flex; align-items:center; justify-content:center;}
+.colu .col-avatar{width:96px; height:96px; border-radius:50%; object-fit:cover; object-position:center 22%; margin-bottom:16px; border:3px solid var(--gold-soft); box-shadow:0 4px 16px rgba(0,0,0,0.10); display:flex; align-items:center; justify-content:center;}
 .colu .col-avatar.c2{background:linear-gradient(135deg,#a9e0d8,#1c8c82);}
 .colu .col-avatar.c3{background:linear-gradient(135deg,#d8c8f2,#7c5cc4);}
 .colu .col-avatar .initials{font-family:var(--serif); font-weight:700; font-size:28px; color:#fff;}

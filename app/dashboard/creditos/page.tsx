@@ -4,10 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { Check, Loader2, CreditCard } from "lucide-react";
-import { COLUMNIST_EXTRA_CREDIT_PRICE, COLUMNIST_PLANS, formatBRL } from "@/lib/columnist";
-
-const QUANTITIES = [1, 3, 5, 10];
-const BRANDVOICE_PRICE = 15000; // centavos
+import { CREDIT_PACKAGES, COLUMNIST_PLANS, formatBRL } from "@/lib/columnist";
 
 function CreditosInner() {
   const params = useSearchParams();
@@ -19,11 +16,10 @@ function CreditosInner() {
   const [colPlan, setColPlan] = useState<{ plan: number; status: string } | null>(null);
 
   const isColumnist = colPlan?.status === "active";
-  const unitPrice = isColumnist ? COLUMNIST_EXTRA_CREDIT_PRICE : BRANDVOICE_PRICE;
-  const packages = QUANTITIES.map((credits) => ({
-    credits,
-    price: formatBRL(unitPrice * credits),
-    highlight: credits === 5,
+  const packages = CREDIT_PACKAGES.map((p) => ({
+    credits: p.credits,
+    price: formatBRL(p.amount),
+    highlight: p.credits === 5,
   }));
 
   useEffect(() => {
@@ -78,8 +74,8 @@ function CreditosInner() {
           <h1 className="text-2xl font-black text-[#0b0b0c]">Créditos</h1>
           <p className="text-sm text-zinc-500 mt-1">
             {isColumnist
-              ? `Seu ${COLUMNIST_PLANS[colPlan!.plan]?.name ?? "plano de colunista"} renova seus créditos todo mês. Precisa publicar mais? Compre créditos extras (${formatBRL(COLUMNIST_EXTRA_CREDIT_PRICE)} cada).`
-              : `Cada publicação BrandVoice consome 1 crédito (${formatBRL(BRANDVOICE_PRICE)} cada).`}
+              ? `Seu ${COLUMNIST_PLANS[colPlan!.plan]?.name ?? "plano de colunista"} renova seus créditos todo mês. Para publicar além do limite, adquira um dos pacotes abaixo.`
+              : "Cada publicação enviada consome 1 crédito. Escolha um pacote abaixo para publicar."}
           </p>
         </div>
         <span className="text-sm text-zinc-600 bg-white border border-[#E8E6E1] px-4 py-2 rounded-full">

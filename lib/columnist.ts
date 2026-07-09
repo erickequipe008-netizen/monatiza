@@ -52,8 +52,14 @@ export const COLUMNIST_PLANS: Record<number, ColumnistPlan> = {
   },
 };
 
-// Crédito extra para colunista com plano ativo (artigo adicional no mês).
-export const COLUMNIST_EXTRA_CREDIT_PRICE = 2500; // R$ 25,00 cada
+// Pacotes de créditos de publicação (compra avulsa). Valores em centavos (BRL).
+// Preços por pacote (com desconto por volume), não por unidade.
+export const CREDIT_PACKAGES: { credits: number; amount: number }[] = [
+  { credits: 1, amount: 15000 }, // R$ 150,00
+  { credits: 3, amount: 30000 }, // R$ 300,00
+  { credits: 5, amount: 82000 }, // R$ 820,00
+  { credits: 10, amount: 120000 }, // R$ 1.200,00
+];
 
 export function formatBRL(cents: number) {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
