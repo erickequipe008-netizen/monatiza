@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       subscription_data: {
         metadata: { user_id: user.id, type: "columnist", plan: String(planCfg.id) },
       },
-      success_url: `${origin}/dashboard?colunista=1`,
+      success_url: `${origin}/dashboard/publicacoes?colunista=1`,
       cancel_url: `${origin}/colunistas#planos`,
     });
 

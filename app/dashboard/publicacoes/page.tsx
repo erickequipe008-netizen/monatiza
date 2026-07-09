@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, CheckCircle2, CreditCard, PenLine } from "lucide-react";
+import { COLUMNIST_PLANS } from "@/lib/columnist";
 
 interface Article {
   id: number;
@@ -12,6 +13,11 @@ interface Article {
   category: string;
   status: string;
   created_at: string;
+}
+
+interface Credits {
+  balance: number;
+  total_used: number;
 }
 
 const STATUS: Record<string, { label: string; cls: string }> = {
@@ -24,8 +30,12 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 export default function MinhasPublicacoes() {
   const [loading, setLoading] = useState(true);
   const [articles, setArticles] = useState<Article[]>([]);
+  const [credits, setCredits] = useState<Credits>({ balance: 0, total_used: 0 });
+  const [planName, setPlanName] = useState<string | null>(null);
+  const [justJoined, setJustJoined] = useState(false);
 
   useEffect(() => {
+    setJustJoined(new URLSearchParams(window.location.search).get("colunista") === "1");
     (async () => {
       const {
         data: { user },
@@ -37,14 +47,79 @@ export default function MinhasPublicacoes() {
         .eq("author_id", user.id)
         .order("created_at", { ascending: false });
       setArticles((data as Article[]) || []);
+
+      const { data: c } = await supabase
+        .from("journalist_credits")
+        .select("balance, total_used")
+        .eq("journalist_id", user.id)
+        .maybeSingle();
+      if (c) setCredits(c as Credits);
+
+      const { data: cp } = await supabase
+        .from("columnist_plans")
+        .select("plan, status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cp?.status === "active") setPlanName(COLUMNIST_PLANS[cp.plan]?.name ?? null);
+
       setLoading(false);
     })();
   }, []);
 
   return (
     <main className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-10">
+      {justJoined && (
+        <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 flex items-start gap-3 mb-6">
+          <CheckCircle2 size={20} className="text-green-600 shrink-0 mt-0.5" />
+          <div className="text-sm text-green-800">
+            <p className="font-bold">Bem-vindo(a) ao programa de colunistas da Monatiza!</p>
+            <p className="mt-0.5">
+              Seu acesso é liberado assim que o pagamento for confirmado — isso leva alguns instantes.
+              Se as publicações disponíveis ainda estiverem zeradas, recarregue a página.
+            </p>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-2xl font-black text-[#0b0b0c] mb-1">Minhas publicações</h1>
-      <p className="text-sm text-zinc-500 mb-6">Acompanhe o status de cada matéria enviada.</p>
+      <p className="text-sm text-zinc-500 mb-5">Acompanhe o status de cada matéria enviada.</p>
+
+      {/* Resumo de publicações do mês */}
+      <div className="bg-white border border-[#E8E6E1] rounded-2xl px-5 py-4 mb-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.15em] text-zinc-400">Publicações disponíveis</p>
+          <p className="text-2xl font-black" style={{ color: credits.balance > 0 ? "#0b0b0c" : "#E0263B" }}>
+            {loading ? "…" : credits.balance}
+          </p>
+        </div>
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.15em] text-zinc-400">Utilizadas</p>
+          <p className="text-2xl font-black text-zinc-500">{loading ? "…" : credits.total_used}</p>
+        </div>
+        {planName && (
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.15em] text-zinc-400">Plano</p>
+            <p className="text-sm font-bold text-[#0b0b0c] mt-1.5">{planName}</p>
+          </div>
+        )}
+        <div className="ml-auto">
+          {!loading && credits.balance > 0 ? (
+            <Link
+              href="/dashboard/novo"
+              className="inline-flex items-center gap-2 bg-[#0b0b0c] text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-[#E0263B] transition"
+            >
+              <PenLine size={15} /> Nova publicação
+            </Link>
+          ) : !loading ? (
+            <Link
+              href="/dashboard/creditos"
+              className="inline-flex items-center gap-2 bg-[#E0263B] text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition"
+            >
+              <CreditCard size={15} /> Suas publicações do mês acabaram — adquirir mais
+            </Link>
+          ) : null}
+        </div>
+      </div>
 
       {loading ? (
         <p className="text-sm text-zinc-400">Carregando…</p>

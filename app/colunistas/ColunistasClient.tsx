@@ -48,6 +48,11 @@ export default function ColunistasClient() {
 
   function pickPlan(id: 1 | 2 | 3) {
     setSelected(id);
+    // leva direto ao formulário de cadastro; adiado para depois do re-render
+    // (a suavidade vem do scroll-behavior no CSS — smooth via JS é cancelado pelo re-render)
+    setTimeout(() => {
+      document.getElementById("cadastro")?.scrollIntoView({ block: "start" });
+    }, 80);
   }
 
   async function submit(e: React.FormEvent) {
@@ -178,9 +183,13 @@ export default function ColunistasClient() {
 
           <div className="hero-art">
             <div className="rule" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="hero-photo" src="/colunistas/luciana-paula.jpg" alt="Luciana Paula, colunista da Monatiza, com microfone em mãos" />
             <div className="cap">&quot;Toda pauta começa em algum lugar que o jornal ainda não cobriu.&quot;</div>
           </div>
-          <p className="hero-caption">Programa de colunistas da Monatiza — cadastro, planos e curadoria editorial.</p>
+          <p className="hero-caption">
+            Luciana Paula, comunicadora e colunista da Monatiza. Foto: arquivo pessoal (@lucianapaulaapresentadora)
+          </p>
 
           <div className="prose" id="sobre">
             <p>
@@ -226,7 +235,7 @@ export default function ColunistasClient() {
               <div className="step">
                 <span className="n">04</span>
                 <h3>Publicação e divulgação</h3>
-                <p>O artigo vai ao ar no site e é divulgado nas redes sociais da Monatiza, com seu crédito de autoria.</p>
+                <p>O artigo vai ao ar no site e é divulgado nas redes sociais da Monatiza, sempre assinado por você.</p>
               </div>
             </div>
           </div>
@@ -234,11 +243,10 @@ export default function ColunistasClient() {
           <div className="prose" id="planos">
             <h2>Planos de colunista</h2>
             <p>
-              A colaboração funciona por assinatura mensal. Cada plano define a quantidade de{" "}
-              <b>créditos de publicação</b> liberados por mês — cada artigo enviado consome 1 crédito. Os
-              créditos são liberados automaticamente no painel do colunista assim que o pagamento é
-              confirmado, e renovados a cada mensalidade. Selecione abaixo o plano que será usado no seu
-              cadastro.
+              A colaboração funciona por assinatura mensal. Cada plano define <b>quantos artigos você pode
+              publicar por mês</b> no site — e, conforme o plano, também na Revista impressa. Assim que o
+              pagamento é confirmado, seu acesso de colunista é liberado automaticamente. Ao selecionar um
+              plano, você será levado ao formulário de cadastro.
             </p>
             <div className="plans">
               {plans.map((p) => (
@@ -254,9 +262,7 @@ export default function ColunistasClient() {
                   <div className="price">
                     {formatBRL(p.amount).replace(",00", "")} <small>/ mês</small>
                   </div>
-                  <div className="cadence">
-                    {p.credits} créditos de publicação por mês · renovação automática
-                  </div>
+                  <div className="cadence">Assinatura mensal · renovação automática</div>
                   <ul>
                     {p.perks.map((perk) => (
                       <li key={perk}>{perk}</li>
@@ -268,8 +274,7 @@ export default function ColunistasClient() {
             </div>
             <div className="plan-note">
               <b>Permanência mínima de 4 meses</b> em qualquer plano. Depois desse período, o colunista pode
-              encerrar a colaboração quando quiser, sem multa. Caso queira publicar além do limite mensal do
-              plano, é possível adquirir créditos de publicação adicionais no painel do colunista.
+              encerrar a colaboração quando quiser, sem multa.
             </div>
           </div>
 
@@ -278,49 +283,39 @@ export default function ColunistasClient() {
             <p>Colunistas de diferentes regiões e áreas já publicam com regularidade. Veja alguns exemplos:</p>
             <div className="columnists">
               <div className="col-card">
-                <div className="col-photo c1">
-                  <span className="initials">LP</span>
-                </div>
-                <div className="col-body">
-                  <div className="kicker">Economia &amp; Negócios</div>
-                  <h4>Luciana Paula</h4>
-                  <blockquote>&quot;Escrevo sobre as pequenas empresas que sustentam a economia da minha região.&quot;</blockquote>
-                  <div className="meta">
-                    <span>Plano 1</span>
-                    <span className="verified">✓ Verificada</span>
-                  </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="col-avatar" src="/colunistas/luciana-paula.jpg" alt="Luciana Paula" />
+                <div className="kicker">Comunicação &amp; Negócios</div>
+                <h4>Luciana Paula</h4>
+                <blockquote>&quot;Comunicação não é falar, é impactar — e cada coluna é uma conversa com a minha região.&quot;</blockquote>
+                <div className="meta">
+                  <span className="verified">✓ Verificada</span>
                 </div>
               </div>
               <div className="col-card">
-                <div className="col-photo c2">
+                <div className="col-avatar c2">
                   <span className="initials">PH</span>
                 </div>
-                <div className="col-body">
-                  <div className="kicker">Tecnologia &amp; Startups</div>
-                  <h4>Pedro Henrique</h4>
-                  <blockquote>
-                    &quot;Cubro lançamentos de tecnologia e startups no interior — pautas que precisam de quem conhece o terreno.&quot;
-                  </blockquote>
-                  <div className="meta">
-                    <span>Plano 2</span>
-                    <span className="verified">✓ Verificado</span>
-                  </div>
+                <div className="kicker">Tecnologia &amp; Startups</div>
+                <h4>Pedro Henrique</h4>
+                <blockquote>
+                  &quot;Cubro lançamentos de tecnologia e startups no interior — pautas que precisam de quem conhece o terreno.&quot;
+                </blockquote>
+                <div className="meta">
+                  <span className="verified">✓ Verificado</span>
                 </div>
               </div>
               <div className="col-card">
-                <div className="col-photo c3">
+                <div className="col-avatar c3">
                   <span className="initials">FM</span>
                 </div>
-                <div className="col-body">
-                  <div className="kicker">Esportes &amp; Cultura</div>
-                  <h4>Fábio Martins</h4>
-                  <blockquote>
-                    &quot;De peças teatrais a campeonatos amadores, minha coluna dá palco a quem ainda não tinha vitrine.&quot;
-                  </blockquote>
-                  <div className="meta">
-                    <span>Plano 3</span>
-                    <span className="verified">✓ Verificado</span>
-                  </div>
+                <div className="kicker">Esportes &amp; Cultura</div>
+                <h4>Fábio Martins</h4>
+                <blockquote>
+                  &quot;De peças teatrais a campeonatos amadores, minha coluna dá palco a quem ainda não tinha vitrine.&quot;
+                </blockquote>
+                <div className="meta">
+                  <span className="verified">✓ Verificado</span>
                 </div>
               </div>
             </div>
@@ -351,7 +346,7 @@ export default function ColunistasClient() {
             <h2>Cadastro</h2>
             <p>
               Preencha os dados abaixo, confira o plano escolhido e conclua o pagamento. Com o pagamento
-              confirmado, o acesso ao painel do colunista é liberado com os créditos de publicação do mês.
+              confirmado, seu acesso de colunista é liberado e você já pode enviar seus artigos.
             </p>
             <div className="form-card">
               <form onSubmit={submit}>
@@ -420,7 +415,7 @@ export default function ColunistasClient() {
                     Plano selecionado:{" "}
                     <b>
                       {selected
-                        ? `${COLUMNIST_PLANS[selected].name} — ${formatBRL(COLUMNIST_PLANS[selected].amount)}/mês (${COLUMNIST_PLANS[selected].credits} artigos/mês)`
+                        ? `${COLUMNIST_PLANS[selected].name} — ${formatBRL(COLUMNIST_PLANS[selected].amount)}/mês (até ${COLUMNIST_PLANS[selected].credits} artigos por mês)`
                         : "nenhum — escolha um plano acima"}
                     </b>
                   </div>
@@ -439,8 +434,8 @@ export default function ColunistasClient() {
                     {busy ? "Abrindo pagamento seguro…" : "Continuar para o pagamento"}
                   </button>
                   <p className="pay-hint">
-                    Pagamento em ambiente seguro e criptografado. Após a confirmação, você é direcionado ao seu
-                    painel de colunista com os créditos do mês já liberados.
+                    Pagamento em ambiente seguro e criptografado. Após a confirmação, você é direcionado ao
+                    seu painel de colunista para começar a publicar.
                   </p>
                 </div>
               </form>
@@ -452,8 +447,8 @@ export default function ColunistasClient() {
           <div className="side-cta">
             <h5>Resumo do programa</h5>
             <p>
-              Cadastro com plano mensal, produção do conteúdo, revisão pela Redação e publicação no site com
-              crédito de autoria.
+              Cadastro com plano mensal, produção do conteúdo, revisão pela Redação e publicação no site
+              assinada por você.
             </p>
             <a href="#planos">Conhecer os planos →</a>
           </div>
@@ -463,9 +458,9 @@ export default function ColunistasClient() {
             <div className="side-item">
               <div className="side-thumb t1" />
               <div className="side-text">
-                <div className="kicker">Créditos</div>
-                <h5>Cada artigo enviado consome 1 crédito de publicação do mês</h5>
-                <span className="time">Liberação automática após a confirmação do pagamento</span>
+                <div className="kicker">Envio</div>
+                <h5>Você escreve e envia seus artigos direto do painel do colunista</h5>
+                <span className="time">Acesso liberado após a confirmação do pagamento</span>
               </div>
             </div>
             <div className="side-item">
@@ -479,9 +474,9 @@ export default function ColunistasClient() {
             <div className="side-item">
               <div className="side-thumb t3" />
               <div className="side-text">
-                <div className="kicker">Créditos adicionais</div>
-                <h5>Publicações além do limite do plano usam créditos adicionais</h5>
-                <span className="time">Disponíveis no painel do colunista</span>
+                <div className="kicker">Divulgação</div>
+                <h5>Artigos publicados são divulgados nas redes da Monatiza</h5>
+                <span className="time">Sempre com a sua assinatura</span>
               </div>
             </div>
           </div>
@@ -514,6 +509,7 @@ export default function ColunistasClient() {
 }
 
 const CSS = `
+html{scroll-behavior:smooth;}
 .colu{
   --paper:#ffffff; --paper-2:#f6f6f3; --paper-3:#efefeb;
   --ink:#15161a; --ink-dim:#5b5e66; --ink-faint:#93969e;
@@ -554,7 +550,9 @@ const CSS = `
     linear-gradient(200deg, rgba(184,134,47,0.22), transparent 60%), #1c1e24;
   position:relative; overflow:hidden;}
 .colu .hero-art .rule{position:absolute; inset:0; background-image:repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 42px);}
-.colu .hero-art .cap{position:absolute; bottom:16px; left:20px; font-family:var(--serif); font-style:italic; color:#f2ede2; font-size:15px;}
+.colu .hero-art .hero-photo{position:absolute; top:50%; right:32px; transform:translateY(-50%); height:78%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.22); box-shadow:0 12px 40px rgba(0,0,0,0.45);}
+@media (max-width:640px){ .colu .hero-art .hero-photo{right:16px; height:64%;} }
+.colu .hero-art .cap{position:absolute; bottom:16px; left:20px; max-width:52%; font-family:var(--serif); font-style:italic; color:#f2ede2; font-size:15px; line-height:1.45;}
 .colu .hero-caption{font-size:12px; color:var(--ink-faint); margin:0 0 32px;}
 
 .colu .prose h2{font-family:var(--serif); font-size:26px; font-weight:700; margin:44px 0 14px;}
@@ -564,14 +562,12 @@ const CSS = `
 .colu .tag-row{display:flex; flex-wrap:wrap; gap:9px; margin:6px 0 8px;}
 .colu .area-pill{font-size:13px; font-weight:700; padding:8px 15px; border-radius:5px; background:var(--paper-3); color:#3a3c42; border:1px solid var(--line);}
 
-.colu .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin:26px 0 10px; border-top:1px solid var(--line);}
-@media (max-width:820px){ .colu .steps{grid-template-columns:1fr;} }
-.colu .step{padding:22px 20px 22px 0; border-right:1px solid var(--line);}
-.colu .step:last-child{border-right:none;}
-@media (max-width:820px){ .colu .step{border-right:none; border-bottom:1px solid var(--line); padding:20px 0;} }
-.colu .step .n{font-family:var(--serif); font-weight:700; font-size:13px; color:var(--red); margin-bottom:10px; display:block;}
-.colu .step h3{font-size:15px; margin:0 0 7px; font-weight:700;}
-.colu .step p{font-size:13.5px; color:var(--ink-dim); margin:0; line-height:1.6;}
+.colu .steps{display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin:28px 0 12px;}
+@media (max-width:640px){ .colu .steps{grid-template-columns:1fr;} }
+.colu .step{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:26px 24px;}
+.colu .step .n{font-family:var(--serif); font-weight:700; font-size:14px; color:var(--red); margin-bottom:12px; display:block;}
+.colu .step h3{font-size:16px; margin:0 0 9px; font-weight:700;}
+.colu .step p{font-size:14px; color:var(--ink-dim); margin:0; line-height:1.7;}
 
 .colu .plans{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:24px 0 8px;}
 @media (max-width:900px){ .colu .plans{grid-template-columns:1fr;} }
@@ -590,19 +586,17 @@ const CSS = `
 .colu .plan.selected .pick{background:var(--gold); border-color:var(--gold); color:#fff;}
 .colu .plan-note{margin:16px 0 30px; padding:14px 16px; border-radius:5px; background:#fdf1ec; border:1px solid #f2d3c3; font-size:13px; color:#8a3a1f; line-height:1.6;}
 
-.colu .columnists{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:24px 0 10px;}
+.colu .columnists{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:28px 0 12px;}
 @media (max-width:900px){ .colu .columnists{grid-template-columns:1fr;} }
-.colu .col-card{border:1px solid var(--line); border-radius:6px; overflow:hidden;}
-.colu .col-photo{height:110px; position:relative;}
-.colu .col-photo.c1{background:linear-gradient(135deg,#f0d9ab,#b8862f);}
-.colu .col-photo.c2{background:linear-gradient(135deg,#a9e0d8,#1c8c82);}
-.colu .col-photo.c3{background:linear-gradient(135deg,#d8c8f2,#7c5cc4);}
-.colu .col-photo .initials{position:absolute; bottom:10px; left:14px; font-family:var(--serif); font-weight:700; font-size:24px; color:#fff;}
-.colu .col-body{padding:16px 18px 18px;}
-.colu .col-body .kicker{font-size:11px; margin-bottom:8px;}
-.colu .col-body h4{margin:0 0 8px; font-size:16px; font-weight:700;}
-.colu .col-body blockquote{margin:0 0 14px; font-family:var(--serif); font-style:italic; font-size:13.5px; color:#3a3c42; line-height:1.55;}
-.colu .col-body .meta{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-faint); font-weight:600; border-top:1px solid var(--line); padding-top:12px;}
+.colu .col-card{border:1px solid var(--line); border-radius:12px; padding:28px 22px 22px; text-align:center; display:flex; flex-direction:column; align-items:center;}
+.colu .col-avatar{width:96px; height:96px; border-radius:50%; object-fit:cover; margin-bottom:16px; border:3px solid var(--gold-soft); box-shadow:0 4px 16px rgba(0,0,0,0.10); display:flex; align-items:center; justify-content:center;}
+.colu .col-avatar.c2{background:linear-gradient(135deg,#a9e0d8,#1c8c82);}
+.colu .col-avatar.c3{background:linear-gradient(135deg,#d8c8f2,#7c5cc4);}
+.colu .col-avatar .initials{font-family:var(--serif); font-weight:700; font-size:28px; color:#fff;}
+.colu .col-card .kicker{font-size:11px; margin-bottom:7px;}
+.colu .col-card h4{margin:0 0 10px; font-size:17px; font-weight:700;}
+.colu .col-card blockquote{margin:0 0 16px; font-family:var(--serif); font-style:italic; font-size:13.5px; color:#3a3c42; line-height:1.6;}
+.colu .col-card .meta{margin-top:auto; width:100%; display:flex; justify-content:center; font-size:11.5px; color:var(--ink-faint); font-weight:600; border-top:1px solid var(--line); padding-top:12px;}
 .colu .verified{color:#178a7d;}
 
 .colu .terms-list{border-top:1px solid var(--line); margin-top:20px;}
