@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Home, FileText, CreditCard, Plus, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import TutorialModal from "@/components/journalist/TutorialModal";
 
 const NAV = [
   { label: "Início", href: "/dashboard", icon: Home },
@@ -125,6 +126,7 @@ export default function JournalistShell({ children }: { children: React.ReactNod
         </nav>
       </header>
 
+      <TutorialModal />
       {children}
     </div>
   );

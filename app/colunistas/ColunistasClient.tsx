@@ -184,12 +184,10 @@ export default function ColunistasClient() {
           <div className="hero-art">
             <div className="rule" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="hero-photo" src="/colunistas/luciana-paula.jpg" alt="Luciana Paula, colunista da Monatiza, com microfone em mãos" />
+            <img className="hero-photo" src="/colunistas/reporter-ia.jpg" alt="Pessoa segurando um microfone" />
             <div className="cap">&quot;Toda pauta começa em algum lugar que o jornal ainda não cobriu.&quot;</div>
           </div>
-          <p className="hero-caption">
-            Luciana Paula, comunicadora e colunista da Monatiza. Foto: arquivo pessoal (@lucianapaulaapresentadora)
-          </p>
+          <p className="hero-caption">Imagem ilustrativa gerada por inteligência artificial.</p>
 
           <div className="prose" id="sobre">
             <p>
@@ -244,9 +242,9 @@ export default function ColunistasClient() {
             <h2>Planos de colunista</h2>
             <p>
               A colaboração funciona por assinatura mensal. Cada plano define <b>quantos artigos você pode
-              publicar por mês</b> no site — e, conforme o plano, também na Revista impressa. Assim que o
-              pagamento é confirmado, seu acesso de colunista é liberado automaticamente. Ao selecionar um
-              plano, você será levado ao formulário de cadastro.
+              publicar por mês</b> no site — e, conforme o plano, seus artigos também são publicados no
+              Instagram da Monatiza. Assim que o pagamento é confirmado, seu acesso de colunista é liberado
+              automaticamente. Ao selecionar um plano, você será levado ao formulário de cadastro.
             </p>
             <div className="plans">
               {plans.map((p) => (
@@ -265,7 +263,9 @@ export default function ColunistasClient() {
                   <div className="cadence">Assinatura mensal · renovação automática</div>
                   <ul>
                     {p.perks.map((perk) => (
-                      <li key={perk}>{perk}</li>
+                      <li key={perk.text} className={perk.included ? "" : "off"}>
+                        {perk.text}
+                      </li>
                     ))}
                   </ul>
                   <div className="pick">{selected === p.id ? "Plano selecionado ✓" : "Selecionar este plano"}</div>
@@ -293,9 +293,8 @@ export default function ColunistasClient() {
                 </div>
               </div>
               <div className="col-card">
-                <div className="col-avatar c2">
-                  <span className="initials">PH</span>
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="col-avatar" src="/colunistas/pedro-henrique.jpg" alt="Pedro Henrique" />
                 <div className="kicker">Tecnologia &amp; Startups</div>
                 <h4>Pedro Henrique</h4>
                 <blockquote>
@@ -306,9 +305,8 @@ export default function ColunistasClient() {
                 </div>
               </div>
               <div className="col-card">
-                <div className="col-avatar c3">
-                  <span className="initials">FM</span>
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="col-avatar" src="/colunistas/fabio-martins.jpg" alt="Fábio Martins" />
                 <div className="kicker">Esportes &amp; Cultura</div>
                 <h4>Fábio Martins</h4>
                 <blockquote>
@@ -582,9 +580,12 @@ html{scroll-behavior:smooth;}
 .colu .plan li{font-size:13.5px; color:#3a3c42; padding:9px 0; border-top:1px solid var(--line); display:flex; gap:8px;}
 .colu .plan li:first-child{border-top:none;}
 .colu .plan li::before{content:'—'; color:var(--gold); flex-shrink:0;}
+.colu .plan li.off{color:var(--ink-faint); text-decoration:line-through;}
+.colu .plan li.off::before{content:'×'; color:var(--ink-faint); text-decoration:none;}
 .colu .plan .pick{text-align:center; font-weight:700; font-size:13px; padding:11px; border-radius:5px; border:1px solid var(--ink); color:var(--ink);}
 .colu .plan.selected .pick{background:var(--gold); border-color:var(--gold); color:#fff;}
-.colu .plan-note{margin:16px 0 30px; padding:14px 16px; border-radius:5px; background:#fdf1ec; border:1px solid #f2d3c3; font-size:13px; color:#8a3a1f; line-height:1.6;}
+.colu .plan-note{margin:14px 0 26px; padding:9px 12px; border-radius:5px; background:var(--paper-2); border:1px solid var(--line); font-size:11px; font-weight:300; color:var(--ink-dim); line-height:1.55; letter-spacing:0.1px;}
+.colu .plan-note b{font-weight:600;}
 
 .colu .columnists{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin:28px 0 12px;}
 @media (max-width:900px){ .colu .columnists{grid-template-columns:1fr;} }
@@ -599,11 +600,11 @@ html{scroll-behavior:smooth;}
 .colu .col-card .meta{margin-top:auto; width:100%; display:flex; justify-content:center; font-size:11.5px; color:var(--ink-faint); font-weight:600; border-top:1px solid var(--line); padding-top:12px;}
 .colu .verified{color:#178a7d;}
 
-.colu .terms-list{border-top:1px solid var(--line); margin-top:20px;}
-.colu .term-item{display:flex; gap:20px; padding:20px 0; border-bottom:1px solid var(--line);}
-.colu .term-item .num{font-family:var(--serif); font-weight:700; font-size:20px; color:var(--red); flex-shrink:0; width:30px;}
-.colu .term-item p{margin:0; font-size:14.5px; color:#3a3c42; line-height:1.65;}
-.colu .term-item p b{font-weight:700; color:var(--ink);}
+.colu .terms-list{border-top:1px solid var(--line); margin-top:14px; max-width:640px;}
+.colu .term-item{display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--line);}
+.colu .term-item .num{font-family:var(--serif); font-weight:400; font-size:11px; color:var(--ink-faint); flex-shrink:0; width:16px; padding-top:1px;}
+.colu .term-item p{margin:0; font-size:11.5px; font-weight:300; color:var(--ink-dim); line-height:1.55; letter-spacing:0.1px;}
+.colu .term-item p b{font-weight:600; color:#4a4c52;}
 
 .colu .form-card{background:var(--paper-2); border:1px solid var(--line); border-radius:10px; padding:36px; margin-top:24px;}
 @media (max-width:640px){ .colu .form-card{padding:22px 18px;} }

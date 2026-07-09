@@ -1,13 +1,18 @@
 // Planos do programa de colunistas — usados pelo checkout, webhook e páginas.
 // Valores em centavos (BRL). Créditos = artigos liberados por mês no plano.
 
+export interface ColumnistPerk {
+  text: string;
+  included: boolean; // false = aparece riscado no card
+}
+
 export interface ColumnistPlan {
   id: 1 | 2 | 3;
   name: string;
   badge: string;
   amount: number; // centavos, cobrança mensal
   credits: number; // créditos de publicação liberados por mês
-  perks: string[];
+  perks: ColumnistPerk[];
 }
 
 export const COLUMNIST_PLANS: Record<number, ColumnistPlan> = {
@@ -18,9 +23,8 @@ export const COLUMNIST_PLANS: Record<number, ColumnistPlan> = {
     amount: 9500,
     credits: 4,
     perks: [
-      "Até 4 artigos por mês no site (1 por semana)",
-      "1 publicação impressa a cada 2 meses",
-      "Recebe 2 edições da Revista impressa",
+      { text: "Até 4 artigos por mês no site (1 por semana)", included: true },
+      { text: "Publicação no Instagram da Monatiza", included: true },
     ],
   },
   2: {
@@ -30,9 +34,8 @@ export const COLUMNIST_PLANS: Record<number, ColumnistPlan> = {
     amount: 7000,
     credits: 4,
     perks: [
-      "Até 4 artigos por mês no site (1 por semana)",
-      "1 publicação impressa a cada 3 meses",
-      "Recebe 1 edição da Revista impressa",
+      { text: "Até 4 artigos por mês no site (1 por semana)", included: true },
+      { text: "Publicação no Instagram", included: false },
     ],
   },
   3: {
@@ -42,9 +45,9 @@ export const COLUMNIST_PLANS: Record<number, ColumnistPlan> = {
     amount: 5000,
     credits: 3,
     perks: [
-      "Até 3 artigos por mês no site (1 por semana)",
-      "Sem publicação na Revista impressa",
-      "Se já tem site ou portal, sua logo e link entram junto ao texto",
+      { text: "Até 3 artigos por mês no site (1 por semana)", included: true },
+      { text: "Se já tem site ou portal, sua logo e link entram junto ao texto", included: true },
+      { text: "Publicação no Instagram", included: false },
     ],
   },
 };
