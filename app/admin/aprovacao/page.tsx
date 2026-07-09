@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import PageHeader from "@/components/layout/PageHeader";
 import { Check, X, Eye, Loader2, Inbox } from "lucide-react";
+import { sanitizeArticleHtml } from "@/lib/sanitizeHtml";
 
 interface Article {
   id: number;
@@ -66,6 +67,18 @@ export default function AprovacaoPage() {
 
   return (
     <>
+      <style>{`
+        .prose-approval h1{font-size:24px;font-weight:700;margin:16px 0 8px;line-height:1.25;}
+        .prose-approval h2{font-size:20px;font-weight:700;margin:14px 0 6px;}
+        .prose-approval h3{font-size:17px;font-weight:600;margin:12px 0 4px;}
+        .prose-approval p{margin:0 0 12px;}
+        .prose-approval ul,.prose-approval ol{padding-left:22px;margin:10px 0;}
+        .prose-approval li{margin-bottom:5px;}
+        .prose-approval a{color:#E0263B;text-decoration:underline;}
+        .prose-approval blockquote{border-left:3px solid #E0263B;margin:14px 0;padding:6px 16px;color:#555;font-style:italic;background:#fff8f8;border-radius:0 8px 8px 0;}
+        .prose-approval img{max-width:100%;height:auto;border-radius:8px;margin:10px 0;}
+        .prose-approval hr{border:none;border-top:1.5px solid #e5e5e5;margin:16px 0;}
+      `}</style>
       <PageHeader title="Aprovação" description="Publicações de jornalistas aguardando análise" />
 
       <div className="p-6 md:p-8 max-w-3xl">
@@ -140,9 +153,14 @@ export default function AprovacaoPage() {
               </button>
             </div>
             {open.description && <p className="text-gray-600 italic border-l-2 border-[#E0263B] pl-3 mb-4">{open.description}</p>}
-            <div className="text-[15px] leading-relaxed text-gray-800 whitespace-pre-wrap max-h-[50vh] overflow-y-auto">
-              {openLoading ? "Carregando…" : openBody}
-            </div>
+            {openLoading ? (
+              <div className="text-[15px] text-gray-400">Carregando…</div>
+            ) : (
+              <div
+                className="prose-approval text-[15px] leading-relaxed text-gray-800 max-h-[50vh] overflow-y-auto"
+                dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(openBody) }}
+              />
+            )}
             <div className="flex items-center gap-2 mt-6 pt-4 border-t border-gray-100">
               <button
                 onClick={() => decide(open.id, "rejeitado")}

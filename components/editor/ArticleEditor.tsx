@@ -1,9 +1,10 @@
 "use client";
 
-// Editor rico + zona de upload de capa usados na criação de matéria do colunista.
+// Editor rico + zona de upload de capa usados na criação e edição de matéria.
 // Mesma experiência do editor do admin (app/admin/articles/new).
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { sanitizeArticleHtml } from "@/lib/sanitizeHtml";
 
 function ToolbarBtn({ label, title, active, onClick }: { label: React.ReactNode; title: string; active?: boolean; onClick: () => void }) {
   return (
@@ -159,6 +160,18 @@ export function RichEditor({ value, onChange, hasError }: { value: string; onCha
 
   function handleInput() { onChange(editorRef.current?.innerHTML || ""); updateActive(); }
 
+  // Cola limpa: converte HTML de Word/Mailchimp/Docs em HTML semântico simples.
+  function handlePaste(e: React.ClipboardEvent<HTMLDivElement>) {
+    const html = e.clipboardData.getData("text/html");
+    if (!html) return; // texto simples segue o comportamento padrão
+    e.preventDefault();
+    const clean = sanitizeArticleHtml(html);
+    editorRef.current?.focus();
+    document.execCommand("insertHTML", false, clean);
+    onChange(editorRef.current?.innerHTML || "");
+    updateActive();
+  }
+
   const [wordCount, setWordCount] = useState(0);
   useEffect(() => {
     const d = document.createElement("div");
@@ -229,6 +242,7 @@ export function RichEditor({ value, onChange, hasError }: { value: string; onCha
           spellCheck
           lang="pt-BR"
           onInput={handleInput}
+          onPaste={handlePaste}
           onKeyUp={updateActive}
           onMouseUp={updateActive}
           data-placeholder="Escreva a matéria completa aqui..."

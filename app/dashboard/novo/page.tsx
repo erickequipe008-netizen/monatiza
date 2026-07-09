@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { Loader2, Lock } from "lucide-react";
-import { RichEditor, ImageDropZone } from "@/components/journalist/ArticleEditor";
+import { RichEditor, ImageDropZone } from "@/components/editor/ArticleEditor";
+import { sanitizeArticleHtml } from "@/lib/sanitizeHtml";
 
 const CATEGORIES = [
   "Negócios",
@@ -119,7 +120,7 @@ export default function NovaPublicacao() {
       body: JSON.stringify({
         title,
         description,
-        content,
+        content: sanitizeArticleHtml(content),
         category,
         image_url: imageUrl ?? "",
         is_premium: isPremium,
