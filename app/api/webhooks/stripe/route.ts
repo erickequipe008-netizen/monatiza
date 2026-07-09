@@ -3,8 +3,35 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { COLUMNIST_PLANS } from "@/lib/columnist";
+import { resend } from "@/lib/resend";
 
 export const runtime = "nodejs";
+
+// E-mail privado de boas-vindas do colunista com as orientações de acesso ao painel.
+async function sendColumnistWelcomeEmail(userId: string, plan: number) {
+  try {
+    const { data: u } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const email = u?.user?.email;
+    if (!email) return;
+    const cfg = COLUMNIST_PLANS[plan];
+    await resend.emails.send({
+      from: "Monatiza <contato@monatiza.com>",
+      to: email,
+      subject: "Seu acesso de colunista está liberado",
+      html: `
+        <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111">
+          <h2 style="margin:0 0 8px">Bem-vindo(a) ao programa de colunistas</h2>
+          <p style="color:#555;margin:0 0 16px">Seu pagamento foi confirmado e o seu painel de colunista já está liberado${cfg ? ` no ${cfg.name}` : ""}.</p>
+          <p style="margin:0 0 6px"><b>Como acessar:</b></p>
+          <p style="color:#555;margin:0 0 16px">Entre em <a href="https://www.monatiza.com/login" style="color:#E0263B">www.monatiza.com/login</a> com este e-mail. Se a sua conta foi criada agora no cadastro de colunista, a senha inicial são os <b>6 últimos dígitos do telefone informado</b> no formulário. Por segurança, recomendamos trocá-la na aba <b>Perfil</b> do painel assim que entrar.</p>
+          <a href="https://www.monatiza.com/dashboard" style="display:inline-block;background:#0b0b0c;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:12px 22px">Acessar meu painel</a>
+          <p style="color:#888;font-size:13px;margin:20px 0 0">Dúvidas? Fale com a Redação: contato@monatiza.com</p>
+        </div>`,
+    });
+  } catch {
+    // e-mail é cortesia — não bloqueia a ativação
+  }
+}
 
 // Libera os créditos mensais do plano de colunista e registra a transação.
 async function grantColumnistCredits(userId: string, plan: number, paymentRef: string, amountPaid: number) {
@@ -100,6 +127,7 @@ export async function POST(req: Request) {
             })
             .eq("user_id", userId);
           await grantColumnistCredits(userId, plan, session.id, (session.amount_total ?? 0) / 100);
+          await sendColumnistWelcomeEmail(userId, plan);
         }
       } else if (userId && session.metadata?.type === "verification") {
         // pagamento do selo de verificado → marca o pedido como pago (análise manual)

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 const SEEN_KEY = "monatiza_tutorial_seen";
-const VIDEO_ID = "5N66FpQBQwQ";
+const VIDEO_ID = "E-gVld_J204";
 
 // Popup de boas-vindas do painel: tutorial em vídeo de como usar a ferramenta.
 // Abre na primeira entrada e não volta a incomodar depois de fechado.

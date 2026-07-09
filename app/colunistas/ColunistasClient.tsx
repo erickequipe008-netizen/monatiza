@@ -25,7 +25,6 @@ export default function ColunistasClient() {
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
   const [telefone, setTelefone] = useState("");
   const [regiao, setRegiao] = useState("");
   const [area, setArea] = useState(AREAS[0]);
@@ -69,18 +68,21 @@ export default function ColunistasClient() {
     }
     if (!nome.trim()) return setError("Digite seu nome completo.");
     if (!email.trim()) return setError("Digite seu e-mail.");
-    if (!loggedEmail && senha.length < 6) return setError("Crie uma senha de acesso (mínimo 6 caracteres).");
+    const phoneDigits = telefone.replace(/\D/g, "");
+    if (phoneDigits.length < 10) return setError("Digite um telefone válido com DDD.");
 
     setBusy(true);
     try {
-      // garante uma conta logada (o painel do colunista usa a mesma conta)
+      // garante uma conta logada (o painel do colunista usa a mesma conta);
+      // a credencial inicial é definida automaticamente e informada por canal privado
+      const initialPassword = phoneDigits.slice(-6);
       let {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) {
         const { data: up, error: upErr } = await supabase.auth.signUp({
           email: email.trim(),
-          password: senha,
+          password: initialPassword,
           options: { data: { name: nome.trim() } },
         });
         if (upErr && !upErr.message.toLowerCase().includes("already registered")) {
@@ -92,12 +94,12 @@ export default function ColunistasClient() {
         if (!session) {
           const { data: si, error: inErr } = await supabase.auth.signInWithPassword({
             email: email.trim(),
-            password: senha,
+            password: initialPassword,
           });
           if (inErr || !si.session) {
             setError(
               inErr?.message.includes("Invalid")
-                ? "Este e-mail já tem conta com outra senha. Entre em /painel/login e volte aqui."
+                ? "Este e-mail já possui uma conta. Use a opção \"Já sou colunista\" logo abaixo para entrar e depois conclua o cadastro."
                 : "Conta criada! Confirme seu e-mail e volte a esta página para concluir."
             );
             setBusy(false);
@@ -182,12 +184,12 @@ export default function ColunistasClient() {
           </div>
 
           <div className="hero-art">
-            <div className="rule" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="hero-photo" src="/colunistas/reporter-ia.jpg" alt="Pessoa segurando um microfone" />
+            <img className="hero-bg" src="/colunistas/microfone.jpg" alt="Microfone de estúdio sobre uma mesa" />
+            <div className="hero-shade" />
             <div className="cap">&quot;Toda pauta começa em algum lugar que o jornal ainda não cobriu.&quot;</div>
           </div>
-          <p className="hero-caption">Imagem ilustrativa gerada por inteligência artificial.</p>
+          <p className="hero-caption">Imagem ilustrativa.</p>
 
           <div className="prose" id="sobre">
             <p>
@@ -365,20 +367,6 @@ export default function ColunistasClient() {
                       readOnly={!!loggedEmail}
                     />
                   </div>
-                  {!loggedEmail && (
-                    <div className="field">
-                      <label htmlFor="senha">Senha de acesso (cria sua conta de colunista)</label>
-                      <input
-                        id="senha"
-                        type="password"
-                        required
-                        minLength={6}
-                        placeholder="Mínimo 6 caracteres"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                      />
-                    </div>
-                  )}
                   <div className="field">
                     <label htmlFor="telefone">Telefone / WhatsApp</label>
                     <input id="telefone" required placeholder="(11) 90000-0000" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
@@ -433,10 +421,21 @@ export default function ColunistasClient() {
                   </button>
                   <p className="pay-hint">
                     Pagamento em ambiente seguro e criptografado. Após a confirmação, você é direcionado ao
-                    seu painel de colunista para começar a publicar.
+                    seu painel de colunista para começar a publicar. Os dados de acesso são enviados ao seu
+                    e-mail.
                   </p>
                 </div>
               </form>
+            </div>
+
+            <div className="login-box">
+              <div>
+                <p className="login-title">Já sou colunista</p>
+                <p className="login-sub">Acesse seu painel para publicar e acompanhar suas matérias.</p>
+              </div>
+              <a href="/login" className="login-btn">
+                Entrar no painel
+              </a>
             </div>
           </div>
         </main>
@@ -547,10 +546,9 @@ html{scroll-behavior:smooth;}
   background:linear-gradient(120deg, rgba(216,31,44,0.14), transparent 55%),
     linear-gradient(200deg, rgba(184,134,47,0.22), transparent 60%), #1c1e24;
   position:relative; overflow:hidden;}
-.colu .hero-art .rule{position:absolute; inset:0; background-image:repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 42px);}
-.colu .hero-art .hero-photo{position:absolute; top:50%; right:32px; transform:translateY(-50%); height:78%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.22); box-shadow:0 12px 40px rgba(0,0,0,0.45);}
-@media (max-width:640px){ .colu .hero-art .hero-photo{right:16px; height:64%;} }
-.colu .hero-art .cap{position:absolute; bottom:16px; left:20px; max-width:52%; font-family:var(--serif); font-style:italic; color:#f2ede2; font-size:15px; line-height:1.45;}
+.colu .hero-art .hero-bg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+.colu .hero-art .hero-shade{position:absolute; inset:0; background:linear-gradient(90deg, rgba(10,8,10,0.55) 0%, rgba(10,8,10,0.15) 45%, transparent 70%), linear-gradient(to top, rgba(10,8,10,0.55), transparent 45%);}
+.colu .hero-art .cap{position:absolute; bottom:16px; left:20px; max-width:58%; font-family:var(--serif); font-style:italic; color:#f5f1e8; font-size:15px; line-height:1.45; text-shadow:0 1px 8px rgba(0,0,0,0.5);}
 .colu .hero-caption{font-size:12px; color:var(--ink-faint); margin:0 0 32px;}
 
 .colu .prose h2{font-family:var(--serif); font-size:26px; font-weight:700; margin:44px 0 14px;}
@@ -627,6 +625,11 @@ html{scroll-behavior:smooth;}
 .colu .submit-btn{grid-column:1/-1; margin-top:4px; padding:15px; border-radius:7px; border:none; background:var(--ink); color:#fff; font-weight:700; font-size:15px; cursor:pointer;}
 .colu .submit-btn:disabled{opacity:0.35; cursor:not-allowed;}
 .colu .pay-hint{grid-column:1/-1; margin:2px 0 0; font-size:12px; color:var(--ink-faint); text-align:center; line-height:1.6;}
+.colu .login-box{margin-top:18px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; border:1px solid var(--line); border-radius:10px; padding:18px 22px; background:var(--paper);}
+.colu .login-title{margin:0 0 3px; font-size:14.5px; font-weight:700; color:var(--ink);}
+.colu .login-sub{margin:0; font-size:12.5px; color:var(--ink-dim);}
+.colu .login-btn{display:inline-block; padding:11px 22px; border-radius:7px; border:1px solid var(--ink); font-size:13px; font-weight:700; color:var(--ink); transition:background .15s, color .15s;}
+.colu .login-btn:hover{background:var(--ink); color:#fff;}
 
 .colu .sidebar{padding-top:2px;}
 .colu .side-block{margin-bottom:36px;}
