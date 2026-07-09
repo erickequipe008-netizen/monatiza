@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
-import { FileText, Clock3, CreditCard, CheckCircle2, Plus } from "lucide-react";
+import { FileText, Clock3, CreditCard, CheckCircle2, Plus, PenLine } from "lucide-react";
+import { COLUMNIST_PLANS, formatBRL } from "@/lib/columnist";
 
 interface Profile {
   name: string;
@@ -12,10 +13,22 @@ interface Profile {
   createdAt: string;
 }
 
+interface ColumnistPlanRow {
+  plan: number;
+  monthly_credits: number;
+  status: string;
+}
+
 export default function DashboardHome() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState({ publicados: 0, pendentes: 0, disponiveis: 0, usados: 0 });
+  const [colPlan, setColPlan] = useState<ColumnistPlanRow | null>(null);
+  const [justJoined, setJustJoined] = useState(false);
+
+  useEffect(() => {
+    setJustJoined(new URLSearchParams(window.location.search).get("colunista") === "1");
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -49,6 +62,13 @@ export default function DashboardHome() {
         .eq("journalist_id", user.id)
         .maybeSingle();
 
+      const { data: cp } = await supabase
+        .from("columnist_plans")
+        .select("plan, monthly_credits, status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cp) setColPlan(cp as ColumnistPlanRow);
+
       setStats({ publicados, pendentes, disponiveis: c?.balance ?? 0, usados: c?.total_used ?? 0 });
       setLoading(false);
     })();
@@ -65,8 +85,60 @@ export default function DashboardHome() {
     { label: "Créditos utilizados", value: stats.usados, icon: CheckCircle2, accent: "#10B981" },
   ];
 
+  const planCfg = colPlan ? COLUMNIST_PLANS[colPlan.plan] : null;
+
   return (
     <main className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-10 space-y-8">
+      {justJoined && (
+        <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 flex items-start gap-3">
+          <CheckCircle2 size={20} className="text-green-600 shrink-0 mt-0.5" />
+          <div className="text-sm text-green-800">
+            <p className="font-bold">Bem-vindo(a) ao programa de colunistas da Monatiza!</p>
+            <p className="mt-0.5">
+              Assim que o pagamento for confirmado, seus créditos do mês são liberados automaticamente aqui —
+              isso leva alguns instantes. Recarregue a página se ainda não apareceram.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Plano de colunista */}
+      {planCfg && (
+        <div className="bg-white border border-[#E8E6E1] rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-[#b8862f]/10 text-[#b8862f] flex items-center justify-center shrink-0">
+              <PenLine size={20} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-[0.15em] text-zinc-400">Seu plano de colunista</p>
+              <p className="font-black text-[#0b0b0c]">
+                {planCfg.name} · {formatBRL(planCfg.amount)}/mês
+              </p>
+              <p className="text-xs text-zinc-500">
+                {planCfg.credits} créditos de publicação por mês, renovados a cada mensalidade
+              </p>
+            </div>
+          </div>
+          <span
+            className={`text-xs font-bold px-3 py-1.5 rounded-full ${
+              colPlan?.status === "active"
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : colPlan?.status === "pending"
+                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                  : "bg-red-50 text-red-600 border border-red-200"
+            }`}
+          >
+            {colPlan?.status === "active"
+              ? "Ativo"
+              : colPlan?.status === "pending"
+                ? "Aguardando pagamento"
+                : colPlan?.status === "past_due"
+                  ? "Pagamento pendente"
+                  : "Cancelado"}
+          </span>
+        </div>
+      )}
+
       {/* Perfil */}
       <div className="bg-white border border-[#E8E6E1] rounded-2xl p-6 flex items-center gap-5">
         {profile?.avatarUrl ? (
@@ -119,16 +191,27 @@ export default function DashboardHome() {
             </div>
             <Plus size={20} className="text-white" />
           </Link>
-        ) : (
+        ) : colPlan?.status === "active" ? (
           <Link
             href="/dashboard/creditos"
             className="group bg-[#E0263B] rounded-2xl px-6 py-5 flex items-center justify-between hover:opacity-90 transition"
           >
             <div>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/60 mb-1">Sem créditos</p>
-              <p className="text-white font-bold">Comprar créditos para publicar</p>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/60 mb-1">Sem créditos este mês</p>
+              <p className="text-white font-bold">Adquirir créditos adicionais</p>
             </div>
             <CreditCard size={20} className="text-white" />
+          </Link>
+        ) : (
+          <Link
+            href="/colunistas#planos"
+            className="group bg-[#E0263B] rounded-2xl px-6 py-5 flex items-center justify-between hover:opacity-90 transition"
+          >
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/60 mb-1">Sem plano ativo</p>
+              <p className="text-white font-bold">Escolher um plano de colunista</p>
+            </div>
+            <PenLine size={20} className="text-white" />
           </Link>
         )}
 

@@ -2,8 +2,46 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { COLUMNIST_PLANS } from "@/lib/columnist";
 
 export const runtime = "nodejs";
+
+// Libera os créditos mensais do plano de colunista e registra a transação.
+async function grantColumnistCredits(userId: string, plan: number, paymentRef: string, amountPaid: number) {
+  const cfg = COLUMNIST_PLANS[plan];
+  if (!cfg) return;
+  // idempotência: o Stripe reenvia eventos (e invoice.paid + invoice.payment_succeeded duplicam)
+  const { data: existing } = await supabaseAdmin
+    .from("credit_transactions")
+    .select("id")
+    .eq("stripe_payment_id", paymentRef)
+    .maybeSingle();
+  if (existing) return;
+  await supabaseAdmin.rpc("add_journalist_credits", { p_journalist: userId, p_credits: cfg.credits });
+  await supabaseAdmin.from("credit_transactions").insert({
+    journalist_id: userId,
+    stripe_payment_id: paymentRef,
+    amount_paid: amountPaid,
+    credits_added: cfg.credits,
+    status: "concluido",
+  });
+  await supabaseAdmin
+    .from("columnist_plans")
+    .update({ last_credited_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq("user_id", userId);
+}
+
+// invoice.subscription mudou de lugar conforme a versão da API; lê com segurança.
+function invoiceSubscriptionId(inv: Stripe.Invoice): string | null {
+  const direct = (inv as unknown as { subscription?: string | { id: string } }).subscription;
+  if (typeof direct === "string") return direct;
+  if (direct && typeof direct === "object") return direct.id;
+  const parent = (inv as unknown as { parent?: { subscription_details?: { subscription?: string | { id: string } } } })
+    .parent?.subscription_details?.subscription;
+  if (typeof parent === "string") return parent;
+  if (parent && typeof parent === "object") return parent.id;
+  return null;
+}
 
 // current_period_end pode estar em locais diferentes conforme a versão da API; lê com segurança.
 function periodEnd(sub: Stripe.Subscription): string | null {
@@ -45,6 +83,24 @@ export async function POST(req: Request) {
             status: "concluido",
           });
         }
+      } else if (userId && session.metadata?.type === "columnist") {
+        // assinatura do plano de colunista: ativa o plano e libera os créditos do 1º mês
+        const plan = parseInt(session.metadata.plan || "0", 10);
+        const cfg = COLUMNIST_PLANS[plan];
+        if (cfg) {
+          await supabaseAdmin
+            .from("columnist_plans")
+            .update({
+              status: "active",
+              plan: cfg.id,
+              monthly_credits: cfg.credits,
+              stripe_customer_id: typeof session.customer === "string" ? session.customer : null,
+              stripe_subscription_id: typeof session.subscription === "string" ? session.subscription : null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("user_id", userId);
+          await grantColumnistCredits(userId, plan, session.id, (session.amount_total ?? 0) / 100);
+        }
       } else if (userId && session.metadata?.type === "verification") {
         // pagamento do selo de verificado → marca o pedido como pago (análise manual)
         await supabaseAdmin
@@ -68,11 +124,46 @@ export async function POST(req: Request) {
           })
           .eq("id", userId);
       }
+    } else if (event.type === "invoice.paid" || event.type === "invoice.payment_succeeded") {
+      // Renovação mensal do plano de colunista → recarrega os créditos do mês.
+      const inv = event.data.object as Stripe.Invoice;
+      if (inv.billing_reason === "subscription_cycle") {
+        const subId = invoiceSubscriptionId(inv);
+        if (subId) {
+          const sub = await getStripe().subscriptions.retrieve(subId);
+          if (sub.metadata?.type === "columnist" && sub.metadata.user_id) {
+            const plan = parseInt(sub.metadata.plan || "0", 10);
+            await grantColumnistCredits(
+              sub.metadata.user_id,
+              plan,
+              inv.id ?? subId,
+              (inv.amount_paid ?? 0) / 100
+            );
+          }
+        }
+      }
     } else if (
       event.type === "customer.subscription.updated" ||
       event.type === "customer.subscription.deleted"
     ) {
       const sub = event.data.object as Stripe.Subscription;
+
+      // Plano de colunista: acompanha o status da assinatura (cancelou → perde a recarga mensal).
+      if (sub.metadata?.type === "columnist") {
+        const status =
+          event.type === "customer.subscription.deleted"
+            ? "canceled"
+            : sub.status === "active" || sub.status === "trialing"
+              ? "active"
+              : sub.status === "past_due" || sub.status === "unpaid"
+                ? "past_due"
+                : "canceled";
+        await supabaseAdmin
+          .from("columnist_plans")
+          .update({ status, updated_at: new Date().toISOString() })
+          .eq("stripe_subscription_id", sub.id);
+        return NextResponse.json({ received: true });
+      }
 
       // Assinatura do SELO de verificado: ao cancelar/expirar, remove o selo.
       if (sub.metadata?.type === "verification") {

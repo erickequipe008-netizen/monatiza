@@ -13,6 +13,7 @@ import {
   HeartPulse,
   BookOpen,
   Crown,
+  PenLine,
   Newspaper,
   type LucideIcon,
 } from "lucide-react";
@@ -30,6 +31,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   HeartPulse,
   BookOpen,
   Crown,
+  PenLine,
 };
 
 export function iconFor(name: string): LucideIcon {

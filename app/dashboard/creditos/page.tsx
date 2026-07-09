@@ -4,13 +4,10 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { Check, Loader2, CreditCard } from "lucide-react";
+import { COLUMNIST_EXTRA_CREDIT_PRICE, COLUMNIST_PLANS, formatBRL } from "@/lib/columnist";
 
-const PACKAGES = [
-  { credits: 1, price: "R$ 150", highlight: false },
-  { credits: 3, price: "R$ 450", highlight: false },
-  { credits: 5, price: "R$ 750", highlight: true },
-  { credits: 10, price: "R$ 1.500", highlight: false },
-];
+const QUANTITIES = [1, 3, 5, 10];
+const BRANDVOICE_PRICE = 15000; // centavos
 
 function CreditosInner() {
   const params = useSearchParams();
@@ -19,6 +16,15 @@ function CreditosInner() {
   const [balance, setBalance] = useState<number | null>(null);
   const [buying, setBuying] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [colPlan, setColPlan] = useState<{ plan: number; status: string } | null>(null);
+
+  const isColumnist = colPlan?.status === "active";
+  const unitPrice = isColumnist ? COLUMNIST_EXTRA_CREDIT_PRICE : BRANDVOICE_PRICE;
+  const packages = QUANTITIES.map((credits) => ({
+    credits,
+    price: formatBRL(unitPrice * credits),
+    highlight: credits === 5,
+  }));
 
   useEffect(() => {
     (async () => {
@@ -32,6 +38,12 @@ function CreditosInner() {
         .eq("journalist_id", user.id)
         .maybeSingle();
       setBalance(c?.balance ?? 0);
+      const { data: cp } = await supabase
+        .from("columnist_plans")
+        .select("plan, status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cp) setColPlan(cp);
     })();
   }, []);
 
@@ -64,12 +76,26 @@ function CreditosInner() {
       <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-black text-[#0b0b0c]">Créditos</h1>
-          <p className="text-sm text-zinc-500 mt-1">Cada publicação BrandVoice consome 1 crédito (R$ 150 cada).</p>
+          <p className="text-sm text-zinc-500 mt-1">
+            {isColumnist
+              ? `Seu ${COLUMNIST_PLANS[colPlan!.plan]?.name ?? "plano de colunista"} renova seus créditos todo mês. Precisa publicar mais? Compre créditos extras (${formatBRL(COLUMNIST_EXTRA_CREDIT_PRICE)} cada).`
+              : `Cada publicação BrandVoice consome 1 crédito (${formatBRL(BRANDVOICE_PRICE)} cada).`}
+          </p>
         </div>
         <span className="text-sm text-zinc-600 bg-white border border-[#E8E6E1] px-4 py-2 rounded-full">
           Saldo atual: <strong className="text-[#0b0b0c]">{balance ?? "…"}</strong>
         </span>
       </div>
+
+      {!isColumnist && (
+        <div className="rounded-2xl border border-[#E8E6E1] bg-white px-4 py-3 text-sm text-zinc-600 mb-5">
+          Você ainda não tem um plano de colunista. Os planos mensais liberam créditos de publicação
+          automaticamente todo mês, a partir de R$ 50/mês.{" "}
+          <a href="/colunistas#planos" className="font-bold text-[#0b0b0c] underline">
+            Conhecer os planos
+          </a>
+        </div>
+      )}
 
       {justPaid && (
         <div className="rounded-2xl border border-green-100 bg-green-50 px-4 py-3 text-sm text-green-700 mb-5 flex items-center gap-2">
@@ -81,7 +107,7 @@ function CreditosInner() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {PACKAGES.map((p) => (
+        {packages.map((p) => (
           <div
             key={p.credits}
             className={`relative bg-white rounded-2xl p-6 border ${

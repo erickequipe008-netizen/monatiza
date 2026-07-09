@@ -132,5 +132,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Carreira", href: "/carreira", icon: "GraduationCap" },
   { label: "Saúde", href: "/saude", icon: "HeartPulse" },
   { label: "Revista", href: "/revista", icon: "BookOpen" },
+  { label: "Colunistas", href: "/colunistas", icon: "PenLine" },
   { label: "Assinantes", href: "/assinantes", icon: "Crown" },
 ];

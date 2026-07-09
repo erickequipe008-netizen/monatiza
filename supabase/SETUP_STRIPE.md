@@ -23,7 +23,9 @@ No Supabase → **SQL Editor** → cole e rode o conteúdo de
 3. **API keys** (Developers → API keys): copie a secret (`sk_...`) e a publishable (`pk_...`).
 4. **Webhook** (Developers → Webhooks → Add endpoint):
    - URL: `https://www.monatiza.com/api/webhooks/stripe`
-   - Eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
+   - Eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`,
+     `invoice.paid` (⚠️ obrigatório para a recarga mensal de créditos dos colunistas — sem ele o
+     colunista recebe créditos só no 1º mês)
    - Copie o **Signing secret** (`whsec_...`).
 
 ## 3. Variáveis de ambiente
