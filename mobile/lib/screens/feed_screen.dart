@@ -201,7 +201,7 @@ class _FeedBodyState extends State<FeedBody> {
             // ---- Cartões: destaque + atalhos (mesmo tamanho, mais presença) ----
             if (destaque != null)
               SizedBox(
-                height: 256,
+                height: 208,
                 child: Row(children: [
                   Expanded(
                     child: _HeroCard(article: destaque, onTap: () => _push(ReaderScreen(article: destaque))),
@@ -358,25 +358,30 @@ class _MiniCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          // Preenche o quadro: ícone no topo, textos ancorados embaixo.
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(color: iconColor.withOpacity(0.15), shape: BoxShape.circle),
-              child: Icon(icon, size: 22, color: iconColor),
-            ),
-            const Spacer(),
-            Text(title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-            const SizedBox(height: 2),
-            Text(subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: dark ? Colors.white38 : Colors.black45, fontSize: 11.5)),
-          ]),
+          padding: const EdgeInsets.all(12),
+          // Conteúdo agrupado no centro — sem vão no meio do quadro.
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(color: iconColor.withOpacity(0.15), shape: BoxShape.circle),
+                child: Icon(icon, size: 21, color: iconColor),
+              ),
+              const SizedBox(height: 8),
+              Text(title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5)),
+              const SizedBox(height: 2),
+              Text(subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: dark ? Colors.white38 : Colors.black45, fontSize: 11)),
+            ],
+          ),
         ),
       ),
     );

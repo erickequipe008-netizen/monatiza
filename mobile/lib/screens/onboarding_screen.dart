@@ -38,7 +38,7 @@ class OnboardingScreen extends StatelessWidget {
                 right: 46,
                 child: Transform.rotate(angle: 0.14, child: const _EmojiCard(asset: 'assets/emoji/woman.png', size: 84)),
               ),
-              const Positioned(top: 0, child: _EmojiCard(asset: 'assets/emoji/smile.png', size: 110)),
+              const Positioned(top: 0, child: _EmojiCard(asset: 'assets/emoji/tech.png', size: 110)),
               // Cartão preto do app com o "m"
               Positioned(
                 top: 128,
