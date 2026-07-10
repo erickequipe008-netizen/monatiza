@@ -10,6 +10,7 @@ import 'people_screen.dart';
 import 'member_profile_screen.dart';
 import 'article_list_screen.dart';
 import 'profile_screen.dart';
+import 'upgrade_screen.dart';
 
 const _accent = Color(0xFF8B5CF6);
 
@@ -25,6 +26,7 @@ class _FeedBodyState extends State<FeedBody> {
   List<Map<String, dynamic>> _people = [];
   List<Map<String, dynamic>> _items = [];
   bool _loading = true;
+  bool _isSub = false;
   RealtimeChannel? _rt;
 
   @override
@@ -61,12 +63,14 @@ class _FeedBodyState extends State<FeedBody> {
       ensureProfile(),
       recommendedProfiles(),
       fetchArticles(),
+      getSubscription(),
     ]);
     if (mounted) {
       setState(() {
         _me = results[0] as Map<String, dynamic>?;
         _people = (results[1] as List<Map<String, dynamic>>).take(12).toList();
         _items = results[2] as List<Map<String, dynamic>>;
+        _isSub = (results[3] as Map<String, dynamic>?)?['status']?.toString() == 'active';
         _loading = false;
       });
     }
@@ -113,6 +117,27 @@ class _FeedBodyState extends State<FeedBody> {
                 child: memberAvatar(_me, 21),
               ),
               const Spacer(),
+              // Fazer upgrade (some para assinantes)
+              if (!_isSub) ...[
+                GestureDetector(
+                  onTap: () => _push(const UpgradeScreen()),
+                  child: Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 13),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: _accent, width: 1.4),
+                    ),
+                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.auto_awesome, size: 14, color: _accent),
+                      SizedBox(width: 6),
+                      Text('Fazer upgrade',
+                          style: TextStyle(color: _accent, fontWeight: FontWeight.w800, fontSize: 12.5)),
+                    ]),
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
               // Alternar claro/escuro
               _circleBtn(dark, dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined, toggleTheme),
               const SizedBox(width: 10),

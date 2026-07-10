@@ -9,7 +9,9 @@ const _accent = Color(0xFF8B5CF6);
 
 /// Compor publicação (aberto pela home) — texto + foto/vídeo.
 class ComposeScreen extends StatefulWidget {
-  const ComposeScreen({super.key});
+  /// 'img' ou 'vid' abre o seletor de mídia direto ao entrar.
+  final String? initialPick;
+  const ComposeScreen({super.key, this.initialPick});
   @override
   State<ComposeScreen> createState() => _ComposeScreenState();
 }
@@ -27,6 +29,9 @@ class _ComposeScreenState extends State<ComposeScreen> {
     ensureProfile().then((p) {
       if (mounted) setState(() => _me = p);
     });
+    if (widget.initialPick != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _pick(widget.initialPick!));
+    }
   }
 
   @override
@@ -47,6 +52,10 @@ class _ComposeScreenState extends State<ComposeScreen> {
       ),
     );
     if (choice == null) return;
+    await _pick(choice);
+  }
+
+  Future<void> _pick(String choice) async {
     final picker = ImagePicker();
     final XFile? x = choice == 'vid'
         ? await picker.pickVideo(source: ImageSource.gallery)

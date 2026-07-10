@@ -204,7 +204,7 @@ Future<List<Map<String, dynamic>>> recommendedProfiles() async {
   final exclude = <dynamic>{me, ...fol.map((f) => f['following_id'])}..remove(null);
   final list = List<Map<String, dynamic>>.from(await _sb
       .from('community_profiles')
-      .select('user_id, handle, display_name, avatar_url, bio, verified, verified_tier')
+      .select('user_id, handle, display_name, avatar_url, cover_url, bio, verified, verified_tier')
       .order('created_at', ascending: false)
       .limit(40));
   return list.where((p) => !exclude.contains(p['user_id'])).toList();
@@ -473,17 +473,44 @@ Future<List<Map<String, dynamic>>> fetchMessages(String otherId) async {
   if (me == null) return [];
   final rows = List<Map<String, dynamic>>.from(await _sb
       .from('direct_messages')
-      .select('id, sender_id, recipient_id, content, created_at')
+      .select('id, sender_id, recipient_id, content, created_at, image_url, read')
       .or('and(sender_id.eq.$me,recipient_id.eq.$otherId),and(sender_id.eq.$otherId,recipient_id.eq.$me)')
       .order('created_at', ascending: true)
       .limit(300));
   return rows;
 }
 
-Future<void> sendMessage(String otherId, String content) async {
+Future<void> sendMessage(String otherId, String content, {String? imageUrl}) async {
   final me = myId;
-  if (me == null || content.trim().isEmpty) return;
-  await _sb.from('direct_messages').insert({'sender_id': me, 'recipient_id': otherId, 'content': content.trim()});
+  if (me == null || (content.trim().isEmpty && imageUrl == null)) return;
+  await _sb.from('direct_messages').insert({
+    'sender_id': me,
+    'recipient_id': otherId,
+    'content': content.trim(),
+    if (imageUrl != null) 'image_url': imageUrl,
+  });
+}
+
+/// Foto enviada no chat (bucket público `community`, pasta do remetente).
+Future<String?> uploadDmMedia(File file) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/dm/${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('community').upload(path, file);
+  return _sb.storage.from('community').getPublicUrl(path);
+}
+
+/// Marca como lidas as mensagens recebidas dessa conversa (visto ✓✓).
+Future<void> markConversationRead(String otherId) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb
+      .from('direct_messages')
+      .update({'read': true})
+      .eq('sender_id', otherId)
+      .eq('recipient_id', me)
+      .eq('read', false);
 }
 
 Future<List<Map<String, dynamic>>> listFollowers(String userId) async {

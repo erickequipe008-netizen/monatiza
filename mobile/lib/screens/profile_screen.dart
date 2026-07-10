@@ -10,6 +10,8 @@ import '../widgets/verified_badge.dart';
 import '../widgets/ui.dart';
 import 'post_detail_screen.dart';
 import 'member_profile_screen.dart';
+import 'people_screen.dart';
+import 'verificacao_screen.dart';
 
 const _accent = Color(0xFF8B5CF6);
 const _like = Color(0xFFE0263B);
@@ -33,6 +35,8 @@ class _ProfileBodyState extends State<ProfileBody> {
   int _tab = 0; // 0 = Publicações, 1 = Seguidores, 2 = Seguindo
   List<Map<String, dynamic>>? _followers;
   List<Map<String, dynamic>>? _following;
+  List<Map<String, dynamic>> _suggested = [];
+  bool _showVerifBanner = true;
 
   @override
   void initState() {
@@ -44,15 +48,18 @@ class _ProfileBodyState extends State<ProfileBody> {
     final prof = await ensureProfile();
     List<Map<String, dynamic>> posts = [];
     Map<String, int> counts = {'followers': 0, 'following': 0};
+    List<Map<String, dynamic>> suggested = [];
     if (prof != null) {
       posts = await fetchUserPosts(prof['user_id']);
       counts = await followCounts(prof['user_id']);
+      suggested = (await recommendedProfiles()).take(8).toList();
     }
     if (mounted) {
       setState(() {
         _profile = prof;
         _posts = posts;
         _counts = counts;
+        _suggested = suggested;
         _loading = false;
         _followers = null;
         _following = null;
@@ -226,6 +233,65 @@ class _ProfileBodyState extends State<ProfileBody> {
               ]),
             ]),
           ),
+          // ---- Aviso: conta ainda sem selo (estilo X) ----
+          if (p?['verified'] != true && _showVerifBanner)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                decoration: BoxDecoration(
+                  color: isDarkC(context) ? const Color(0xFF11291C) : const Color(0xFFE7F5EC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF2E7D5B).withOpacity(0.35)),
+                ),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Flexible(
+                          child: Text('Você ainda não passou pela verificação',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13.5,
+                                  color: isDarkC(context) ? Colors.white : const Color(0xFF0B3D25))),
+                        ),
+                        const SizedBox(width: 5),
+                        const VerifiedBadge(size: 14),
+                      ]),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Garanta seu selo para autenticar a conta e priorizar o alcance das suas publicações.',
+                        style: TextStyle(
+                            fontSize: 12,
+                            height: 1.35,
+                            color: isDarkC(context) ? Colors.white70 : Colors.black87),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        height: 32,
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: isDarkC(context) ? Colors.white : const Color(0xFF0B3D25),
+                            foregroundColor: isDarkC(context) ? Colors.black : Colors.white,
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+                          ),
+                          onPressed: () => _open(const VerificacaoScreen()),
+                          child: const Text('Obter verificação'),
+                        ),
+                      ),
+                    ]),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _showVerifBanner = false),
+                    child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(Icons.close, size: 16, color: t38(context))),
+                  ),
+                ]),
+              ),
+            ),
           const SizedBox(height: 18),
           // ---- Abas ----
           Row(children: [
@@ -244,8 +310,14 @@ class _ProfileBodyState extends State<ProfileBody> {
 
   List<Widget> _tabContent() {
     if (_tab == 0) {
-      if (_posts.isEmpty) return [const _Empty('Você ainda não publicou nada.')];
-      return _posts.map((post) => _MyPost(post: post, me: _profile, onChanged: _load)).toList();
+      final list = <Widget>[];
+      if (_posts.isEmpty) {
+        list.add(const _Empty('Você ainda não publicou nada.'));
+      } else {
+        list.addAll(_posts.map((post) => _MyPost(post: post, me: _profile, onChanged: _load)));
+      }
+      if (_suggested.isNotEmpty) list.add(_quemSeguir());
+      return list;
     }
     if (_tab == 1) {
       if (_followers == null) return [const _Loading()];
@@ -259,6 +331,154 @@ class _ProfileBodyState extends State<ProfileBody> {
     return _following!
         .map((u) => _PersonRow(profile: u, onTap: () => _open(MemberProfileScreen(profile: u))))
         .toList();
+  }
+}
+
+  Widget _quemSeguir() => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 8, 6),
+          child: Row(children: [
+            const Expanded(
+                child: Text('Quem seguir', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
+            TextButton(
+              onPressed: () => _open(const PeopleScreen()),
+              child: const Text('Mostrar mais',
+                  style: TextStyle(color: _accent, fontWeight: FontWeight.w700, fontSize: 12.5)),
+            ),
+          ]),
+        ),
+        SizedBox(
+          height: 208,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: _suggested.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (c, i) => _SuggestCard(
+              profile: _suggested[i],
+              onOpen: () => _open(MemberProfileScreen(profile: _suggested[i])),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ]);
+}
+
+/// Cartão "Quem seguir" (capa + avatar + Seguir), estilo X.
+class _SuggestCard extends StatefulWidget {
+  final Map<String, dynamic> profile;
+  final VoidCallback onOpen;
+  const _SuggestCard({required this.profile, required this.onOpen});
+  @override
+  State<_SuggestCard> createState() => _SuggestCardState();
+}
+
+class _SuggestCardState extends State<_SuggestCard> {
+  bool _following = false;
+  bool _busy = false;
+
+  Future<void> _toggle() async {
+    final n = !_following;
+    setState(() { _following = n; _busy = true; });
+    await follow(widget.profile['user_id'], n);
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.profile;
+    final name = (p['display_name'] ?? p['handle'] ?? 'Membro').toString();
+    final bio = (p['bio'] ?? '').toString();
+    final cover = p['cover_url'] as String?;
+    return GestureDetector(
+      onTap: widget.onOpen,
+      child: Container(
+        width: 232,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: tCardC(context),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: t12(context)),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Container(
+            height: 62,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF8B5CF6), Color(0xFF2B2141)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              image: (cover != null && cover.isNotEmpty)
+                  ? DecorationImage(image: NetworkImage(cover), fit: BoxFit.cover)
+                  : null,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                memberAvatar(p, 15),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Row(children: [
+                      Flexible(
+                          child: Text(name,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5))),
+                      if (p['verified'] == true)
+                        Padding(
+                            padding: const EdgeInsets.only(left: 3),
+                            child: VerifiedBadge(size: 12, tier: p['verified_tier'])),
+                    ]),
+                    Text('@${p['handle'] ?? ''}',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: t38(context), fontSize: 11)),
+                  ]),
+                ),
+                const SizedBox(width: 6),
+                SizedBox(
+                  height: 30,
+                  child: _following
+                      ? OutlinedButton(
+                          onPressed: _busy ? null : _toggle,
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: t24(context)),
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            foregroundColor: tInk(context),
+                            textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5),
+                          ),
+                          child: const Text('Seguindo'),
+                        )
+                      : FilledButton(
+                          onPressed: _busy ? null : _toggle,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: tInk(context),
+                            foregroundColor: isDarkC(context) ? Colors.black : Colors.white,
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11.5),
+                          ),
+                          child: const Text('Seguir'),
+                        ),
+                ),
+              ]),
+              if (bio.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(bio,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: t54(context), fontSize: 12, height: 1.3)),
+                ),
+            ]),
+          ),
+        ]),
+      ),
+    );
   }
 }
 

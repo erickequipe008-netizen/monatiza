@@ -281,11 +281,11 @@ class _NavBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // Botão de ação: nova publicação
+          // Botão "+": abre o menu de criação (Publicar, Foto, Vídeo)
           GestureDetector(
             onTap: () {
               HapticFeedback.mediumImpact();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const ComposeScreen()));
+              _showCreateMenu(context);
             },
             child: Container(
               width: 56,
@@ -300,11 +300,84 @@ class _NavBar extends StatelessWidget {
                       offset: const Offset(0, 5)),
                 ],
               ),
-              child: Icon(Icons.edit_outlined, size: 22, color: dark ? Colors.black : Colors.white),
+              child: Icon(Icons.add, size: 26, color: dark ? Colors.black : Colors.white),
             ),
           ),
         ]),
       ),
     );
   }
+}
+
+/// Menu flutuante do "+" (estilo X): opções ancoradas acima do botão.
+void _showCreateMenu(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'criar',
+    barrierColor: Colors.black54,
+    transitionDuration: const Duration(milliseconds: 160),
+    pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+    transitionBuilder: (ctx, anim, _, __) {
+      final dark = Theme.of(ctx).brightness == Brightness.dark;
+
+      Widget item(String label, IconData icon, Color bg, Color fg, String? pick) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(ctx);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => ComposeScreen(initialPick: pick)));
+            },
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: dark ? const Color(0xFF16181C) : Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: dark ? Colors.white12 : Colors.black12),
+                ),
+                child: Text(label,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13.5,
+                        color: dark ? Colors.white : const Color(0xFF0B0B10))),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: bg),
+                child: Icon(icon, size: 20, color: fg),
+              ),
+            ]),
+          ),
+        );
+      }
+
+      final chip = dark ? const Color(0xFF1D2025) : Colors.white;
+      final chipFg = dark ? Colors.white70 : Colors.black54;
+      return FadeTransition(
+        opacity: anim,
+        child: SafeArea(
+          child: Stack(children: [
+            Positioned(
+              right: 14,
+              bottom: 96,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  item('Foto', Icons.image_outlined, chip, chipFg, 'img'),
+                  item('Vídeo', Icons.videocam_outlined, chip, chipFg, 'vid'),
+                  item('Publicar', Icons.edit_outlined, const Color(0xFF8B5CF6), Colors.white, null),
+                ],
+              ),
+            ),
+          ]),
+        ),
+      );
+    },
+  );
 }
