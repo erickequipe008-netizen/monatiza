@@ -264,7 +264,7 @@ class _ChatScreenState extends State<ChatScreen> {
           if (!mine)
             Padding(padding: const EdgeInsets.only(right: 6), child: memberAvatar(widget.other, 12)),
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.74),
+            constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.74),
             child: Container(
               padding: image != null
                   ? const EdgeInsets.all(4)

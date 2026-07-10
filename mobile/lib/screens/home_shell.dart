@@ -1,7 +1,9 @@
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../db.dart';
+import '../notifications.dart';
 import 'feed_screen.dart';
 import 'community_screen.dart';
 import 'discover_screen.dart';
@@ -24,6 +26,12 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _i = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    startNotifications(); // pede permissão e liga os avisos
+  }
   final _bodies = const [FeedBody(), CommunityBody(), MessagesBody(), DiscoverBody(), ProfileBody()];
   final _titles = const ["monatiza", "Comunidade", "Mensagens", "Descobrir", "Perfil"];
 
@@ -309,49 +317,75 @@ class _NavBar extends StatelessWidget {
   }
 }
 
-/// Menu flutuante do "+" (estilo X): opções ancoradas acima do botão.
+/// Menu flutuante do "+": fundo desfocado e opções subindo em cascata.
 void _showCreateMenu(BuildContext context) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: 'criar',
-    barrierColor: Colors.black54,
-    transitionDuration: const Duration(milliseconds: 160),
+    barrierColor: Colors.black38,
+    transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (_, __, ___) => const SizedBox.shrink(),
     transitionBuilder: (ctx, anim, _, __) {
       final dark = Theme.of(ctx).brightness == Brightness.dark;
+      final fade = CurvedAnimation(parent: anim, curve: Curves.easeOut);
 
-      Widget item(String label, IconData icon, Color bg, Color fg, String? pick) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pop(ctx);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => ComposeScreen(initialPick: pick)));
-            },
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: dark ? const Color(0xFF16181C) : Colors.white,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: dark ? Colors.white12 : Colors.black12),
-                ),
-                child: Text(label,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13.5,
-                        color: dark ? Colors.white : const Color(0xFF0B0B10))),
+      Widget item(int idx, String label, IconData icon, Color bg, Color fg, String? pick) {
+        // Cascata: cada item entra um pouco depois, deslizando de baixo.
+        final a = CurvedAnimation(
+          parent: anim,
+          curve: Interval(0.10 * idx, 1.0, curve: Curves.easeOut),
+        );
+        final slide = Tween<Offset>(begin: const Offset(0, 0.6), end: Offset.zero)
+            .chain(CurveTween(curve: Curves.easeOutBack))
+            .animate(a);
+        return FadeTransition(
+          opacity: a,
+          child: SlideTransition(
+            position: slide,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.pop(ctx);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => ComposeScreen(initialPick: pick)));
+                },
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: dark ? const Color(0xFF16181C) : Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: dark ? Colors.white12 : Colors.black12),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.25), blurRadius: 14, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: Text(label,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                            decoration: TextDecoration.none,
+                            color: dark ? Colors.white : const Color(0xFF0B0B10))),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: bg,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 14, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: Icon(icon, size: 21, color: fg),
+                  ),
+                ]),
               ),
-              const SizedBox(width: 10),
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: bg),
-                child: Icon(icon, size: 20, color: fg),
-              ),
-            ]),
+            ),
           ),
         );
       }
@@ -359,23 +393,29 @@ void _showCreateMenu(BuildContext context) {
       final chip = dark ? const Color(0xFF1D2025) : Colors.white;
       final chipFg = dark ? Colors.white70 : Colors.black54;
       return FadeTransition(
-        opacity: anim,
-        child: SafeArea(
-          child: Stack(children: [
-            Positioned(
-              right: 14,
-              bottom: 96,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  item('Foto', Icons.image_outlined, chip, chipFg, 'img'),
-                  item('Vídeo', Icons.videocam_outlined, chip, chipFg, 'vid'),
-                  item('Publicar', Icons.edit_outlined, const Color(0xFF8B5CF6), Colors.white, null),
-                ],
-              ),
+        opacity: fade,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 7 * fade.value, sigmaY: 7 * fade.value),
+          child: Material(
+            type: MaterialType.transparency,
+            child: SafeArea(
+              child: Stack(children: [
+                Positioned(
+                  right: 14,
+                  bottom: 96,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      item(2, 'Foto', Icons.image_outlined, chip, chipFg, 'img'),
+                      item(1, 'Vídeo', Icons.videocam_outlined, chip, chipFg, 'vid'),
+                      item(0, 'Publicar', Icons.edit_outlined, const Color(0xFF8B5CF6), Colors.white, null),
+                    ],
+                  ),
+                ),
+              ]),
             ),
-          ]),
+          ),
         ),
       );
     },

@@ -59,21 +59,12 @@ class _FeedBodyState extends State<FeedBody> {
   }
 
   Future<void> _load() async {
-    final results = await Future.wait([
-      ensureProfile(),
-      recommendedProfiles(),
-      fetchArticles(),
-      getSubscription(),
-    ]);
-    if (mounted) {
-      setState(() {
-        _me = results[0] as Map<String, dynamic>?;
-        _people = (results[1] as List<Map<String, dynamic>>).take(12).toList();
-        _items = results[2] as List<Map<String, dynamic>>;
-        _isSub = (results[3] as Map<String, dynamic>?)?['status']?.toString() == 'active';
-        _loading = false;
-      });
-    }
+    // Cada bloco chega e aparece na hora — a página não espera o mais lento.
+    ensureProfile().then((v) { if (mounted) setState(() => _me = v); });
+    recommendedProfiles().then((v) { if (mounted) setState(() => _people = v.take(12).toList()); });
+    getSubscription().then((v) { if (mounted) setState(() => _isSub = v?['status']?.toString() == 'active'); });
+    final arts = await fetchArticles();
+    if (mounted) setState(() { _items = arts; _loading = false; });
   }
 
   void _push(Widget s) => Navigator.push(context, MaterialPageRoute(builder: (_) => s));
