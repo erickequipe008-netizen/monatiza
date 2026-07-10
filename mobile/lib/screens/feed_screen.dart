@@ -198,40 +198,35 @@ class _FeedBodyState extends State<FeedBody> {
               ),
             ),
             const SizedBox(height: 16),
-            // ---- Cartões: destaque + atalhos (mesmo tamanho, mais presença) ----
-            if (destaque != null)
+            // ---- Destaque em largura total + duas fichas iguais embaixo ----
+            if (destaque != null) ...[
               SizedBox(
-                height: 208,
-                child: Row(children: [
-                  Expanded(
-                    child: _HeroCard(article: destaque, onTap: () => _push(ReaderScreen(article: destaque))),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(children: [
-                      Expanded(
-                        child: _MiniCard(
-                          icon: Icons.workspace_premium,
-                          iconColor: const Color(0xFFC9A24B),
-                          title: 'Exclusivo',
-                          subtitle: 'Para assinantes',
-                          onTap: () => _push(ArticleListScreen(title: 'Exclusivo', load: fetchPremium)),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: _MiniCard(
-                          icon: Icons.menu_book_outlined,
-                          iconColor: _accent,
-                          title: 'Revistas',
-                          subtitle: 'Edições especiais',
-                          onTap: () => _push(ArticleListScreen(title: 'Revistas', load: () => fetchByCategory('%Revista%'))),
-                        ),
-                      ),
-                    ]),
-                  ),
-                ]),
+                height: 172,
+                child: _HeroCard(article: destaque, onTap: () => _push(ReaderScreen(article: destaque))),
               ),
+              const SizedBox(height: 8),
+              Row(children: [
+                Expanded(
+                  child: _MiniCard(
+                    icon: Icons.workspace_premium,
+                    iconColor: const Color(0xFFC9A24B),
+                    title: 'Exclusivo',
+                    subtitle: 'Para assinantes',
+                    onTap: () => _push(ArticleListScreen(title: 'Exclusivo', load: fetchPremium)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _MiniCard(
+                    icon: Icons.menu_book_outlined,
+                    iconColor: _accent,
+                    title: 'Revistas',
+                    subtitle: 'Edições especiais',
+                    onTap: () => _push(ArticleListScreen(title: 'Revistas', load: () => fetchByCategory('%Revista%'))),
+                  ),
+                ),
+              ]),
+            ],
             const SizedBox(height: 26),
             // ---- Últimas notícias ----
             Text('ÚLTIMAS NOTÍCIAS',
@@ -327,9 +322,9 @@ class _HeroCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(a['title'] ?? '',
-                  maxLines: 3,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800, height: 1.2, color: Colors.white)),
+                  style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w800, height: 1.2, color: Colors.white)),
             ]),
           ),
         ]),
@@ -357,30 +352,37 @@ class _MiniCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          // Conteúdo agrupado no centro — sem vão no meio do quadro.
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+        // Ficha horizontal: ícone + textos lado a lado — preenchida e
+        // com altura fixa (não tem como estourar nem sobrar vão).
+        child: SizedBox(
+          height: 74,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(children: [
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(color: iconColor.withOpacity(0.15), shape: BoxShape.circle),
-                child: Icon(icon, size: 21, color: iconColor),
+                child: Icon(icon, size: 20, color: iconColor),
               ),
-              const SizedBox(height: 8),
-              Text(title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5)),
-              const SizedBox(height: 2),
-              Text(subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: dark ? Colors.white38 : Colors.black45, fontSize: 11)),
-            ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: dark ? Colors.white38 : Colors.black45, fontSize: 11)),
+                  ],
+                ),
+              ),
+            ]),
           ),
         ),
       ),
