@@ -332,7 +332,6 @@ class _ProfileBodyState extends State<ProfileBody> {
         .map((u) => _PersonRow(profile: u, onTap: () => _open(MemberProfileScreen(profile: u))))
         .toList();
   }
-}
 
   Widget _quemSeguir() => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
