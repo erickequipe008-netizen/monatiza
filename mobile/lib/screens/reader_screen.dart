@@ -82,7 +82,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
           Text(a['title'] ?? '', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, height: 1.15)),
           const SizedBox(height: 16),
           if (a['image_url'] != null)
-            ClipRRect(borderRadius: BorderRadius.circular(14), child: Image.network(a['image_url'], errorBuilder: (_, __, ___) => const SizedBox())),
+            ClipRRect(borderRadius: BorderRadius.circular(14), child: Image.network(a['image_url'], cacheWidth: 1100, errorBuilder: (_, __, ___) => const SizedBox())),
           const SizedBox(height: 20),
           if (_loading)
             const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))

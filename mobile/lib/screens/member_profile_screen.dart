@@ -315,7 +315,7 @@ class _MemberPostState extends State<_MemberPost> {
                                 child: const Icon(Icons.play_circle_fill,
                                     size: 50, color: Colors.white70)),
                           )
-                        : Image.network(media, errorBuilder: (_, __, ___) => const SizedBox()),
+                        : Image.network(media, cacheWidth: 900, errorBuilder: (_, __, ___) => const SizedBox()),
                   ),
                 ),
               Padding(

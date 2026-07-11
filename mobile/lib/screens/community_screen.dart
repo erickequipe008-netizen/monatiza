@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,6 +33,7 @@ class _CommunityBodyState extends State<CommunityBody> {
   File? _file;
   bool _fileIsVideo = false;
   RealtimeChannel? _rt;
+  Timer? _rtDebounce;
 
   @override
   void initState() {
@@ -45,7 +47,12 @@ class _CommunityBodyState extends State<CommunityBody> {
           event: PostgresChangeEvent.insert,
           schema: 'public',
           table: 'posts',
-          callback: (_) { if (mounted && !_posting) _load(silent: true); },
+          callback: (_) {
+            _rtDebounce?.cancel();
+            _rtDebounce = Timer(const Duration(milliseconds: 800), () {
+              if (mounted && !_posting) _load(silent: true);
+            });
+          },
         )
         .subscribe();
   }
@@ -54,6 +61,7 @@ class _CommunityBodyState extends State<CommunityBody> {
   void dispose() {
     final ch = _rt;
     if (ch != null) Supabase.instance.client.removeChannel(ch);
+    _rtDebounce?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
@@ -329,7 +337,7 @@ class _PostRowState extends State<_PostRow> {
                   borderRadius: BorderRadius.circular(14),
                   child: _isVideo(media)
                       ? _PostVideo(url: media)
-                      : Image.network(media, errorBuilder: (_, __, ___) => const SizedBox()),
+                      : Image.network(media, cacheWidth: 900, errorBuilder: (_, __, ___) => const SizedBox()),
                 ),
               ),
             Padding(

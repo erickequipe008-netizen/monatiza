@@ -1,13 +1,12 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../auth_gate.dart';
 
-/// Splash cinematográfica: a tela nasce preta e um único feixe de luz
-/// percorre o traçado do "m", deixando o rastro branco que forma a
-/// letra. No fim, um brilho fino atravessa a letra da esquerda para a
-/// direita, o logo respira por ~700ms e a tela transiciona em fade.
-/// Tudo em uma única CustomPaint (GPU/Impeller, 60fps).
+/// Splash cinematográfica: um feixe de luz percorre o traçado do "m"
+/// deixando o rastro; quando fecha, o esqueleto se transforma no logo
+/// serifado oficial com um glint atravessando a letra. Fade para o app.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
@@ -15,9 +14,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  // 0.00–0.58  feixe desenha o m (easeInOutCubic)
-  // 0.62–0.82  brilho atravessa a letra
-  // 0.82–1.00  pausa elegante (logo respira)
+  // 0.00–0.50  feixe desenha o esqueleto do m
+  // 0.50–0.66  esqueleto vira o logo serifado (crossfade + leve escala)
+  // 0.68–0.88  glint atravessa a letra
+  // 0.88–1.00  pausa elegante
   late final AnimationController _c =
       AnimationController(vsync: this, duration: const Duration(milliseconds: 1950))..forward();
 
@@ -47,6 +47,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final logoStyle = GoogleFonts.robotoSlab(
+      fontSize: 118,
+      fontWeight: FontWeight.w800,
+      color: Colors.white,
+      height: 1,
+    );
     return Scaffold(
       backgroundColor: const Color(0xFF000000),
       body: Center(
@@ -55,17 +61,47 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             animation: _c,
             builder: (_, __) {
               final v = _c.value;
-              final draw = Curves.easeInOutCubic.transform((v / 0.58).clamp(0.0, 1.0));
-              final shine = ((v - 0.62) / 0.20).clamp(0.0, 1.0);
-              // Respiro sutil quando a letra fecha
-              final settle = v <= 0.58
+              final draw = Curves.easeInOutCubic.transform((v / 0.50).clamp(0.0, 1.0));
+              final reveal = Curves.easeOut.transform(((v - 0.50) / 0.16).clamp(0.0, 1.0));
+              final glint = ((v - 0.68) / 0.20).clamp(0.0, 1.0);
+              final settle = v <= 0.50
                   ? 1.0
-                  : 1.0 + 0.035 * math.sin((((v - 0.58) / 0.18).clamp(0.0, 1.0)) * math.pi);
+                  : 1.0 + 0.03 * math.sin((((v - 0.50) / 0.22).clamp(0.0, 1.0)) * math.pi);
               return Transform.scale(
                 scale: settle,
-                child: CustomPaint(
-                  size: const Size(150, 132),
-                  painter: _BeamMPainter(draw: draw, shine: shine),
+                child: SizedBox(
+                  width: 170,
+                  height: 150,
+                  child: Stack(alignment: Alignment.center, children: [
+                    // Esqueleto sendo desenhado pelo feixe
+                    Opacity(
+                      opacity: (1 - reveal).clamp(0.0, 1.0),
+                      child: CustomPaint(
+                        size: const Size(150, 132),
+                        painter: _BeamMPainter(draw: draw),
+                      ),
+                    ),
+                    // Logo serifado oficial com glint varrendo
+                    Opacity(
+                      opacity: reveal,
+                      child: Transform.scale(
+                        scale: 0.94 + 0.06 * reveal,
+                        child: ShaderMask(
+                          blendMode: BlendMode.srcIn,
+                          shaderCallback: (rect) {
+                            final x0 = -rect.width + glint * rect.width * 2.4;
+                            return ui.Gradient.linear(
+                              Offset(x0, 0),
+                              Offset(x0 + rect.width * 0.7, rect.height),
+                              [Colors.white, const Color(0xFFD9C6FF), Colors.white],
+                              [0.25, 0.5, 0.75],
+                            );
+                          },
+                          child: Text('m', style: logoStyle),
+                        ),
+                      ),
+                    ),
+                  ]),
                 ),
               );
             },
@@ -76,22 +112,19 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
-/// Pinta o "m": rastro nítido + halos de glow/bloom, cometa com motion
-/// blur na ponta do feixe e, ao final, a faixa de brilho varrendo.
+/// Feixe de luz: rastro nítido + glow/bloom em camadas e cometa com
+/// motion blur na ponta enquanto percorre o traçado.
 class _BeamMPainter extends CustomPainter {
   final double draw;
-  final double shine;
-  _BeamMPainter({required this.draw, required this.shine});
+  _BeamMPainter({required this.draw});
 
   Path _mPath(Size size) {
     final bottom = size.height - 16;
     return Path()
-      // haste esquerda + primeiro arco + haste do meio
       ..moveTo(20, bottom)
       ..lineTo(20, 52)
       ..cubicTo(20, 20, 73, 20, 73, 52)
       ..lineTo(73, bottom)
-      // segundo arco + haste direita
       ..moveTo(73, 52)
       ..cubicTo(73, 20, 126, 20, 126, 52)
       ..lineTo(126, bottom);
@@ -115,7 +148,6 @@ class _BeamMPainter extends CustomPainter {
       return p;
     }
 
-    // Monta o trecho já percorrido (rastro permanente)
     final done = Path();
     var remain = target;
     ui.Tangent? tip;
@@ -127,12 +159,10 @@ class _BeamMPainter extends CustomPainter {
       remain -= m.length;
     }
 
-    // Bloom discreto + glow em camadas, do difuso ao nítido
     canvas.drawPath(done, stroke(42, 0.16, 18));
     canvas.drawPath(done, stroke(32, 0.38, 8));
     canvas.drawPath(done, stroke(25, 1.0));
 
-    // Cometa do feixe: os últimos ~30px com blur (sensação de movimento)
     if (draw > 0 && draw < 1 && tip != null) {
       var tailStart = target - 30;
       if (tailStart < 0) tailStart = 0;
@@ -147,7 +177,6 @@ class _BeamMPainter extends CustomPainter {
         acc += m.length;
       }
       canvas.drawPath(tail, stroke(27, 0.85, 5));
-      // Núcleo da luz + halo (glow intenso na ponta)
       final pos = tip.position;
       canvas.drawCircle(pos, 15, Paint()
         ..color = Colors.white.withOpacity(0.45)
@@ -156,32 +185,8 @@ class _BeamMPainter extends CustomPainter {
         ..color = Colors.white
         ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 1.5));
     }
-
-    // Brilho fino atravessando a letra (esquerda → direita)
-    if (shine > 0 && shine < 1 && draw >= 1) {
-      final bandW = size.width * 0.5;
-      final x0 = -bandW + shine * (size.width + bandW * 2);
-      final band = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 25
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..blendMode = BlendMode.plus
-        ..shader = ui.Gradient.linear(
-          Offset(x0, 0),
-          Offset(x0 + bandW, size.height),
-          [
-            Colors.white.withOpacity(0),
-            Colors.white.withOpacity(0.75),
-            Colors.white.withOpacity(0),
-          ],
-          [0.0, 0.5, 1.0],
-        );
-      canvas.drawPath(path, band);
-    }
   }
 
   @override
-  bool shouldRepaint(covariant _BeamMPainter old) =>
-      old.draw != draw || old.shine != shine;
+  bool shouldRepaint(covariant _BeamMPainter old) => old.draw != draw;
 }

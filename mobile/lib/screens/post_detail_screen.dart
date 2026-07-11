@@ -63,7 +63,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           if ((p['content'] ?? '').toString().isNotEmpty)
             Padding(padding: const EdgeInsets.only(top: 8), child: Text(p['content'], style: TextStyle(fontSize: big ? 17 : 15, height: 1.4))),
           if (p['image_url'] != null)
-            Padding(padding: const EdgeInsets.only(top: 10), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(p['image_url'], errorBuilder: (_, __, ___) => const SizedBox()))),
+            Padding(padding: const EdgeInsets.only(top: 10), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(p['image_url'], cacheWidth: 900, errorBuilder: (_, __, ___) => const SizedBox()))),
         ],
       ),
     );
