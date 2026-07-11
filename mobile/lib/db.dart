@@ -395,6 +395,14 @@ Future<void> submitVerificationDocs(String docPath, String selfiePath) async {
   }).eq('user_id', me);
 }
 
+/// O @ está livre? (verificação ao vivo no cadastro)
+Future<bool> handleAvailable(String handle) async {
+  final h = handle.trim().toLowerCase();
+  if (h.length < 3) return false;
+  final r = await _sb.from('community_profiles').select('user_id').eq('handle', h).maybeSingle();
+  return r == null;
+}
+
 /// Busca contas por nome ou @ (para a busca do app).
 Future<List<Map<String, dynamic>>> searchProfiles(String q) async {
   final t = q.trim();

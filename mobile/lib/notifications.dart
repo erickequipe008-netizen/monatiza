@@ -35,6 +35,9 @@ Future<void> _show(String title, String body) async {
   );
 }
 
+/// Só pede a autorização do sistema (usada no onboarding, com contexto).
+Future<void> askNotificationPermission() => _init();
+
 /// Liga os avisos (chamar depois do login).
 Future<void> startNotifications() async {
   try {

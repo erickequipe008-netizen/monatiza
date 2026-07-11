@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../auth_gate.dart';
 import '../config.dart';
 import 'signup_screen.dart';
 
@@ -26,6 +28,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await Supabase.instance.client.auth
           .signInWithPassword(email: _email.text.trim(), password: _password.text);
+      // Quem já tem conta não passa pelo cadastro guiado
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('ob_done', true);
+      obDone.value = true;
       if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
     } on AuthException catch (e) {
       final m = e.message;
