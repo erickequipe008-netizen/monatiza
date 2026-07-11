@@ -66,6 +66,28 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Mobile web com a identidade do APP (lilás). Injetado direto para
+            não passar pelo processador de CSS; no desktop nada muda. */}
+        <style
+          id="mobile-app-skin"
+          dangerouslySetInnerHTML={{
+            __html: `
+@media (max-width: 767px) {
+  .pro-gradient { background-color: #8b5cf6 !important; background-image: linear-gradient(135deg, #a78bfa, #7c3aed) !important; }
+  .pro-gradient-text { -webkit-text-fill-color: #8b5cf6 !important; color: #8b5cf6 !important; }
+  .text-\\[\\#1d9bf0\\] { color: #8b5cf6 !important; }
+  .hover\\:text-\\[\\#1d9bf0\\]:hover { color: #8b5cf6 !important; }
+  .bg-\\[\\#1d9bf0\\] { background-color: #8b5cf6 !important; }
+  .hover\\:bg-\\[\\#1d9bf0\\]:hover { background-color: #7c3aed !important; }
+  .border-\\[\\#1d9bf0\\] { border-color: #8b5cf6 !important; }
+  .ring-\\[\\#1d9bf0\\] { --tw-ring-color: #8b5cf6 !important; }
+  .text-sky-300, .text-sky-400, .text-sky-500 { color: #a78bfa !important; }
+  .hover\\:text-sky-300:hover, .hover\\:text-sky-400:hover { color: #c4b5fd !important; }
+  .bg-sky-500 { background-color: #8b5cf6 !important; }
+  .border-sky-500 { border-color: #8b5cf6 !important; }
+}`,
+          }}
+        />
       </head>
       <body>
         {/* O AdSense (script + anúncios) só carrega para quem NÃO é assinante. */}

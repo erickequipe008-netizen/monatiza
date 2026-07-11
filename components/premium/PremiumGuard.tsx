@@ -483,40 +483,53 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
         </aside>
 
         {/* ── CONTEÚDO ── */}
-        <main key={pathname} className="wave-in min-w-0 flex-1 px-4 py-6 md:px-6 md:py-8">
+        <main key={pathname} className="wave-in min-w-0 flex-1 px-4 pt-6 pb-28 md:px-6 md:py-8">
           {children}
           <AppFooter className="mt-8 border-t border-white/10 pt-4 lg:hidden" />
         </main>
       </div>
 
-      {/* ── BARRA INFERIOR (mobile) ── */}
+      {/* ── DOCK FLUTUANTE (mobile) — mesma identidade do aplicativo ── */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0a0a0c]/95 backdrop-blur-xl md:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="fixed inset-x-0 bottom-0 z-40 px-3 md:hidden"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)" }}
       >
-        <div className="mx-auto flex max-w-[640px] items-stretch justify-around px-1">
-          {MOBILE.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex flex-1 flex-col items-center gap-1 py-2.5 active:scale-95 transition"
-              >
-                <span
-                  className={`flex h-9 w-9 items-center justify-center rounded-full transition ${
-                    active ? "pro-gradient text-white" : "text-zinc-500"
-                  }`}
+        <div className="mx-auto flex max-w-[640px] items-center gap-2.5">
+          <div className="flex min-w-0 flex-1 items-center rounded-full border border-white/10 bg-[#14171b]/95 px-1.5 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+            {MOBILE.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(pathname, item.href);
+              const label = NAVK[item.label] ? t(NAVK[item.label]) : item.label;
+              return active ? (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="mx-0.5 flex h-11 shrink-0 items-center gap-2 rounded-full bg-[#8b5cf6] px-4 text-white transition active:scale-95"
                 >
-                  <Icon size={21} />
-                </span>
-                <span className={`text-[10px] font-bold ${active ? "pro-gradient-text" : "text-zinc-500"}`}>
-                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
-                </span>
-              </Link>
-            );
-          })}
+                  <Icon size={18} />
+                  <span className="max-w-[92px] truncate text-[12.5px] font-extrabold">{label}</span>
+                </Link>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-label={label}
+                  className="flex min-w-0 flex-1 items-center justify-center py-0.5 transition active:scale-95"
+                >
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-zinc-400">
+                    <Icon size={19} />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          <Link
+            href="/app/comunidade"
+            aria-label="Publicar"
+            className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white text-black shadow-[0_5px_16px_rgba(0,0,0,0.5)] transition active:scale-95"
+          >
+            <PenSquare size={20} />
+          </Link>
         </div>
       </nav>
     </div>

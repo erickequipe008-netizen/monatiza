@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { ADSENSE_CLIENT, AD_SLOTS, type AdPlacement } from "@/lib/ads";
+import { isAdFreePath } from "@/lib/ads-areas";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
 type AdSlotProps = {
@@ -17,7 +19,7 @@ type AdSlotProps = {
 
 declare global {
   interface Window {
-    adsbygoogle?: unknown[];
+    adsbygoogle?: unknown[] & { pauseAdRequests?: number };
   }
 }
 
@@ -39,19 +41,20 @@ export default function AdSlot({
   const slot = AD_SLOTS[placement];
   const pushed = useRef(false);
   const { isSubscriber } = useSubscriber();
+  const blocked = isAdFreePath(usePathname());
 
   useEffect(() => {
-    if (!slot || pushed.current || isSubscriber) return;
+    if (!slot || pushed.current || isSubscriber || blocked) return;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
       pushed.current = true;
     } catch {
       /* AdSense ainda carregando — ignora silenciosamente */
     }
-  }, [slot]);
+  }, [slot, blocked]);
 
-  // Assinante ativo não vê anúncios (nem o espaço reservado).
-  if (isSubscriber) return null;
+  // Assinante ativo e áreas privadas/administrativas: nada de anúncio.
+  if (isSubscriber || blocked) return null;
 
   // Sem slot configurado: a caixa fica ATIVA (espaço reservado no layout),
   // pronta para receber o anúncio assim que o slot for preenchido em lib/ads.ts.
