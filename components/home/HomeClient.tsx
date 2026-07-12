@@ -14,6 +14,7 @@ import { NewsletterBanner } from "@/components/home/NewsletterBanner";
 import { InstitutionalStrip } from "@/components/home/InstitutionalStrip";
 import { Skeleton } from "@/components/ui/Skeleton";
 import CommunityPromo from "@/components/home/CommunityPromo";
+import ColumnistsShowcase from "@/components/home/ColumnistsShowcase";
 import { ExclusiveSection } from "@/components/home/ExclusiveSection";
 import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
@@ -150,6 +151,9 @@ export default function HomeClient({
             <ArticleGrid dark={dark} articles={gridArticles} />
           </section>
         )}
+
+        {/* ── COLUNISTAS ── */}
+        {!loading && <ColumnistsShowcase />}
 
         {!loading && <NewsletterBanner dark={dark} />}
         {!loading && <InstitutionalStrip dark={dark} />}

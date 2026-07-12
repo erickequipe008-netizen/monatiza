@@ -57,6 +57,21 @@ async function getRelated(category: string, slug: string) {
   return data || [];
 }
 
+// "Continue lendo": matérias recentes de várias editorias para o leitor
+// emendar de uma na outra sem voltar. Dedup contra a atual e os relacionados.
+async function getMoreToRead(slug: string, excludeSlugs: string[]) {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from("articles")
+    .select("id, title, slug, category, image_url, created_at, is_premium")
+    .eq("status", "publicado")
+    .neq("slug", slug)
+    .order("created_at", { ascending: false })
+    .limit(16);
+  const skip = new Set(excludeSlugs);
+  return (data || []).filter((a) => !skip.has(a.slug)).slice(0, 8);
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -123,6 +138,8 @@ export default async function Page({
     getArticleBody(slug),
   ]);
 
+  const moreToRead = await getMoreToRead(slug, related.map((r) => r.slug));
+
   // Premium + sem corpo (visitante anônimo no SSR) → mostra prévia + paywall.
   const locked = !!article.is_premium && !body;
   const preview = locked ? await getArticlePreview(slug) : null;
@@ -148,7 +165,7 @@ export default async function Page({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ArticleClient article={article} related={related} body={body} locked={locked} preview={preview} />
+      <ArticleClient article={article} related={related} moreToRead={moreToRead} body={body} locked={locked} preview={preview} />
     </>
   );
 }

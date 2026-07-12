@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Clock3, ArrowLeft, Share2, Crown } from "lucide-react";
 import AdSlot from "@/components/ads/AdSlot";
 import Paywall from "@/components/premium/Paywall";
+import SubscribeCTA from "@/components/premium/SubscribeCTA";
+import ContinueReading from "@/components/premium/ContinueReading";
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 import { toISO } from "@/lib/seo";
@@ -29,12 +31,14 @@ type Article = Record<string, any>;
 export default function ArticleClient({
   article,
   related,
+  moreToRead = [],
   body: initialBody = null,
   locked: initialLocked = false,
   preview = null,
 }: {
   article: Article;
   related: Article[];
+  moreToRead?: Article[];
   body?: string | null;
   locked?: boolean;
   preview?: string | null;
@@ -237,6 +241,9 @@ export default function ArticleClient({
                   )}
                 </div>
               )}
+
+              {/* Card de assinatura no fim da matéria (visitante) */}
+              <SubscribeCTA />
             </>
           )}
 
@@ -351,6 +358,9 @@ export default function ArticleClient({
           <AdSlot placement="articleSidebar" format="rectangle" minHeight={300} />
         </aside>
       </div>
+
+      {/* ── CONTINUE LENDO: recomendações full-width ── */}
+      <ContinueReading items={moreToRead as any} />
 
       {/* ── ESTILOS DO CORPO DO ARTIGO ── */}
       <style>{`

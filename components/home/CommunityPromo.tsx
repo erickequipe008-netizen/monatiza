@@ -88,8 +88,8 @@ export default function CommunityPromo({
             </span>
           </div>
 
-          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Conheça a</p>
-          <h3 className="mt-1 text-[32px] font-black leading-[0.95] tracking-tight sm:text-[42px]">
+          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Junte-se à</p>
+          <h3 className="mt-1 text-[28px] font-black leading-[1.02] tracking-tight sm:text-[38px]">
             <span
               style={{
                 backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)",
@@ -98,10 +98,10 @@ export default function CommunityPromo({
                 color: "transparent",
               }}
             >
-              Rede social
+              Maior comunidade
             </span>
             <br />
-            <span className="text-white">do Monatiza</span>
+            <span className="text-white">de empresários independentes da Monatiza</span>
           </h3>
 
           {/* pílula "faça parte" */}
@@ -130,9 +130,13 @@ export default function CommunityPromo({
             </span>
           </div>
 
-          <p className="mx-auto mt-6 max-w-[440px] text-[15px] leading-relaxed text-zinc-300">
-            A rede social do Monatiza reúne notícias, publicações e debates sobre
-            negócios, economia e tecnologia no Brasil — tudo em um só lugar.
+          <p className="mx-auto mt-6 max-w-[460px] text-[15px] leading-relaxed text-zinc-300">
+            Publique conteúdo, amplie sua visibilidade e conecte-se com pessoas que
+            realmente geram oportunidades.
+          </p>
+
+          <p className="mx-auto mt-3 max-w-[460px] text-[15px] font-black text-white">
+            Quem aparece, vende. Quem se posiciona, lidera.
           </p>
 
           <Link
