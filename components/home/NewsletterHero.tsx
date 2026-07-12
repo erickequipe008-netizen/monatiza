@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Check, Loader2 } from "lucide-react";
+import { Mail, Check, Loader2, Signal, Wifi, BatteryFull } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 /**
@@ -92,7 +92,11 @@ export default function NewsletterHero() {
                 <div className="relative flex items-center justify-between px-5 pt-3 pb-2">
                   <div className="absolute left-1/2 top-2 h-4 w-20 -translate-x-1/2 rounded-full bg-zinc-900" />
                   <span className="text-[10px] font-bold text-zinc-900">06:06</span>
-                  <span className="text-[10px] font-semibold text-zinc-500">edição de hoje</span>
+                  <span className="flex items-center gap-1 text-zinc-900">
+                    <Signal size={11} />
+                    <Wifi size={11} />
+                    <BatteryFull size={15} />
+                  </span>
                 </div>
                 {/* conteúdo da newsletter */}
                 <div className="px-4 pb-6">

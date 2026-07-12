@@ -13,6 +13,7 @@ import NewsletterHero from "@/components/home/NewsletterHero";
 import { Skeleton } from "@/components/ui/Skeleton";
 import CommunityPromo from "@/components/home/CommunityPromo";
 import ColumnistsShowcase from "@/components/home/ColumnistsShowcase";
+import InstagramSection from "@/components/home/InstagramSection";
 import { ExclusiveSection } from "@/components/home/ExclusiveSection";
 import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 
@@ -146,6 +147,11 @@ export default function HomeClient({
             {/* ── COMUNIDADE / APP (uma vez, ao fim do fluxo editorial) ── */}
             <CommunityPromo className="mt-12" />
           </section>
+        )}
+
+        {/* ── INSTAGRAM ── */}
+        {!loading && (
+          <InstagramSection images={articles.filter((a) => a.image_url).map((a) => a.image_url as string)} />
         )}
 
         {/* ── NEWSLETTER (fim da capa) ── */}
