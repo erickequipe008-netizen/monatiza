@@ -4,6 +4,7 @@ import { getStripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { COLUMNIST_PLANS } from "@/lib/columnist";
 import { resend } from "@/lib/resend";
+import { deliverMagazineEmailOnce } from "@/lib/magazine-fulfill";
 
 export const runtime = "nodejs";
 
@@ -95,6 +96,14 @@ export async function POST(req: Request) {
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      // Compra de revista digital (pagamento único): registra o pedido e
+      // entrega o e-mail com o link seguro de download.
+      if (session.metadata?.type === "magazine") {
+        await deliverMagazineEmailOnce(session.id);
+        return NextResponse.json({ received: true });
+      }
+
       const userId = session.client_reference_id || (session.metadata?.user_id ?? null);
 
       if (userId && session.metadata?.type === "credits") {

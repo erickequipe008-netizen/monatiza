@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, ClipboardCheck, FileText, CreditCard, User, Plus, LogOut, BadgeCheck, Flag } from "lucide-react";
+import { LayoutDashboard, ClipboardCheck, FileText, CreditCard, User, Plus, LogOut, BadgeCheck, Flag, BookOpen } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 const NAV = [
@@ -12,6 +12,7 @@ const NAV = [
   { label: "Verificações", href: "/admin/verificacoes", icon: BadgeCheck },
   { label: "Denúncias", href: "/admin/denuncias", icon: Flag },
   { label: "Artigos", href: "/admin/articles", icon: FileText },
+  { label: "Revistas", href: "/admin/revistas", icon: BookOpen },
   { label: "Créditos", href: "/admin/creditos", icon: CreditCard },
   { label: "Perfil", href: "/admin/settings", icon: User },
 ];
