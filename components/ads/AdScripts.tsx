@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import { ADSENSE_CLIENT } from "@/lib/ads";
-import { isAdFreePath } from "@/lib/ads-areas";
+import { isAdEligiblePath } from "@/lib/ads-areas";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
 /**
@@ -20,18 +20,18 @@ import { useSubscriber } from "@/components/premium/SubscriberProvider";
 export default function AdScripts() {
   const { loading, isSubscriber } = useSubscriber();
   const pathname = usePathname();
-  const blocked = isAdFreePath(pathname);
+  const eligible = isAdEligiblePath(pathname);
 
   useEffect(() => {
     try {
       window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.pauseAdRequests = blocked ? 1 : 0;
+      window.adsbygoogle.pauseAdRequests = eligible ? 0 : 1;
     } catch {
       /* script ainda não carregou — sem problema */
     }
-  }, [blocked]);
+  }, [eligible]);
 
-  if (loading || isSubscriber || blocked) return null;
+  if (loading || isSubscriber || !eligible) return null;
 
   return (
     <Script

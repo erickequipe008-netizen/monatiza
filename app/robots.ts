@@ -6,6 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
+        // Áreas privadas/utilitárias sem valor editorial: fora do rastreamento
+        // para o Google avaliar o site apenas pelo conteúdo real (notícias).
+        disallow: ["/admin", "/dashboard", "/editorial", "/api", "/app", "/painel"],
       },
     ],
 
