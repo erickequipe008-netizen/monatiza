@@ -45,7 +45,7 @@ export default function MagazineCardDark({ m }: { m: MagazinePublic }) {
         )}
         <div className="mt-3 flex items-center justify-between gap-2">
           <span className="text-[15px] font-black tracking-tight text-zinc-100">{formatPrice(m.price)}</span>
-          <BuyButton magazineId={m.id} label="Comprar" size="sm" />
+          <BuyButton magazineId={m.id} label="Comprar" size="sm" tone="app" />
         </div>
       </div>
     </div>

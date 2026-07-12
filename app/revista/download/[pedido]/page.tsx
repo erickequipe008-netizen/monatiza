@@ -29,7 +29,7 @@ export default async function DownloadPage({ params }: { params: Promise<{ pedid
  const title = r.magazine?.title ?? "Sua revista";
  return (
  <Shell>
- <CheckCircle2 size={48} className="text-[#6D28D9]" />
+ <CheckCircle2 size={48} className="text-[#dc2626]" />
  <h1 className="mt-4 text-[24px] font-black tracking-tight text-zinc-900">Pagamento aprovado! 🎉</h1>
  <p className="mt-2 text-[14.5px] text-zinc-500">
  Sua compra foi confirmada. Baixe abaixo — também enviamos o link para <b>{r.email || "o seu e-mail"}</b>.
@@ -43,7 +43,7 @@ export default async function DownloadPage({ params }: { params: Promise<{ pedid
 
  <a
  href={`/api/revista/download/${pedido}`}
- className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#6D28D9] px-7 py-3.5 text-[15px] font-bold text-white transition hover:bg-[#5b21b6]"
+ className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#dc2626] px-7 py-3.5 text-[15px] font-bold text-white transition hover:bg-[#b91c1c]"
  >
  <Download size={18} /> Baixar Revista
  </a>

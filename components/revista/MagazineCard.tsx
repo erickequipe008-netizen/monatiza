@@ -33,7 +33,7 @@ export default function MagazineCard({ m }: { m: MagazinePublic }) {
 
  <div className="mt-3.5 flex flex-1 flex-col">
  {m.category && (
- <span className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#6D28D9]">{m.category}</span>
+ <span className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#dc2626]">{m.category}</span>
  )}
  <Link href={`/revista/${m.slug}`} className="mt-1">
  <h3 className="line-clamp-2 text-[15.5px] font-extrabold leading-snug tracking-tight text-zinc-900">

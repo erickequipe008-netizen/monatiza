@@ -51,7 +51,7 @@ export default function AdminMagazines() {
         <h1 className="text-[24px] font-black tracking-tight text-zinc-900">Revistas</h1>
         <Link
           href="/admin/revistas/nova"
-          className="inline-flex items-center gap-2 rounded-full bg-[#6D28D9] px-4 py-2.5 text-[13.5px] font-bold text-white transition hover:bg-[#5b21b6]"
+          className="inline-flex items-center gap-2 rounded-full bg-[#dc2626] px-4 py-2.5 text-[13.5px] font-bold text-white transition hover:bg-[#b91c1c]"
         >
           <Plus size={15} /> Nova revista
         </Link>

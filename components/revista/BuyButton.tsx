@@ -7,11 +7,13 @@ type Props = {
   magazineId: string;
   label?: string;
   size?: "sm" | "lg";
+  /** "portal" = vermelho da marca (site público); "app" = azul→lilás (ambiente premium). */
+  tone?: "portal" | "app";
   className?: string;
 };
 
 /** Botão "Comprar agora" — abre o Checkout do Stripe. */
-export default function BuyButton({ magazineId, label = "Comprar agora", size = "lg", className = "" }: Props) {
+export default function BuyButton({ magazineId, label = "Comprar agora", size = "lg", tone = "portal", className = "" }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,8 +39,12 @@ export default function BuyButton({ magazineId, label = "Comprar agora", size = 
     }
   }
 
-  const base =
-    "inline-flex items-center justify-center gap-2 rounded-full bg-[#6D28D9] font-bold text-white transition hover:bg-[#5b21b6] active:scale-[0.98] disabled:opacity-60";
+  // Portal público = vermelho da marca; app premium = azul (#1d9bf0) que o skin mobile vira lilás.
+  const color =
+    tone === "app"
+      ? "bg-[#1d9bf0] hover:bg-[#1a8cd8]"
+      : "bg-red-600 hover:bg-red-700";
+  const base = `inline-flex items-center justify-center gap-2 rounded-full font-bold text-white transition active:scale-[0.98] disabled:opacity-60 ${color}`;
   const dims = size === "lg" ? "px-7 py-3.5 text-[15px]" : "px-4 py-2 text-[13px]";
 
   return (

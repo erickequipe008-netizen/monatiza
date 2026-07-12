@@ -50,13 +50,13 @@ export async function sendMagazineDeliveryEmail(args: DeliveryArgs): Promise<boo
               <p style="margin:0;font-size:15px;font-weight:800;color:#0b0b10">${args.magazineTitle}${editionLine}</p>
               <p style="margin:4px 0 0;font-size:13px;color:#666">Valor pago: ${formatPrice(args.amount)}</p>
             </div>
-            <a href="${args.downloadUrl}" style="display:inline-block;background:#6D28D9;color:#fff;text-decoration:none;font-weight:800;border-radius:30px;padding:14px 30px;font-size:15px">
+            <a href="${args.downloadUrl}" style="display:inline-block;background:#dc2626;color:#fff;text-decoration:none;font-weight:800;border-radius:30px;padding:14px 30px;font-size:15px">
               ⬇ Baixar minha revista
             </a>
             <p style="margin:18px 0 0;color:#888;font-size:12px;line-height:1.5">
               O link de download é pessoal e expira em 15 minutos por segurança. Se precisar de um novo,
               acesse a página do seu pedido:
-              <a href="${args.orderUrl}" style="color:#6D28D9">abrir pedido</a>.
+              <a href="${args.orderUrl}" style="color:#dc2626">abrir pedido</a>.
             </p>
           </div>
           <div style="padding:16px 28px;border-top:1px solid #eee">

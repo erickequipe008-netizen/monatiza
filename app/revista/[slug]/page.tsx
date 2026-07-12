@@ -96,7 +96,7 @@ export default async function MagazineDetail({ params }: { params: Promise<{ slu
  {/* Detalhes */}
  <div>
  {m.category && (
- <span className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#6D28D9]">{m.category}</span>
+ <span className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#dc2626]">{m.category}</span>
  )}
  <h1 className="mt-2 text-[30px] font-black leading-tight tracking-tight text-zinc-900 md:text-[40px]">
  {m.title}
@@ -127,9 +127,9 @@ export default async function MagazineDetail({ params }: { params: Promise<{ slu
  <BuyButton magazineId={m.id} label="Comprar agora" size="lg" />
  </div>
  <ul className="mt-4 space-y-2 text-[13px] text-zinc-500">
- <li className="flex items-center gap-2"><Mail size={14} className="text-[#6D28D9]" /> Enviada por e-mail após o pagamento</li>
- <li className="flex items-center gap-2"><Check size={14} className="text-[#6D28D9]" /> Download imediato na tela de sucesso</li>
- <li className="flex items-center gap-2"><ShieldCheck size={14} className="text-[#6D28D9]" /> Pagamento seguro via Stripe</li>
+ <li className="flex items-center gap-2"><Mail size={14} className="text-[#dc2626]" /> Enviada por e-mail após o pagamento</li>
+ <li className="flex items-center gap-2"><Check size={14} className="text-[#dc2626]" /> Download imediato na tela de sucesso</li>
+ <li className="flex items-center gap-2"><ShieldCheck size={14} className="text-[#dc2626]" /> Pagamento seguro via Stripe</li>
  </ul>
  </div>
  </div>

@@ -31,7 +31,7 @@ export default function MagazineStore({ magazines }: { magazines: MagazinePublic
  <div className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-14">
  {/* Hero */}
  <header className="mb-8 md:mb-10">
- <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#6D28D9]">Monatiza · Revistas</p>
+ <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#dc2626]">Monatiza · Revistas</p>
  <h1 className="mt-2 text-[34px] font-black leading-[1.05] tracking-tight text-zinc-900 md:text-[46px]">
  Edições digitais
  <br className="hidden sm:block" /> para quem pensa grande.
@@ -49,7 +49,7 @@ export default function MagazineStore({ magazines }: { magazines: MagazinePublic
  value={q}
  onChange={(e) => setQ(e.target.value)}
  placeholder="Buscar por título ou edição…"
- className="w-full rounded-full border border-black/10 bg-white py-2.5 pl-10 pr-4 text-[14px] text-zinc-900 outline-none transition focus:border-[#6D28D9]"
+ className="w-full rounded-full border border-black/10 bg-white py-2.5 pl-10 pr-4 text-[14px] text-zinc-900 outline-none transition focus:border-[#dc2626]"
  />
  </div>
  <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -59,7 +59,7 @@ export default function MagazineStore({ magazines }: { magazines: MagazinePublic
  onClick={() => setCat(f)}
  className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-bold transition ${
  cat === f
- ? "bg-[#6D28D9] text-white"
+ ? "bg-[#dc2626] text-white"
  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
  }`}
  >

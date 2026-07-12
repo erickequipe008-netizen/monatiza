@@ -103,7 +103,7 @@ export default function MagazineForm({ initial }: Props) {
   }
 
   const input =
-    "w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-[14px] text-zinc-900 outline-none transition focus:border-[#6D28D9]";
+    "w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-[14px] text-zinc-900 outline-none transition focus:border-[#dc2626]";
   const label = "mb-1.5 block text-[12px] font-bold uppercase tracking-wide text-zinc-500";
 
   return (
@@ -116,7 +116,7 @@ export default function MagazineForm({ initial }: Props) {
         {/* Capa */}
         <div>
           <label className={label}>Capa</label>
-          <label className="flex aspect-[3/4] cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 transition hover:border-[#6D28D9]">
+          <label className="flex aspect-[3/4] cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50 transition hover:border-[#dc2626]">
             {coverPreview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={coverPreview} alt="capa" className="h-full w-full object-cover" />
@@ -169,8 +169,8 @@ export default function MagazineForm({ initial }: Props) {
           {/* PDF */}
           <div>
             <label className={label}>PDF da revista</label>
-            <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-4 py-3.5 transition hover:border-[#6D28D9]">
-              {pdfFile || pdfName ? <FileText size={20} className="text-[#6D28D9]" /> : <UploadCloud size={20} className="text-zinc-400" />}
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-4 py-3.5 transition hover:border-[#dc2626]">
+              {pdfFile || pdfName ? <FileText size={20} className="text-[#dc2626]" /> : <UploadCloud size={20} className="text-zinc-400" />}
               <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-zinc-700">
                 {pdfFile?.name || pdfName || "Enviar arquivo PDF"}
               </span>
@@ -192,7 +192,7 @@ export default function MagazineForm({ initial }: Props) {
             <button
               type="button"
               onClick={() => setPublished((v) => !v)}
-              className={`relative h-6 w-11 rounded-full transition ${published ? "bg-[#6D28D9]" : "bg-zinc-300"}`}
+              className={`relative h-6 w-11 rounded-full transition ${published ? "bg-[#dc2626]" : "bg-zinc-300"}`}
             >
               <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${published ? "left-[22px]" : "left-0.5"}`} />
             </button>
@@ -202,7 +202,7 @@ export default function MagazineForm({ initial }: Props) {
           <button
             onClick={save}
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-full bg-[#6D28D9] px-7 py-3 text-[14px] font-bold text-white transition hover:bg-[#5b21b6] disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-full bg-[#dc2626] px-7 py-3 text-[14px] font-bold text-white transition hover:bg-[#b91c1c] disabled:opacity-60"
           >
             {busy ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
             {busy ? "Salvando…" : "Salvar Revista"}
@@ -213,7 +213,7 @@ export default function MagazineForm({ initial }: Props) {
       {toast && (
         <div
           className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full px-5 py-3 text-[13.5px] font-semibold text-white shadow-lg ${
-            toast.ok ? "bg-[#6D28D9]" : "bg-red-600"
+            toast.ok ? "bg-emerald-600" : "bg-red-600"
           }`}
         >
           {toast.msg}
