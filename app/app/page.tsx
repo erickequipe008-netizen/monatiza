@@ -24,8 +24,34 @@ import { Spinner } from "@/components/premium/States";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
+import FeedPage from "./feed/page";
 
 const PAGE = 20;
+
+/// true = desktop (≥1024px); null enquanto ainda não sabemos (evita flash errado).
+function useIsDesktop() {
+  const [v, setV] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setV(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return v;
+}
+
+/**
+ * Home do ambiente do assinante.
+ *  • Desktop: feed social + coluna lateral (inalterado).
+ *  • Mobile web: a tela principal são as NOTÍCIAS (mesma página /app/feed).
+ * As publicações continuam a um toque na aba Comunidade.
+ */
+export default function PremiumHome() {
+  const isDesktop = useIsDesktop();
+  if (isDesktop === null) return <div className="py-20"><Spinner /></div>;
+  return isDesktop ? <SocialHome /> : <FeedPage />;
+}
 
 // Botão Seguir compacto da coluna lateral.
 function FollowSmall({ userId }: { userId: string }) {
@@ -47,7 +73,7 @@ function FollowSmall({ userId }: { userId: string }) {
   );
 }
 
-export default function PremiumHome() {
+function SocialHome() {
   const { user } = useSubscriber();
   const [me, setMe] = useState<CommunityProfile | null>(null);
   const [feed, setFeed] = useState<"all" | "following">("all");

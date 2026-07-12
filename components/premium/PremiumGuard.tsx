@@ -64,7 +64,14 @@ const MORE = [
   { href: "/app/conta", label: "Conta", icon: CreditCard },
 ];
 
-const MOBILE = [...PRIMARY.slice(0, 4), { href: "/app/perfil", label: "Perfil", icon: User }];
+// Barra mobile = mesma do aplicativo: Notícias (home) · Comunidade · Mensagens · Descobrir · Perfil.
+const MOBILE = [
+  { href: "/app", label: "Notícias", icon: Newspaper },
+  { href: "/app/comunidade", label: "Comunidade", icon: MessagesSquare },
+  { href: "/app/mensagens", label: "Mensagens", icon: MessageCircle },
+  { href: "/app/descobrir", label: "Descobrir", icon: Compass },
+  { href: "/app/perfil", label: "Perfil", icon: User },
+];
 
 function isActive(pathname: string, href: string) {
   return href === "/app" ? pathname === "/app" : pathname.startsWith(href);
