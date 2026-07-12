@@ -1,18 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Plus } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
 
-// Anúncio "da casa": convida o visitante a CRIAR O PERFIL GRÁTIS e usar a rede social.
-// Aparece no lugar de um anúncio do feed — escondido para quem já está dentro do app.
-
-const PEOPLE = [
-  { n: "A", g: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" },
-  { n: "R", g: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" },
-  { n: "J", g: "linear-gradient(120deg,#1d9bf0,#FF8A5C)" },
-  { n: "C", g: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" },
-];
+// Convite "da casa" para a comunidade/app. Visual claro e discreto — sem
+// fundo azul, sem bolhas. Escondido para quem já está dentro do app.
 
 export default function CommunityPromo({
   className = "",
@@ -27,34 +20,17 @@ export default function CommunityPromo({
   if (variant === "bar") {
     return (
       <div className={className}>
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0f] px-5 py-4">
-          <div className="pointer-events-none absolute -left-16 top-0 h-32 w-32 rounded-full bg-[#1d9bf0]/30 blur-2xl" />
-          <div className="pointer-events-none absolute -right-12 bottom-0 h-32 w-32 rounded-full bg-[#1d9bf0]/25 blur-2xl" />
-          <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left">
-            <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[16px] font-black text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
-            >
-              m
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[15px] font-black leading-tight text-white">
-                A{" "}
-                <span style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-                  rede social
-                </span>{" "}
-                do Monatiza
-              </p>
-              <p className="text-[12.5px] text-zinc-400">Notícias, publicações e debates sobre negócios em um só lugar.</p>
-            </div>
-            <Link
-              href="/painel/cadastro"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-5 py-2.5 text-[13px] font-bold text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
-            >
-              Acessar <ArrowUpRight size={15} />
-            </Link>
+        <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-center sm:flex-row sm:text-left">
+          <div className="min-w-0">
+            <p className="text-[15px] font-black leading-tight text-zinc-950">Comunidade Monatiza</p>
+            <p className="text-[13px] text-zinc-500">Notícias, publicações e debates de negócios em um só lugar.</p>
           </div>
+          <Link
+            href="/painel/cadastro"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-zinc-900 px-5 py-2.5 text-[13px] font-bold text-white transition hover:bg-black"
+          >
+            Acessar <ArrowUpRight size={15} />
+          </Link>
         </div>
       </div>
     );
@@ -62,91 +38,28 @@ export default function CommunityPromo({
 
   return (
     <div className={className}>
-      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0b0f] px-6 py-8 text-center sm:px-10 sm:py-10">
-        {/* brilhos */}
-        <div className="pointer-events-none absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-[#1d9bf0]/30 blur-3xl" />
-        <div className="pointer-events-none absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-[#1d9bf0]/25 blur-3xl" />
+      <div className="rounded-3xl border border-zinc-200 bg-white px-6 py-10 text-center sm:px-10 sm:py-12">
+        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-red-600">Comunidade Monatiza</span>
 
-        <div className="relative mx-auto max-w-[560px]">
-          {/* pílula superior */}
-          <div className="mx-auto mb-6 flex items-center justify-between gap-3 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2.5 backdrop-blur">
-            <span
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-[14px] font-black text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
-            >
-              m
-            </span>
-            <div className="text-left leading-tight">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400">Rede social</p>
-              <p className="text-[13px] font-bold text-white">monatiza.com</p>
-            </div>
-            <span
-              className="flex h-8 w-8 items-center justify-center rounded-full text-white"
-              style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
-            >
-              <ArrowUpRight size={16} />
-            </span>
-          </div>
+        <h3 className="mx-auto mt-4 max-w-2xl font-serif text-[26px] font-black leading-[1.12] tracking-tight text-zinc-950 sm:text-[32px]">
+          Junte-se à maior comunidade de empresários independentes da Monatiza
+        </h3>
 
-          <p className="text-[18px] font-semibold text-zinc-200 sm:text-[20px]">Junte-se à</p>
-          <h3 className="mt-1 text-[28px] font-black leading-[1.02] tracking-tight sm:text-[38px]">
-            <span
-              style={{
-                backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-              }}
-            >
-              Maior comunidade
-            </span>
-            <br />
-            <span className="text-white">de empresários independentes da Monatiza</span>
-          </h3>
+        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-zinc-500">
+          Publique conteúdo, amplie sua visibilidade e conecte-se com pessoas que realmente geram
+          oportunidades.
+        </p>
 
-          {/* pílula "faça parte" */}
-          <div
-            className="mx-auto mt-6 flex max-w-[460px] items-center justify-center gap-4 rounded-full p-2 pr-6"
-            style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
-          >
-            <div className="flex items-center">
-              {PEOPLE.map((p, i) => (
-                <span
-                  key={i}
-                  className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-black/40 text-[13px] font-black text-white ${i ? "-ml-3" : ""}`}
-                  style={{ backgroundImage: p.g }}
-                >
-                  {p.n}
-                </span>
-              ))}
-              <span className="-ml-3 flex h-10 w-10 items-center justify-center rounded-full border-2 border-black/40 bg-black text-white">
-                <Plus size={16} />
-              </span>
-            </div>
-            <span className="text-left text-[15px] font-bold leading-tight text-white">
-              Comunidade
-              <br />
-              Monatiza
-            </span>
-          </div>
+        <p className="mx-auto mt-3 text-[15px] font-bold text-zinc-900">
+          Quem aparece, vende. Quem se posiciona, lidera.
+        </p>
 
-          <p className="mx-auto mt-6 max-w-[460px] text-[15px] leading-relaxed text-zinc-300">
-            Publique conteúdo, amplie sua visibilidade e conecte-se com pessoas que
-            realmente geram oportunidades.
-          </p>
-
-          <p className="mx-auto mt-3 max-w-[460px] text-[15px] font-black text-white">
-            Quem aparece, vende. Quem se posiciona, lidera.
-          </p>
-
-          <Link
-            href="/painel/cadastro"
-            className="mt-7 inline-flex items-center gap-2 rounded-full px-8 py-4 text-[15px] font-black text-white shadow-[0_18px_50px_-15px_rgba(255,45,135,0.6)] transition hover:opacity-90"
-            style={{ backgroundImage: "linear-gradient(120deg,#1d9bf0,#1d9bf0)" }}
-          >
-            Acessar <ArrowUpRight size={17} />
-          </Link>
-        </div>
+        <Link
+          href="/painel/cadastro"
+          className="mt-7 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-8 py-3.5 text-[15px] font-bold text-white transition hover:bg-black"
+        >
+          Entrar na comunidade <ArrowUpRight size={17} />
+        </Link>
       </div>
     </div>
   );

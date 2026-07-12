@@ -5,13 +5,11 @@ import { supabase } from "@/services/supabase";
 import { MegaMenu } from "@/components/home/MegaMenu";
 import { LoginModal } from "@/components/home/LoginModal";
 import { SearchModal } from "@/components/home/SearchModal";
-import { NavEditorias } from "@/components/home/NavEditorias";
 import { HeroSection } from "@/components/home/HeroSection";
 import { Ticker } from "@/components/home/Ticker";
 import { SecondaryGrid } from "@/components/home/SecondaryGrid";
 import { ArticleGrid } from "@/components/home/ArticleGrid";
-import { NewsletterBanner } from "@/components/home/NewsletterBanner";
-import { InstitutionalStrip } from "@/components/home/InstitutionalStrip";
+import NewsletterHero from "@/components/home/NewsletterHero";
 import { Skeleton } from "@/components/ui/Skeleton";
 import CommunityPromo from "@/components/home/CommunityPromo";
 import ColumnistsShowcase from "@/components/home/ColumnistsShowcase";
@@ -108,8 +106,6 @@ export default function HomeClient({
           />
         )}
 
-        <NavEditorias dark={dark} />
-
         {loading && (
           <section className="max-w-[1280px] mx-auto px-4 py-10">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 border-b pb-10 mb-10">
@@ -152,8 +148,8 @@ export default function HomeClient({
           </section>
         )}
 
-        {!loading && <NewsletterBanner dark={dark} />}
-        {!loading && <InstitutionalStrip dark={dark} />}
+        {/* ── NEWSLETTER (fim da capa) ── */}
+        {!loading && <NewsletterHero />}
       </main>
     </>
   );
