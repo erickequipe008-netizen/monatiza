@@ -137,23 +137,20 @@ export default function HomeClient({
             <HeroSection dark={dark} featured={featured} sideArticles={sideArticles} />
             <Ticker dark={dark} articles={tickerArticles} />
 
-            {/* ── BANNER DA COMUNIDADE (no lugar da publicidade) ── */}
-            <CommunityPromo className="my-8" />
+            {/* ── FRISO DE COLUNISTAS (logo abaixo da capa) ── */}
+            <ColumnistsShowcase />
 
             <SecondaryGrid dark={dark} articles={secondaryArticles} />
 
             {/* ── CONTEÚDO EXCLUSIVO (premium) ── */}
             <ExclusiveSection dark={dark} articles={articles} />
 
-            {/* ── BARRA DA COMUNIDADE (pequena, no lugar da publicidade) ── */}
-            <CommunityPromo variant="bar" className="my-10" />
-
             <ArticleGrid dark={dark} articles={gridArticles} />
+
+            {/* ── COMUNIDADE / APP (uma vez, ao fim do fluxo editorial) ── */}
+            <CommunityPromo className="mt-12" />
           </section>
         )}
-
-        {/* ── COLUNISTAS ── */}
-        {!loading && <ColumnistsShowcase />}
 
         {!loading && <NewsletterBanner dark={dark} />}
         {!loading && <InstitutionalStrip dark={dark} />}
