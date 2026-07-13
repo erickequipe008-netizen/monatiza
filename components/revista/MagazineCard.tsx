@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { formatPrice, type MagazinePublic } from "@/types/magazine";
-import BuyButton from "@/components/revista/BuyButton";
+import MagazineAction from "@/components/revista/MagazineAction";
 
 /** Card de revista no estilo Apple/Kindle: capa 3:4, título, edição, preço. */
 export default function MagazineCard({ m }: { m: MagazinePublic }) {
@@ -47,7 +47,7 @@ export default function MagazineCard({ m }: { m: MagazinePublic }) {
  <span className="text-[15px] font-black tracking-tight text-zinc-900">
  {formatPrice(m.price)}
  </span>
- <BuyButton magazineId={m.id} label="Comprar" size="sm" />
+ <MagazineAction magazineId={m.id} size="sm" />
  </div>
  </div>
  </div>

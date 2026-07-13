@@ -5,7 +5,7 @@ import { ArrowLeft, Check, Mail, ShieldCheck } from "lucide-react";
 import { getPublicMagazineBySlug } from "@/lib/magazines";
 import { SITE_URL, SITE_NAME, SITE_LOGO, plainText, toISO } from "@/lib/seo";
 import { formatPrice } from "@/types/magazine";
-import BuyButton from "@/components/revista/BuyButton";
+import MagazineAction from "@/components/revista/MagazineAction";
 
 export const revalidate = 120;
 
@@ -124,7 +124,7 @@ export default async function MagazineDetail({ params }: { params: Promise<{ slu
  </div>
  </div>
  <div className="mt-4">
- <BuyButton magazineId={m.id} label="Comprar agora" size="lg" />
+ <MagazineAction magazineId={m.id} size="lg" />
  </div>
  <ul className="mt-4 space-y-2 text-[13px] text-zinc-500">
  <li className="flex items-center gap-2"><Mail size={14} className="text-[#dc2626]" /> Enviada por e-mail após o pagamento</li>

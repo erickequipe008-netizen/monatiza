@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { formatPrice, type MagazinePublic } from "@/types/magazine";
-import BuyButton from "@/components/revista/BuyButton";
+import MagazineAction from "@/components/revista/MagazineAction";
 
 /** Card de revista no tema escuro do app: capa 3:4, categoria, preço e compra. */
 export default function MagazineCardDark({ m }: { m: MagazinePublic }) {
@@ -45,7 +45,7 @@ export default function MagazineCardDark({ m }: { m: MagazinePublic }) {
         )}
         <div className="mt-3 flex items-center justify-between gap-2">
           <span className="text-[15px] font-black tracking-tight text-zinc-100">{formatPrice(m.price)}</span>
-          <BuyButton magazineId={m.id} label="Comprar" size="sm" tone="app" />
+          <MagazineAction magazineId={m.id} size="sm" tone="app" />
         </div>
       </div>
     </div>

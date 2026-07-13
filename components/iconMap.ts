@@ -15,6 +15,7 @@ import {
   Crown,
   PenLine,
   Newspaper,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,6 +33,7 @@ export const ICON_MAP: Record<string, LucideIcon> = {
   BookOpen,
   Crown,
   PenLine,
+  Users,
 };
 
 export function iconFor(name: string): LucideIcon {

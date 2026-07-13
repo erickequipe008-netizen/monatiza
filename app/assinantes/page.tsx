@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Check, Crown, Sparkles, BookOpen, Ban, Zap, Users, ShieldCheck, ArrowRight } from "lucide-react";
+import { Check, Crown, Sparkles, BookOpen, Ban, Zap, FileText, Download, Mail, ArrowRight } from "lucide-react";
 
 export const metadata = {
-  title: "MonatizaPlus",
+  title: "MonatizaPlus — assine e leia sem limites",
   description:
-    "Assine o MonatizaPlus: jornalismo sem anúncios, conteúdo exclusivo e mais alcance e reconhecimento para o seu perfil.",
+    "Assine o MonatizaPlus: todas as matérias completas, portal sem anúncios e as revistas digitais de graça. A rede social da Monatiza é gratuita e separada.",
 };
 
 // ── Ajuste preços e benefícios dos planos aqui ──────────────
@@ -18,10 +18,9 @@ const PLANS = [
     badge: "Teste grátis",
     cta: "Começar grátis",
     features: [
-      "Conteúdos sempre em primeiro lugar",
-      "Acesso ilimitado e sem anúncios",
-      "Mais alcance do seu perfil na comunidade",
-      "Mensagens diretas com outros assinantes",
+      "Todas as matérias completas, sem paywall",
+      "Portal sem anúncios",
+      "Revistas digitais grátis (ler e baixar)",
       "Newsletter premium",
       "Cancele quando quiser",
     ],
@@ -37,21 +36,20 @@ const PLANS = [
     features: [
       "Tudo do MonatizaPlus Mensal",
       "2 meses grátis no plano anual",
-      "Acesso à Revista Monatiza",
       "Conteúdo e séries exclusivas",
-      "Selo de reconhecimento disponível",
+      "Acesso antecipado às grandes reportagens",
       "Suporte prioritário",
     ],
   },
 ];
 
 const BENEFITS = [
-  { icon: Zap, title: "Conteúdos sempre em primeiro", desc: "Acesso antecipado e prioridade nas grandes reportagens." },
-  { icon: Ban, title: "Sem anúncios", desc: "Leitura limpa, com foco total — sem banners no caminho." },
+  { icon: FileText, title: "Matérias completas", desc: "Leia todas as reportagens do início ao fim, sem paywall." },
+  { icon: Ban, title: "Sem anúncios", desc: "Navegue no portal com leitura limpa, sem banners no caminho." },
+  { icon: Download, title: "Revistas grátis", desc: "Baixe todas as revistas digitais publicadas sem pagar por edição." },
   { icon: Sparkles, title: "Conteúdo exclusivo", desc: "Análises, séries e bastidores só para assinantes." },
-  { icon: Users, title: "Mais alcance de perfil", desc: "Sua voz na comunidade: publique, ganhe seguidores e apareça mais." },
-  { icon: ShieldCheck, title: "Reconhecimento", desc: "Selo dourado ao lado do seu nome: mais credibilidade e destaque." },
-  { icon: BookOpen, title: "Revista + Newsletter", desc: "A Revista Monatiza e a newsletter premium no seu e-mail." },
+  { icon: Zap, title: "Acesso antecipado", desc: "Prioridade nas grandes reportagens antes de todo mundo." },
+  { icon: Mail, title: "Newsletter premium", desc: "A curadoria da Monatiza direto no seu e-mail, sem ruído." },
 ];
 
 export default function AssinantesPage() {
@@ -63,12 +61,12 @@ export default function AssinantesPage() {
           <Crown size={14} /> MonatizaPlus
         </span>
         <h1 className="mt-4 font-serif text-[40px] font-black leading-[1.03] tracking-tight md:text-[58px]">
-          Mais alcance.
-          <br className="hidden md:block" /> <span className="pro-gradient-text">Mais reconhecimento.</span>
+          Leia sem limites.
+          <br className="hidden md:block" /> <span className="pro-gradient-text">Sem anúncios.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-zinc-500 md:text-[17px]">
-          Assine o MonatizaPlus: jornalismo com profundidade e sem anúncios, sua voz com mais alcance
-          na comunidade e o selo de reconhecimento.
+          Assine o MonatizaPlus: todas as matérias completas, o portal sem anúncios e as revistas
+          digitais de graça.
         </p>
         <a
           href="#planos"
@@ -76,6 +74,13 @@ export default function AssinantesPage() {
         >
           Ver planos <ArrowRight size={16} />
         </a>
+        <p className="mt-5 text-[13px] text-zinc-400">
+          A rede social da Monatiza é gratuita —{" "}
+          <Link href="/comunidade" className="font-bold text-zinc-700 underline underline-offset-2 hover:text-black">
+            conheça a comunidade
+          </Link>
+          .
+        </p>
       </section>
 
       {/* ── BENEFÍCIOS ── */}

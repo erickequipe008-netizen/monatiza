@@ -133,5 +133,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Saúde", href: "/saude", icon: "HeartPulse" },
   { label: "Revista", href: "/revista", icon: "BookOpen" },
   { label: "Colunistas", href: "/colunistas", icon: "PenLine" },
+  { label: "Comunidade", href: "/comunidade", icon: "Users" },
   { label: "Assinantes", href: "/assinantes", icon: "Crown" },
 ];
