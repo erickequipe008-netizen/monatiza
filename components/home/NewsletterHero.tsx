@@ -13,9 +13,9 @@ import IgPhoneScreen from "@/components/home/IgPhoneScreen";
 export default function NewsletterHero({ images = [] }: { images?: string[] }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
-  // Mostra o print do Instagram no celular quando a imagem existir em
-  // /public; se ainda não foi adicionada, cai na prévia da newsletter.
-  const [igOk, setIgOk] = useState(true);
+  // Por padrão mostra a recriação do perfil no celular. Se o arquivo real
+  // /public/instagram-monatiza.png existir e carregar, troca por ele.
+  const [imgOk, setImgOk] = useState(false);
 
   async function subscribe(e: React.FormEvent) {
     e.preventDefault();
@@ -92,18 +92,17 @@ export default function NewsletterHero({ images = [] }: { images?: string[] }) {
             <div className="absolute inset-x-6 top-8 bottom-0 rounded-[48px] bg-zinc-100" aria-hidden="true" />
             <div className="relative mx-auto w-[266px] rounded-[42px] bg-zinc-900 p-2.5 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.5)]">
               <div className="overflow-hidden rounded-[32px] bg-black">
-                {igOk ? (
-                  /* Print do Instagram da Monatiza dentro do celular */
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src="/instagram-monatiza.png"
-                    alt="Monatiza no Instagram"
-                    onError={() => setIgOk(false)}
-                    className="block w-full"
-                  />
-                ) : (
-                  <IgPhoneScreen images={images} />
-                )}
+                {!imgOk && <IgPhoneScreen images={images} />}
+                {/* Se você adicionar o arquivo /public/instagram-monatiza.png,
+                    ele carrega e substitui a recriação automaticamente. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/instagram-monatiza.png"
+                  alt="Monatiza no Instagram"
+                  onLoad={() => setImgOk(true)}
+                  onError={() => setImgOk(false)}
+                  className={imgOk ? "block w-full" : "hidden"}
+                />
               </div>
             </div>
           </div>
