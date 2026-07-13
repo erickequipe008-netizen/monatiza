@@ -97,7 +97,7 @@ export default function NewsletterHero({ images = [] }: { images?: string[] }) {
                     ele carrega e substitui a recriação automaticamente. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/instagram-monatiza.png"
+                  src="/instagram-monatiza.jpg"
                   alt="Monatiza no Instagram"
                   onLoad={() => setImgOk(true)}
                   onError={() => setImgOk(false)}
