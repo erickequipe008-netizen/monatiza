@@ -1,17 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Check, Loader2, Signal, Wifi, BatteryFull } from "lucide-react";
+import { Mail, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import IgPhoneScreen from "@/components/home/IgPhoneScreen";
 
 /**
  * Seção de newsletter no fim da capa: manchete + captura de e-mail à
  * esquerda, prévia da edição num celular à direita. Fundo branco e
  * minimalista, identidade Monatiza. O e-mail é salvo em newsletter_signups.
  */
-export default function NewsletterHero() {
+export default function NewsletterHero({ images = [] }: { images?: string[] }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  // Mostra o print do Instagram no celular quando a imagem existir em
+  // /public; se ainda não foi adicionada, cai na prévia da newsletter.
+  const [igOk, setIgOk] = useState(true);
 
   async function subscribe(e: React.FormEvent) {
     e.preventDefault();
@@ -87,38 +91,19 @@ export default function NewsletterHero() {
             {/* fundo neutro discreto atrás do aparelho */}
             <div className="absolute inset-x-6 top-8 bottom-0 rounded-[48px] bg-zinc-100" aria-hidden="true" />
             <div className="relative mx-auto w-[266px] rounded-[42px] bg-zinc-900 p-2.5 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.5)]">
-              <div className="overflow-hidden rounded-[32px] bg-white">
-                {/* notch + status bar */}
-                <div className="relative flex items-center justify-between px-5 pt-3 pb-2">
-                  <div className="absolute left-1/2 top-2 h-4 w-20 -translate-x-1/2 rounded-full bg-zinc-900" />
-                  <span className="text-[10px] font-bold text-zinc-900">06:06</span>
-                  <span className="flex items-center gap-1 text-zinc-900">
-                    <Signal size={11} />
-                    <Wifi size={11} />
-                    <BatteryFull size={15} />
-                  </span>
-                </div>
-                {/* conteúdo da newsletter */}
-                <div className="px-4 pb-6">
-                  <div className="rounded-xl bg-red-600 px-4 py-3">
-                    <p className="font-serif text-[15px] font-black tracking-tight text-white">
-                      monatiza <span className="font-sans text-[11px] font-semibold opacity-75">· newsletter</span>
-                    </p>
-                  </div>
-                  <h4 className="mt-4 font-serif text-[19px] font-black tracking-tight text-zinc-950">bom dia.</h4>
-                  <p className="mt-2 text-[12px] leading-relaxed text-zinc-600">
-                    O que move os negócios hoje, sem enrolação: as decisões, os números e as ideias que valem
-                    o seu tempo.
-                  </p>
-                  <div className="mt-4 border-t border-zinc-100 pt-3">
-                    <p className="text-[9.5px] font-black uppercase tracking-widest text-zinc-400">Na edição de hoje</p>
-                    <ul className="mt-2.5 space-y-2 text-[12px] leading-snug text-zinc-800">
-                      <li>📈 O setor que mais contratou no trimestre</li>
-                      <li>🤖 A ferramenta de IA que caiu no gosto das PMEs</li>
-                      <li>💸 Para onde o dinheiro esperto está indo agora</li>
-                    </ul>
-                  </div>
-                </div>
+              <div className="overflow-hidden rounded-[32px] bg-black">
+                {igOk ? (
+                  /* Print do Instagram da Monatiza dentro do celular */
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src="/instagram-monatiza.png"
+                    alt="Monatiza no Instagram"
+                    onError={() => setIgOk(false)}
+                    className="block w-full"
+                  />
+                ) : (
+                  <IgPhoneScreen images={images} />
+                )}
               </div>
             </div>
           </div>
