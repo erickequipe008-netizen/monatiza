@@ -24,7 +24,9 @@ function PagamentoInner() {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        window.location.href = `/painel/login?next=${encodeURIComponent(`/assinar/pagamento?plano=${plano}`)}`;
+        // Sem conta ainda? Vai para o cadastro simples da assinatura (sem o
+        // @usuário da comunidade), não para o cadastro do app.
+        window.location.href = `/assinar?plano=${plano}`;
         return;
       }
       setReady(true);
@@ -36,7 +38,7 @@ function PagamentoInner() {
     setError("");
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      window.location.href = "/painel/login";
+      window.location.href = `/assinar?plano=${plano}`;
       return;
     }
     try {
