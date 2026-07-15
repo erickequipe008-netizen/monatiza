@@ -62,12 +62,9 @@ export default function PainelPage() {
         .maybeSingle();
       if (cancelled) return;
 
-      // Assinante ativo entra direto no ambiente premium.
-      if ((subData as Subscriber | null)?.status === "active") {
-        router.replace("/app");
-        return;
-      }
-
+      // Assinante ativo NÃO é levado a lugar nenhum: ele tem acesso completo
+      // ao portal (sem anúncios, matérias completas e revistas grátis) e vê
+      // aqui o status da conta. A rede social (/app) fica separada e opcional.
       setSub(subData as Subscriber | null);
 
       const { data: arts } = await supabase

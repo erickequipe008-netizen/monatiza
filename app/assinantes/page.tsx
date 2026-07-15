@@ -57,12 +57,12 @@ export default function AssinantesPage() {
     <div className="min-h-screen bg-white text-black">
       {/* ── HERO minimalista (sem caixa forçada) ── */}
       <section className="mx-auto max-w-[900px] px-4 pb-10 pt-16 text-center md:pt-24">
-        <span className="pro-gradient-text inline-flex items-center gap-2 text-[12px] font-black uppercase tracking-[0.25em]">
+        <span className="text-[#E0263B] inline-flex items-center gap-2 text-[12px] font-black uppercase tracking-[0.25em]">
           <Crown size={14} /> MonatizaPlus
         </span>
         <h1 className="mt-4 font-serif text-[40px] font-black leading-[1.03] tracking-tight md:text-[58px]">
           Leia sem limites.
-          <br className="hidden md:block" /> <span className="pro-gradient-text">Sem anúncios.</span>
+          <br className="hidden md:block" /> <span className="text-[#E0263B]">Sem anúncios.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-zinc-500 md:text-[17px]">
           Assine o MonatizaPlus: todas as matérias completas, o portal sem anúncios e as revistas
@@ -70,17 +70,10 @@ export default function AssinantesPage() {
         </p>
         <a
           href="#planos"
-          className="pro-gradient mt-7 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white transition hover:opacity-90"
+          className="bg-[#E0263B] mt-7 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-white transition hover:opacity-90"
         >
           Ver planos <ArrowRight size={16} />
         </a>
-        <p className="mt-5 text-[13px] text-zinc-400">
-          A rede social da Monatiza é gratuita —{" "}
-          <Link href="/comunidade" className="font-bold text-zinc-700 underline underline-offset-2 hover:text-black">
-            conheça a comunidade
-          </Link>
-          .
-        </p>
       </section>
 
       {/* ── BENEFÍCIOS ── */}
@@ -95,7 +88,7 @@ export default function AssinantesPage() {
               key={b.title}
               className="rounded-2xl border border-zinc-200 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <span className="pro-gradient inline-flex h-11 w-11 items-center justify-center rounded-xl text-white">
+              <span className="bg-[#E0263B] inline-flex h-11 w-11 items-center justify-center rounded-xl text-white">
                 <b.icon size={22} strokeWidth={2.2} />
               </span>
               <h3 className="mt-4 text-[17px] font-black">{b.title}</h3>
@@ -118,12 +111,12 @@ export default function AssinantesPage() {
               key={plan.name}
               className={`relative rounded-2xl bg-white p-8 ${
                 plan.highlight
-                  ? "border-2 border-transparent shadow-xl [background:linear-gradient(white,white)_padding-box,linear-gradient(120deg,#4285F4,#9B72CB,#FF2D87)_border-box]"
+                  ? "border-2 border-[#E0263B] shadow-xl"
                   : "border border-zinc-200"
               }`}
             >
               {plan.badge && (
-                <span className="pro-gradient absolute -top-3 left-8 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
+                <span className="bg-[#E0263B] absolute -top-3 left-8 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
                   {plan.badge}
                 </span>
               )}
@@ -136,7 +129,7 @@ export default function AssinantesPage() {
               <ul className="mt-6 space-y-3">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-[14px] text-zinc-700">
-                    <Check size={18} className="mt-[1px] shrink-0 text-[#9B72CB]" strokeWidth={3} />
+                    <Check size={18} className="mt-[1px] shrink-0 text-[#E0263B]" strokeWidth={3} />
                     <span>{f}</span>
                   </li>
                 ))}
@@ -146,7 +139,7 @@ export default function AssinantesPage() {
                 href={`/assinar?plano=${plan.plano}`}
                 className={`mt-8 block rounded-full py-4 text-center text-sm font-bold transition ${
                   plan.highlight
-                    ? "pro-gradient text-white hover:opacity-90"
+                    ? "bg-[#E0263B] text-white hover:opacity-90"
                     : "border border-black text-black hover:bg-black hover:text-white"
                 }`}
               >
@@ -158,7 +151,7 @@ export default function AssinantesPage() {
 
         <p className="mt-8 text-center text-sm text-zinc-500">
           Já é assinante?{" "}
-          <Link href="/painel/login" className="pro-gradient-text font-bold">
+          <Link href="/painel/login" className="text-[#E0263B] font-bold">
             Entrar
           </Link>
         </p>
