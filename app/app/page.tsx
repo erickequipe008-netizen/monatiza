@@ -24,7 +24,7 @@ import { Spinner } from "@/components/premium/States";
 import { timeAgo } from "@/components/premium/PremiumCards";
 import { supabase } from "@/lib/supabase/client";
 import { useSubscriber } from "@/components/premium/SubscriberProvider";
-import FeedPage from "./feed/page";
+import MobileHome from "@/components/premium/MobileHome";
 
 const PAGE = 20;
 
@@ -50,7 +50,7 @@ function useIsDesktop() {
 export default function PremiumHome() {
   const isDesktop = useIsDesktop();
   if (isDesktop === null) return <div className="py-20"><Spinner /></div>;
-  return isDesktop ? <SocialHome /> : <FeedPage />;
+  return isDesktop ? <SocialHome /> : <MobileHome />;
 }
 
 // Botão Seguir compacto da coluna lateral.

@@ -21,6 +21,7 @@ import {
   Bell,
   MoreHorizontal,
   PenSquare,
+  Plus,
   Sun,
   Moon,
   LogOut,
@@ -229,96 +230,28 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
     <div className={`app-shell min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0 ${theme === "light" ? "pro-light" : ""}`}>
       {/* ── BARRA SUPERIOR (celular/tablet) ── */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0c]/80 backdrop-blur-xl lg:hidden">
-        <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-4 px-4 md:px-6">
-          <Link href="/app" className="flex items-center">
-            <span className="text-[22px] font-extrabold tracking-tight text-white">monatiza</span>
-          </Link>
-
-          <nav className="pro-scroll hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto md:flex">
-            {PRIMARY.map((item) => {
-              const active = isActive(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`shrink-0 rounded-full px-4 py-2 text-[13.5px] font-semibold transition ${
-                    active
-                      ? "pro-gradient text-white shadow-lg shadow-[#1d9bf0]/20"
-                      : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="flex items-center gap-1.5">
+        <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-3 px-4 md:px-6">
+          {/* Avatar + menu da conta (esquerda) */}
+          <div className="relative shrink-0">
             <button
-              onClick={toggleTheme}
-              className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
-              aria-label={theme === "dark" ? "Tema claro" : "Tema escuro"}
+              onClick={() => setMenuOpen((v) => !v)}
+              className="pro-ring rounded-full p-[2px] transition hover:opacity-90"
+              aria-label="Menu da conta"
             >
-              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+              ) : (
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#8b5cf6] text-[13px] font-bold text-white">
+                  {initial}
+                </span>
+              )}
             </button>
-            <Link
-              href="/app/busca"
-              className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
-              aria-label="Buscar"
-            >
-              <Search size={19} />
-            </Link>
-            <Link
-              href="/app/mensagens"
-              className={`relative rounded-full p-2.5 transition ${
-                isActive(pathname, "/app/mensagens")
-                  ? "pro-gradient text-white"
-                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
-              }`}
-              aria-label="Mensagens"
-            >
-              <MessageCircle size={19} />
-              {unread > 0 && (
-                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
-                  {unread > 99 ? "99+" : unread}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/app/notificacoes"
-              className={`relative rounded-full p-2.5 transition ${
-                onNotif ? "pro-gradient text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
-              }`}
-              aria-label="Notificações"
-            >
-              <Bell size={19} />
-              {notif > 0 && (
-                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
-                  {notif > 99 ? "99+" : notif}
-                </span>
-              )}
-            </Link>
 
-            <div className="relative">
-              <button
-                onClick={() => setMenuOpen((v) => !v)}
-                className="pro-ring rounded-full p-[2px] transition hover:opacity-90"
-                aria-label="Menu da conta"
-              >
-                {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
-                ) : (
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0a0a0c] text-[13px] font-bold text-white">
-                    {initial}
-                  </span>
-                )}
-              </button>
-
-              {menuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                  <div className="pro-pop absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-white/10 bg-[#15151b] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)]">
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <div className="pro-pop absolute left-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-white/10 bg-[#15151b] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)]">
                     <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
                       <span className="pro-ring rounded-full p-[2px]">
                         {avatarUrl ? (
@@ -360,6 +293,79 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
                 </>
               )}
             </div>
+
+          {/* Centro: "Fazer upgrade" (celular) · navegação (tablet) */}
+          <Link
+            href="/app/verificacao"
+            className="flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/70 bg-[#8b5cf6]/10 px-4 py-2 text-[13.5px] font-bold text-[#c4b5fd] transition active:scale-95 md:hidden"
+          >
+            <Sparkles size={15} /> Fazer upgrade
+          </Link>
+          <nav className="pro-scroll hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto md:flex">
+            {PRIMARY.map((item) => {
+              const active = isActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`shrink-0 rounded-full px-4 py-2 text-[13.5px] font-semibold transition ${
+                    active
+                      ? "pro-gradient text-white shadow-lg shadow-[#1d9bf0]/20"
+                      : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Direita: tema + busca (celular) · +mensagens/notificações (tablet) */}
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              aria-label={theme === "dark" ? "Tema claro" : "Tema escuro"}
+            >
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
+            <Link
+              href="/app/busca"
+              className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              aria-label="Buscar"
+            >
+              <Search size={19} />
+            </Link>
+            <Link
+              href="/app/mensagens"
+              className={`relative hidden rounded-full p-2.5 transition md:block ${
+                isActive(pathname, "/app/mensagens")
+                  ? "pro-gradient text-white"
+                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              }`}
+              aria-label="Mensagens"
+            >
+              <MessageCircle size={19} />
+              {unread > 0 && (
+                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
+                  {unread > 99 ? "99+" : unread}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/app/notificacoes"
+              className={`relative hidden rounded-full p-2.5 transition md:block ${
+                onNotif ? "pro-gradient text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              }`}
+              aria-label="Notificações"
+            >
+              <Bell size={19} />
+              {notif > 0 && (
+                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
+                  {notif > 99 ? "99+" : notif}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </header>
@@ -535,7 +541,7 @@ export default function PremiumGuard({ children }: { children: React.ReactNode }
             aria-label="Publicar"
             className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white text-black shadow-[0_5px_16px_rgba(0,0,0,0.5)] transition active:scale-95"
           >
-            <PenSquare size={20} />
+            <Plus size={24} strokeWidth={2.5} />
           </Link>
         </div>
       </nav>
