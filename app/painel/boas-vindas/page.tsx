@@ -10,7 +10,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Loader2,
-  Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import {
@@ -25,7 +25,41 @@ import { uploadMedia } from "@/lib/premium/upload";
 import { Avatar } from "@/components/premium/PostCard";
 import VerifiedBadge from "@/components/premium/VerifiedBadge";
 
-const TOTAL = 5; // passos 0..4
+const TOTAL = 6; // 0..5
+const MONTHS = [
+  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+];
+const NOW = new Date();
+const YEARS = Array.from({ length: 100 }, (_, i) => NOW.getFullYear() - 13 - i);
+const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
+
+const selectCls =
+  "peer h-13 w-full appearance-none rounded-2xl border border-white/10 bg-white/[0.03] px-4 pr-9 text-sm font-medium text-white outline-none transition focus:border-[#1d9bf0]/60 focus:bg-white/[0.05]";
+
+function Select({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="relative block">
+      <span className="mb-1.5 block text-[11.5px] font-semibold text-zinc-500">{label}</span>
+      <span className="relative block">
+        <select value={value} onChange={(e) => onChange(e.target.value)} className={selectCls}>
+          {children}
+        </select>
+        <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+      </span>
+    </label>
+  );
+}
 
 export default function BoasVindasPage() {
   const [ready, setReady] = useState(false);
@@ -36,6 +70,10 @@ export default function BoasVindasPage() {
   const [people, setPeople] = useState<CommunityProfile[]>([]);
   const [following, setFollowing] = useState<Set<string>>(new Set());
 
+  const [bDay, setBDay] = useState("");
+  const [bMonth, setBMonth] = useState("");
+  const [bYear, setBYear] = useState("");
+
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -43,7 +81,6 @@ export default function BoasVindasPage() {
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  // sessão + dados
   useEffect(() => {
     const n = new URLSearchParams(window.location.search).get("next");
     if (n) setNext(n);
@@ -52,6 +89,15 @@ export default function BoasVindasPage() {
       if (!data.session) {
         window.location.replace("/painel/login?next=/painel/boas-vindas");
         return;
+      }
+      const bd = data.session.user.user_metadata?.birthdate as string | undefined;
+      if (bd) {
+        const [y, m, d] = bd.split("-");
+        if (y && m && d) {
+          setBYear(y);
+          setBMonth(String(parseInt(m, 10) - 1));
+          setBDay(String(parseInt(d, 10)));
+        }
       }
       const [prof, ppl] = await Promise.all([ensureProfile(), getRecommendedProfiles(12)]);
       if (prof) {
@@ -89,6 +135,12 @@ export default function BoasVindasPage() {
 
   async function finish() {
     setSaving(true);
+    if (bDay && bMonth !== "" && bYear) {
+      const birthdate = `${bYear}-${String(Number(bMonth) + 1).padStart(2, "0")}-${String(bDay).padStart(2, "0")}`;
+      try {
+        await supabase.auth.updateUser({ data: { birthdate } });
+      } catch {}
+    }
     await updateProfile({
       display_name: name.trim() || me?.display_name || undefined,
       bio: bio.trim() ? bio.trim() : null,
@@ -114,56 +166,55 @@ export default function BoasVindasPage() {
   const canSkip = step > 0 && step < TOTAL - 1;
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08080b] p-4 text-white">
-      <div className="pointer-events-none absolute -left-40 top-0 h-[460px] w-[560px] rounded-full bg-[#1d9bf0]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-40 bottom-0 h-[460px] w-[560px] rounded-full bg-[#8b5cf6]/15 blur-[120px]" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08080b] px-4 py-8 text-white">
+      <div className="pointer-events-none absolute left-1/2 top-[-10%] h-[520px] w-[720px] -translate-x-1/2 rounded-full bg-[#1d9bf0]/12 blur-[140px]" />
 
-      <div className="pro-pop relative flex w-full max-w-[480px] flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-        {/* barra de progresso + pular */}
-        <div className="mb-6 flex items-center gap-4">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+      <div className="relative w-full max-w-[440px]">
+        {/* topo: progresso */}
+        <div className="mb-8 flex items-center gap-4">
+          <span className="text-[12px] font-bold tabular-nums text-zinc-500">
+            {String(step + 1).padStart(2, "0")}
+            <span className="text-zinc-700"> / {String(TOTAL).padStart(2, "0")}</span>
+          </span>
+          <div className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/[0.08]">
             <div
               className="pro-gradient h-full rounded-full transition-[width] duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
-          {canSkip ? (
-            <button onClick={goNext} className="shrink-0 text-[13px] font-bold text-zinc-500 transition hover:text-white">
+          {canSkip && (
+            <button onClick={goNext} className="text-[13px] font-semibold text-zinc-500 transition hover:text-white">
               Pular
             </button>
-          ) : (
-            <span className="shrink-0 text-[12px] font-semibold text-zinc-600">
-              {step + 1}/{TOTAL}
-            </span>
           )}
         </div>
 
-        {/* conteúdo do passo (com motion) */}
-        <div key={step} className="wave-in min-h-[340px]">
+        {/* conteúdo */}
+        <div key={step} className="wave-in flex min-h-[380px] flex-col">
           {/* 0 — Boas-vindas */}
           {step === 0 && (
-            <div className="flex flex-col items-center text-center">
-              <span className="pro-gradient mb-5 flex h-16 w-16 items-center justify-center rounded-2xl text-[28px] font-black text-white shadow-lg">
+            <div className="flex flex-1 flex-col items-center text-center">
+              <span className="pro-gradient mb-6 flex h-14 w-14 items-center justify-center rounded-2xl text-[26px] font-black text-white shadow-[0_10px_30px_-8px_rgba(29,155,240,0.6)]">
                 m
               </span>
-              <h1 className="text-[26px] font-black leading-tight tracking-tight">
-                {firstName ? `Bem-vindo, ${firstName}!` : "Bem-vindo à Monatiza!"}
+              <h1 className="text-[27px] font-black leading-[1.1] tracking-tight">
+                {firstName ? `Bem-vindo, ${firstName}` : "Bem-vindo à Monatiza"}
               </h1>
-              <p className="mt-3 max-w-sm text-[14.5px] leading-relaxed text-zinc-400">
-                Notícias, comunidade e conteúdos exclusivos num só lugar. Vamos deixar seu perfil pronto em poucos passos.
+              <p className="mt-3 max-w-[19rem] text-[14.5px] leading-relaxed text-zinc-400">
+                Vamos deixar seu perfil pronto em poucos passos.
               </p>
-              <div className="mt-7 w-full space-y-3 text-left">
+              <div className="mt-9 w-full space-y-5">
                 {[
-                  { icon: Newspaper, t: "Notícias em tempo real", d: "Acompanhe análises e o que importa." },
+                  { icon: Newspaper, t: "Notícias em tempo real", d: "Análises e o que importa, na hora." },
                   { icon: MessagesSquare, t: "Comunidade e mensagens", d: "Converse e siga quem você curte." },
                   { icon: BookOpen, t: "Revistas e exclusivos", d: "Edições especiais para assinantes." },
                 ].map((f) => (
-                  <div key={f.t} className="flex items-center gap-3.5 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1d9bf0]/15 text-[#1d9bf0]">
+                  <div key={f.t} className="flex items-center gap-4 text-left">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#1d9bf0]/12 text-[#1d9bf0]">
                       <f.icon size={19} />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-[14px] font-bold text-white">{f.t}</p>
+                      <p className="text-[14.5px] font-bold text-white">{f.t}</p>
                       <p className="text-[12.5px] text-zinc-500">{f.d}</p>
                     </div>
                   </div>
@@ -172,20 +223,50 @@ export default function BoasVindasPage() {
             </div>
           )}
 
-          {/* 1 — Perfis sugeridos */}
+          {/* 1 — Data de nascimento */}
           {step === 1 && (
-            <div>
-              <h2 className="text-[22px] font-black tracking-tight">Siga alguns perfis</h2>
-              <p className="mt-1.5 text-[14px] text-zinc-400">Escolha quem acompanhar para turbinar seu feed.</p>
-              <div className="mt-5 max-h-[300px] space-y-2 overflow-y-auto pr-1">
+            <div className="flex flex-1 flex-col">
+              <h2 className="text-[24px] font-black tracking-tight">Sua data de nascimento</h2>
+              <p className="mt-2 text-[14px] leading-relaxed text-zinc-400">
+                Não será exibida publicamente. Usamos para personalizar sua experiência.
+              </p>
+              <div className="mt-9 grid grid-cols-[1fr_1.4fr_1fr] gap-3">
+                <Select label="Dia" value={bDay} onChange={setBDay}>
+                  <option value="">—</option>
+                  {DAYS.map((d) => (
+                    <option key={d} value={d} className="bg-[#15151b]">{d}</option>
+                  ))}
+                </Select>
+                <Select label="Mês" value={bMonth} onChange={setBMonth}>
+                  <option value="">—</option>
+                  {MONTHS.map((m, i) => (
+                    <option key={m} value={i} className="bg-[#15151b] capitalize">{m}</option>
+                  ))}
+                </Select>
+                <Select label="Ano" value={bYear} onChange={setBYear}>
+                  <option value="">—</option>
+                  {YEARS.map((y) => (
+                    <option key={y} value={y} className="bg-[#15151b]">{y}</option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {/* 2 — Perfis sugeridos */}
+          {step === 2 && (
+            <div className="flex flex-1 flex-col">
+              <h2 className="text-[24px] font-black tracking-tight">Siga alguns perfis</h2>
+              <p className="mt-2 text-[14px] text-zinc-400">Escolha quem acompanhar para começar seu feed.</p>
+              <div className="pro-scroll mt-6 flex-1 space-y-1 overflow-y-auto pr-1">
                 {people.length === 0 && (
-                  <p className="py-8 text-center text-[13px] text-zinc-500">Sem sugestões no momento — você descobre perfis depois no app.</p>
+                  <p className="py-10 text-center text-[13px] text-zinc-500">Você descobre perfis depois, no app.</p>
                 )}
                 {people.map((p) => {
                   const on = following.has(p.user_id);
                   return (
-                    <div key={p.user_id} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2.5">
-                      <Avatar name={p.display_name || p.handle} url={p.avatar_url} size={44} />
+                    <div key={p.user_id} className="flex items-center gap-3 rounded-2xl py-2 pl-1 pr-1 transition hover:bg-white/[0.03]">
+                      <Avatar name={p.display_name || p.handle} url={p.avatar_url} size={42} />
                       <div className="min-w-0 flex-1">
                         <p className="flex items-center gap-1 truncate text-[14px] font-bold text-white">
                           {p.display_name || p.handle}
@@ -208,19 +289,15 @@ export default function BoasVindasPage() {
             </div>
           )}
 
-          {/* 2 — Foto de perfil */}
-          {step === 2 && (
-            <div className="flex flex-col items-center text-center">
-              <h2 className="text-[22px] font-black tracking-tight">Adicione uma foto</h2>
-              <p className="mt-1.5 max-w-xs text-[14px] text-zinc-400">Ajuda a comunidade a te reconhecer.</p>
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="group relative mt-8 rounded-full"
-                aria-label="Enviar foto de perfil"
-              >
+          {/* 3 — Foto de perfil */}
+          {step === 3 && (
+            <div className="flex flex-1 flex-col items-center text-center">
+              <h2 className="text-[24px] font-black tracking-tight">Adicione uma foto</h2>
+              <p className="mt-2 max-w-[17rem] text-[14px] text-zinc-400">Ajuda a comunidade a te reconhecer.</p>
+              <button onClick={() => fileRef.current?.click()} className="group relative mt-10" aria-label="Enviar foto de perfil">
                 <span className="pro-ring block rounded-full p-[3px]">
                   <span className="block overflow-hidden rounded-full border-4 border-[#08080b]">
-                    <Avatar name={name || me?.handle || "?"} url={avatarUrl} size={128} />
+                    <Avatar name={name || me?.handle || "?"} url={avatarUrl} size={132} />
                   </span>
                 </span>
                 <span className="pro-gradient absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full text-white shadow-lg ring-4 ring-[#08080b]">
@@ -239,68 +316,66 @@ export default function BoasVindasPage() {
               />
               <button
                 onClick={() => fileRef.current?.click()}
-                className="mt-6 rounded-full border border-white/12 px-5 py-2.5 text-[13.5px] font-bold text-white transition hover:bg-white/5"
+                className="mt-7 rounded-full border border-white/12 px-6 py-2.5 text-[13.5px] font-bold text-white transition hover:bg-white/5"
               >
                 {avatarUrl ? "Trocar foto" : "Escolher foto"}
               </button>
             </div>
           )}
 
-          {/* 3 — Nome e descrição */}
-          {step === 3 && (
-            <div>
-              <h2 className="text-[22px] font-black tracking-tight">Conte quem você é</h2>
-              <p className="mt-1.5 text-[14px] text-zinc-400">Seu nome e uma breve descrição para o perfil.</p>
-              <div className="mt-6 space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-[12.5px] font-semibold text-zinc-400">Nome</label>
+          {/* 4 — Nome e descrição */}
+          {step === 4 && (
+            <div className="flex flex-1 flex-col">
+              <h2 className="text-[24px] font-black tracking-tight">Conte quem você é</h2>
+              <p className="mt-2 text-[14px] text-zinc-400">Seu nome e uma breve descrição.</p>
+              <div className="mt-8 space-y-5">
+                <label className="block">
+                  <span className="mb-1.5 block text-[11.5px] font-semibold text-zinc-500">Nome</span>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value.slice(0, 50))}
                     placeholder="Seu nome"
-                    className="h-13 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-[#1d9bf0] focus:ring-2 focus:ring-[#1d9bf0]/20"
+                    className="h-13 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-[#1d9bf0]/60 focus:bg-white/[0.05]"
                   />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-[12.5px] font-semibold text-zinc-400">Descrição</label>
+                </label>
+                <label className="block">
+                  <span className="mb-1.5 block text-[11.5px] font-semibold text-zinc-500">Descrição</span>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value.slice(0, 160))}
                     placeholder="Fale um pouco sobre você…"
                     rows={4}
-                    className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-[#1d9bf0] focus:ring-2 focus:ring-[#1d9bf0]/20"
+                    className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-[#1d9bf0]/60 focus:bg-white/[0.05]"
                   />
                   <p className="mt-1 text-right text-[11px] text-zinc-600">{bio.length}/160</p>
-                </div>
+                </label>
               </div>
             </div>
           )}
 
-          {/* 4 — Concluído */}
-          {step === 4 && (
-            <div className="flex flex-col items-center py-6 text-center">
-              <span className="pro-gradient mb-5 flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg">
+          {/* 5 — Concluído */}
+          {step === 5 && (
+            <div className="flex flex-1 flex-col items-center justify-center text-center">
+              <span className="pro-gradient mb-6 flex h-20 w-20 items-center justify-center rounded-full text-white shadow-[0_16px_40px_-10px_rgba(29,155,240,0.7)]">
                 <Check size={40} strokeWidth={3} />
               </span>
-              <h2 className="text-[24px] font-black tracking-tight">Tudo pronto!</h2>
-              <p className="mt-3 max-w-xs text-[14.5px] leading-relaxed text-zinc-400">
+              <h2 className="text-[26px] font-black tracking-tight">Tudo pronto</h2>
+              <p className="mt-3 max-w-[18rem] text-[14.5px] leading-relaxed text-zinc-400">
                 Seu perfil está no ar. Aproveite as notícias, a comunidade e os conteúdos da Monatiza.
               </p>
-              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#1d9bf0]/30 bg-[#1d9bf0]/10 px-4 py-2 text-[13px] font-bold text-[#1d9bf0]">
-                <Sparkles size={15} /> Bem-vindo à comunidade
-              </div>
             </div>
           )}
         </div>
 
         {/* navegação */}
-        <div className="mt-7 flex items-center gap-3">
+        <div className="mt-8 flex items-center gap-3">
           {step > 0 && step < TOTAL - 1 && (
             <button
               onClick={() => setStep((s) => Math.max(0, s - 1))}
-              className="flex h-13 items-center justify-center gap-1.5 rounded-2xl border border-white/12 px-5 text-sm font-bold text-white transition hover:bg-white/5"
+              className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl border border-white/12 text-white transition hover:bg-white/5"
+              aria-label="Voltar"
             >
-              <ArrowLeft size={17} /> Voltar
+              <ArrowLeft size={18} />
             </button>
           )}
           <button
@@ -309,7 +384,7 @@ export default function BoasVindasPage() {
             className="pro-gradient pro-glow flex h-13 flex-1 items-center justify-center gap-2 rounded-2xl text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60"
           >
             {saving && <Loader2 size={17} className="animate-spin" />}
-            {step === 0 && "Configurar meu perfil"}
+            {step === 0 && "Começar"}
             {step > 0 && step < TOTAL - 1 && (
               <>
                 Continuar <ArrowRight size={17} />
