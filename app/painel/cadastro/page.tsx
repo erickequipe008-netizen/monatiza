@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import GoogleAuthButton from "@/components/premium/GoogleAuthButton";
 import { User, AtSign, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 
 const inputCls =
@@ -46,7 +47,7 @@ function CadastroForm() {
           return;
         }
       }
-      window.location.href = next;
+      window.location.href = `/painel/boas-vindas?next=${encodeURIComponent(next)}`;
     } catch {
       setError("Erro inesperado. Tente novamente.");
     } finally {
@@ -63,6 +64,13 @@ function CadastroForm() {
         <div className="mb-2">
           <span className="text-[24px] font-black tracking-tight">Criar conta</span>
           <p className="mt-1 text-[14px] text-zinc-400">Entre na comunidade da Monatiza.</p>
+        </div>
+
+        <GoogleAuthButton next={next} label="Cadastrar com o Google" />
+        <div className="flex items-center gap-3 py-0.5">
+          <span className="h-px flex-1 bg-white/10" />
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">ou com e-mail</span>
+          <span className="h-px flex-1 bg-white/10" />
         </div>
 
         {error && <p className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</p>}

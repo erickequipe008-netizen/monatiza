@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import GoogleAuthButton from "@/components/premium/GoogleAuthButton";
 import { Mail, Lock, Eye, EyeOff, Check } from "lucide-react";
 
 export default function PainelLoginPage() {
@@ -14,6 +15,12 @@ export default function PainelLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [next, setNext] = useState("/app");
+
+  useEffect(() => {
+    const n = new URLSearchParams(window.location.search).get("next");
+    if (n) setNext(n);
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -76,6 +83,13 @@ export default function PainelLoginPage() {
           <div className="space-y-2">
             <h2 className="text-3xl font-black tracking-tight">Entrar</h2>
             <p className="text-sm text-zinc-400">Entre na sua conta.</p>
+          </div>
+
+          <GoogleAuthButton next={next} label="Entrar com o Google" />
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-white/10" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">ou com e-mail</span>
+            <span className="h-px flex-1 bg-white/10" />
           </div>
 
           {error && (
