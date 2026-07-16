@@ -1,2 +1,4 @@
 # App mobile (Flutter) não vai pro deploy do site.
 mobile
+# App Capacitor (node_modules + android + ios ~370MB) não faz parte do build web.
+monatiza
