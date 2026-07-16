@@ -67,7 +67,7 @@ export default function MobileHome() {
               </span>
             </span>
             <span className="w-full truncate text-center text-[11.5px] text-zinc-300">
-              {(p.display_name || p.handle).split(" ")[0]}
+              {(p.display_name || p.handle || "").split(" ")[0]}
             </span>
           </Link>
         ))}
