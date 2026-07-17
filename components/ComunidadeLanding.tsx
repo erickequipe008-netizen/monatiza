@@ -4,34 +4,34 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  ShieldCheck,
-  Zap,
-  MapPin,
+  Smartphone,
   Sparkles,
+  MapPin,
   PenSquare,
   Users,
   MessagesSquare,
   Compass,
+  Newspaper,
+  TrendingUp,
   Heart,
   MessageCircle,
   Repeat2,
-  TrendingUp,
   Check,
 } from "lucide-react";
 
 const FEATURES = [
-  { icon: PenSquare, title: "Publique e seja lido", desc: "Sua experiência vira conteúdo. E conteúdo vira autoridade." },
-  { icon: Users, title: "Construa sua rede", desc: "Siga, ganhe seguidores e cerque-se de quem também constrói." },
-  { icon: MessagesSquare, title: "Converse em tempo real", desc: "Comentários, respostas e mensagens diretas com quem entende." },
-  { icon: Compass, title: "Descubra o que importa", desc: "Notícias e comunidade no mesmo feed. Sem ruído, no seu ritmo." },
-  { icon: Heart, title: "Engajamento que soma", desc: "Uma comunidade que reconhece boas ideias e eleva quem contribui." },
-  { icon: TrendingUp, title: "Cresça de verdade", desc: "Quem aparece, vende. Quem se posiciona, lidera." },
+  { icon: Newspaper, title: "Notícias em tempo real", desc: "Acompanhe os assuntos que impactam negócios, tecnologia, economia, política, inovação e muito mais." },
+  { icon: PenSquare, title: "Compartilhe conhecimento", desc: "Publique ideias, experiências e projetos para ampliar sua presença profissional." },
+  { icon: Users, title: "Conecte-se com profissionais", desc: "Siga pessoas, faça novas conexões e participe de conversas relevantes." },
+  { icon: Compass, title: "Descubra oportunidades", desc: "Encontre empresas, parceiros, clientes e profissionais alinhados aos seus objetivos." },
+  { icon: MessagesSquare, title: "Participe das discussões", desc: "Comente, responda e interaja com uma comunidade que valoriza conteúdo de qualidade." },
+  { icon: TrendingUp, title: "Construa sua reputação", desc: "Quanto mais você participa, maior é a sua visibilidade dentro da plataforma." },
 ];
 
 const STEPS = [
-  { n: "01", t: "Crie sua conta grátis", d: "Leva menos de 1 minuto. Sem cartão, sem pegadinha — só e-mail ou Google." },
-  { n: "02", t: "Siga temas e pessoas", d: "Escolha o que acompanhar. Seu feed junta notícias e comunidade num lugar só." },
-  { n: "03", t: "Publique e cresça", d: "Mostre seu trabalho, debata o que acontece e conecte-se com quem gera oportunidade." },
+  { n: "01", t: "Crie sua conta", d: "Cadastre-se gratuitamente com seu e-mail ou conta Google." },
+  { n: "02", t: "Escolha o que acompanhar", d: "Siga temas, empresas, pessoas e assuntos do seu interesse para personalizar seu feed." },
+  { n: "03", t: "Participe da conversa", d: "Leia, publique, comente e conecte-se com pessoas que compartilham dos mesmos interesses." },
 ];
 
 const POSTS = [
@@ -55,9 +55,8 @@ const POSTS = [
 const TICKER = ["Negócios", "IA", "Mercado", "Política", "Tech", "Startups", "Empreende", "Carreira", "Saúde", "Revista"];
 
 const TRUST = [
-  { icon: Sparkles, label: "Grátis para sempre" },
-  { icon: Zap, label: "Em tempo real" },
-  { icon: ShieldCheck, label: "Seus dados protegidos" },
+  { icon: Smartphone, label: "Disponível para iPhone e Android" },
+  { icon: Sparkles, label: "Gratuito para começar" },
   { icon: MapPin, label: "Feito no Brasil" },
 ];
 
@@ -108,28 +107,28 @@ export default function ComunidadeLanding() {
       {/* ── HERO ── */}
       <section ref={heroRef} className="relative flex flex-col items-center px-5 pb-24 pt-24 text-center md:min-h-[88vh] md:justify-center md:pt-28">
         <span className="cm-reveal inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.22em] text-[#66b6ff] backdrop-blur">
-          <Users size={13} /> A rede social das notícias
+          <Users size={13} /> Comunidade Monatiza
         </span>
 
-        <h1 className="cm-reveal mt-7 max-w-[16ch] text-[42px] font-black leading-[0.98] tracking-[-0.03em] sm:text-[64px] md:text-[80px]" style={{ transitionDelay: "80ms" }}>
-          A primeira rede social
+        <h1 className="cm-reveal mt-7 max-w-[15ch] text-[40px] font-black leading-[1.0] tracking-[-0.03em] sm:text-[60px] md:text-[74px]" style={{ transitionDelay: "80ms" }}>
+          A comunidade onde notícias
           <br />
-          <span className="cm-shine">de notícias do mundo.</span>
+          <span className="cm-shine">viram conexões.</span>
         </h1>
 
-        <p className="cm-reveal mt-7 max-w-[46ch] text-[16px] leading-relaxed text-zinc-400 sm:text-[18px]" style={{ transitionDelay: "160ms" }}>
-          Um só lugar para se informar e se conectar: acompanhe as notícias que movem o mercado,
-          publique o que você pensa e faça, e converse com empresários, criadores e profissionais —
-          tudo em tempo real.
+        <p className="cm-reveal mt-7 max-w-[52ch] text-[16px] leading-relaxed text-zinc-400 sm:text-[18px]" style={{ transitionDelay: "160ms" }}>
+          Acompanhe as notícias que movimentam o mercado, compartilhe suas ideias e conecte-se com
+          empresários, profissionais e criadores em um único lugar. Informação, conversa e
+          oportunidades, tudo em tempo real.
         </p>
 
         <div className="cm-reveal mt-10 flex w-full flex-col items-center justify-center gap-3 sm:flex-row" style={{ transitionDelay: "240ms" }}>
           <Link href="/painel/cadastro?next=/app" className="cm-cta group inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1d9bf0] px-8 py-4 text-[15px] font-bold text-white transition sm:w-auto">
-            Criar conta grátis
+            Criar conta gratuitamente
             <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />
           </Link>
           <Link href="/app" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-8 py-4 text-[15px] font-bold text-white/90 transition hover:bg-white/[0.06] sm:w-auto">
-            Acessar a comunidade
+            Entrar na comunidade
           </Link>
         </div>
 
@@ -158,19 +157,23 @@ export default function ComunidadeLanding() {
         </div>
       </div>
 
-      {/* ── MANIFESTO ── */}
-      <section className="relative mx-auto max-w-[860px] px-5 py-28 text-center md:py-36">
-        <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">O que é</span>
-        <h2 className="cm-reveal mt-5 text-[30px] font-black leading-[1.12] tracking-tight md:text-[46px]" style={{ transitionDelay: "80ms" }}>
-          Não é mais uma rede social.
-          <br />
-          <span className="text-zinc-500">É a primeira feita de notícia.</span>
+      {/* ── UMA NOVA FORMA ── */}
+      <section className="relative mx-auto max-w-[820px] px-5 py-28 text-center md:py-36">
+        <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">Sobre</span>
+        <h2 className="cm-reveal mt-5 text-[30px] font-black leading-[1.12] tracking-tight md:text-[44px]" style={{ transitionDelay: "80ms" }}>
+          Uma nova forma de acompanhar o que acontece.
         </h2>
-        <p className="cm-reveal mx-auto mt-7 max-w-[56ch] text-[16px] leading-relaxed text-zinc-400 md:text-[18px]" style={{ transitionDelay: "160ms" }}>
-          As outras redes foram feitas para passar o tempo. A Monatiza foi feita para fazer o tempo
-          render. Aqui a notícia não é só informação: é ponto de partida para conversas que geram
-          negócio. Você lê o que acontece, reage, mostra o seu trabalho e conhece as pessoas certas —
-          sem barulho e sem algoritmo brigando pela sua atenção.
+        <p className="cm-reveal mx-auto mt-7 max-w-[54ch] text-[17px] font-semibold leading-relaxed text-zinc-300 md:text-[19px]" style={{ transitionDelay: "140ms" }}>
+          As notícias não precisam terminar quando você fecha a matéria.
+        </p>
+        <p className="cm-reveal mx-auto mt-4 max-w-[56ch] text-[15.5px] leading-relaxed text-zinc-400 md:text-[16.5px]" style={{ transitionDelay: "200ms" }}>
+          Na Comunidade Monatiza, elas dão início a conversas, análises e novas conexões. Você
+          acompanha os principais acontecimentos, participa das discussões e compartilha sua visão
+          com pessoas que também querem crescer.
+        </p>
+        <p className="cm-reveal mx-auto mt-4 max-w-[56ch] text-[15.5px] leading-relaxed text-zinc-400 md:text-[16.5px]" style={{ transitionDelay: "260ms" }}>
+          Em vez de alternar entre diferentes aplicativos para ler notícias, fazer networking e
+          publicar conteúdo, você encontra tudo reunido em uma única experiência.
         </p>
       </section>
 
@@ -178,7 +181,7 @@ export default function ComunidadeLanding() {
       <section className="relative mx-auto max-w-[1000px] px-5 pb-28 md:pb-36">
         <div className="mb-12 text-center">
           <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">Como funciona</span>
-          <h2 className="cm-reveal mt-4 text-[28px] font-black tracking-tight md:text-[40px]" style={{ transitionDelay: "80ms" }}>Comece em 3 passos.</h2>
+          <h2 className="cm-reveal mt-4 text-[28px] font-black tracking-tight md:text-[40px]" style={{ transitionDelay: "80ms" }}>Comece em poucos minutos.</h2>
         </div>
         <div className="grid gap-10 sm:grid-cols-3">
           {STEPS.map((s, i) => (
@@ -191,17 +194,20 @@ export default function ComunidadeLanding() {
         </div>
       </section>
 
-      {/* ── COMO É POR DENTRO (feed de exemplo) ── */}
-      <section className="relative mx-auto max-w-[560px] px-5 pb-28 md:pb-36">
+      {/* ── O FEED (exemplos) ── */}
+      <section className="relative mx-auto max-w-[600px] px-5 pb-28 md:pb-36">
         <div className="mb-10 text-center">
-          <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">Como é por dentro</span>
-          <h2 className="cm-reveal mt-4 text-[28px] font-black leading-[1.1] tracking-tight md:text-[40px]" style={{ transitionDelay: "80ms" }}>
-            Notícia vira conversa.
-            <br />
-            <span className="text-zinc-500">Conversa vira negócio.</span>
+          <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">O feed</span>
+          <h2 className="cm-reveal mt-4 text-[28px] font-black leading-[1.12] tracking-tight md:text-[40px]" style={{ transitionDelay: "80ms" }}>
+            Um feed que conecta informação e pessoas.
           </h2>
-          <p className="cm-reveal mx-auto mt-4 max-w-[42ch] text-[15px] leading-relaxed text-zinc-400" style={{ transitionDelay: "160ms" }}>
-            Um feed real, onde as pessoas reagem ao que acontece e mostram o que fazem. Veja alguns exemplos:
+          <p className="cm-reveal mx-auto mt-5 max-w-[48ch] text-[15px] leading-relaxed text-zinc-400" style={{ transitionDelay: "140ms" }}>
+            Na Comunidade Monatiza, notícias e publicações aparecem lado a lado. Enquanto você
+            acompanha os acontecimentos do dia, também descobre opiniões, experiências, análises e
+            projetos compartilhados pela comunidade.
+          </p>
+          <p className="cm-reveal mx-auto mt-4 max-w-[42ch] text-[15px] font-semibold leading-relaxed text-zinc-300" style={{ transitionDelay: "200ms" }}>
+            Cada publicação pode iniciar uma conversa. Cada conversa pode gerar uma nova oportunidade.
           </p>
         </div>
         <div className="space-y-4">
@@ -236,11 +242,11 @@ export default function ComunidadeLanding() {
         <p className="cm-reveal mt-8 text-center text-[13px] text-zinc-600">Exemplos ilustrativos da comunidade.</p>
       </section>
 
-      {/* ── RECURSOS (sem caixas) ── */}
+      {/* ── RECURSOS ── */}
       <section className="relative mx-auto max-w-[1040px] px-5 pb-28 md:pb-36">
         <div className="mb-12 text-center">
-          <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">Tudo em um só lugar</span>
-          <h2 className="cm-reveal mt-4 text-[28px] font-black tracking-tight md:text-[40px]" style={{ transitionDelay: "80ms" }}>O que você faz por aqui.</h2>
+          <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">Recursos</span>
+          <h2 className="cm-reveal mt-4 text-[28px] font-black tracking-tight md:text-[40px]" style={{ transitionDelay: "80ms" }}>Tudo o que você precisa em um só lugar.</h2>
         </div>
         <div className="grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f, i) => (
@@ -255,24 +261,44 @@ export default function ComunidadeLanding() {
         </div>
       </section>
 
+      {/* ── PARA QUEM É ── */}
+      <section className="relative mx-auto max-w-[820px] px-5 pb-28 text-center md:pb-36">
+        <span className="cm-reveal text-[12px] font-black uppercase tracking-[0.28em] text-[#1d9bf0]">Para quem é</span>
+        <h2 className="cm-reveal mt-5 text-[28px] font-black leading-[1.14] tracking-tight md:text-[42px]" style={{ transitionDelay: "80ms" }}>
+          Feita para quem quer acompanhar o mercado.
+        </h2>
+        <p className="cm-reveal mx-auto mt-6 max-w-[56ch] text-[15.5px] leading-relaxed text-zinc-400 md:text-[17px]" style={{ transitionDelay: "140ms" }}>
+          A Comunidade Monatiza reúne pessoas interessadas em informação de qualidade, negócios,
+          inovação, tecnologia, empreendedorismo e desenvolvimento profissional.
+        </p>
+        <p className="cm-reveal mx-auto mt-4 max-w-[56ch] text-[15.5px] leading-relaxed text-zinc-400 md:text-[17px]" style={{ transitionDelay: "200ms" }}>
+          Seja para acompanhar as notícias do dia, compartilhar conhecimento ou criar novas conexões,
+          você encontra um ambiente pensado para conversas relevantes.
+        </p>
+      </section>
+
       {/* ── CTA FINAL ── */}
       <section className="relative px-5 pb-32 text-center">
         <div className="cm-glow relative mx-auto max-w-[720px] py-16">
-          <h2 className="cm-reveal text-[34px] font-black leading-[1.05] tracking-tight md:text-[52px]">
-            Sua vez de <span className="cm-shine">aparecer.</span>
+          <h2 className="cm-reveal text-[32px] font-black leading-[1.06] tracking-tight md:text-[50px]">
+            Entre para a <span className="cm-shine">Comunidade Monatiza.</span>
           </h2>
-          <p className="cm-reveal mx-auto mt-5 max-w-[42ch] text-[15.5px] leading-relaxed text-zinc-400" style={{ transitionDelay: "80ms" }}>
-            Junte-se à comunidade de quem informa, empreende e cresce. Grátis, e leva 1 minuto para entrar.
+          <p className="cm-reveal mx-auto mt-6 max-w-[44ch] text-[16px] font-semibold leading-relaxed text-zinc-300" style={{ transitionDelay: "80ms" }}>
+            A informação conecta pessoas. As pessoas criam oportunidades.
           </p>
-          <div className="cm-reveal mt-9 flex flex-col items-center gap-4" style={{ transitionDelay: "160ms" }}>
+          <p className="cm-reveal mx-auto mt-3 max-w-[46ch] text-[15px] leading-relaxed text-zinc-400" style={{ transitionDelay: "140ms" }}>
+            Faça parte da comunidade que reúne notícias, conhecimento e networking em uma única plataforma.
+          </p>
+          <div className="cm-reveal mt-9 flex flex-col items-center gap-4" style={{ transitionDelay: "200ms" }}>
             <Link href="/painel/cadastro?next=/app" className="cm-cta group inline-flex items-center gap-2 rounded-full bg-[#1d9bf0] px-9 py-4 text-[15px] font-bold text-white transition">
-              Criar conta grátis
+              Criar conta gratuitamente
               <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />
             </Link>
             <div className="flex items-center gap-3">
               <StoreButton href="#" icon={<AppleMark />} top="Baixar na" bottom="App Store" compact />
               <StoreButton href="#" icon={<GooglePlayMark />} top="Disponível no" bottom="Google Play" compact />
             </div>
+            <p className="text-[13px] text-zinc-600">Disponível para iPhone e Android.</p>
           </div>
         </div>
       </section>

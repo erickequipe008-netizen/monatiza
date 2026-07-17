@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import ComunidadeLanding from "@/components/ComunidadeLanding";
 
 export const metadata: Metadata = {
-  title: "Monatiza — a primeira rede social de notícias do mundo",
+  title: "Comunidade Monatiza — onde notícias viram conexões",
   description:
-    "A Monatiza une jornalismo e comunidade num só lugar: publique, debata e acompanhe o que move o mercado em tempo real. Grátis, para sempre.",
+    "Acompanhe as notícias que movimentam o mercado, compartilhe suas ideias e conecte-se com empresários, profissionais e criadores num só lugar. Gratuito para começar.",
   alternates: { canonical: "https://www.monatiza.com/comunidade" },
 };
 
