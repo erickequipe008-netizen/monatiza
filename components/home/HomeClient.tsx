@@ -14,33 +14,81 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import CommunityPromo from "@/components/home/CommunityPromo";
 import ColumnistsShowcase from "@/components/home/ColumnistsShowcase";
 import { ExclusiveSection } from "@/components/home/ExclusiveSection";
+import { MagazinesShowcase } from "@/components/home/MagazinesShowcase";
+import { CategorySection } from "@/components/home/CategorySection";
+import { AdSlot } from "@/components/home/AdSlot";
+import {
+  CommercialAd,
+  type CommercialAdData,
+} from "@/components/home/CommercialAd";
 import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
+import type { MagazinePublic } from "@/types/magazine";
+
+type Article = any;
 
 export default function HomeClient({
   initialArticles = [],
+  initialMagazines = [],
+  initialCommercialAd1 = null,
+  initialCommercialAd2 = null,
+  initialNegociosArticles = [],
+  initialIaArticles = [],
+  initialMercadoArticles = [],
+  initialBrasilArticles = [],
+  initialPoliticaArticles = [],
+  initialTecnologiaArticles = [],
+  initialEmpreendeArticles = [],
+  initialStartupsArticles = [],
+  initialCarreiraArticles = [],
+  initialSaudeArticles = [],
 }: {
-  initialArticles?: any[];
+  initialArticles?: Article[];
+  initialMagazines?: MagazinePublic[];
+
+  initialCommercialAd1?: CommercialAdData | null;
+  initialCommercialAd2?: CommercialAdData | null;
+
+  initialNegociosArticles?: Article[];
+  initialIaArticles?: Article[];
+  initialMercadoArticles?: Article[];
+  initialBrasilArticles?: Article[];
+  initialPoliticaArticles?: Article[];
+  initialTecnologiaArticles?: Article[];
+  initialEmpreendeArticles?: Article[];
+  initialStartupsArticles?: Article[];
+  initialCarreiraArticles?: Article[];
+  initialSaudeArticles?: Article[];
 }) {
   const [darkMode, setDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [articles, setArticles] = useState<any[]>(initialArticles);
-  const [loading, setLoading] = useState(initialArticles.length === 0);
 
-  // Só busca no cliente se o servidor não trouxe dados (fallback de robustez).
+  const [articles, setArticles] =
+    useState<Article[]>(initialArticles);
+
+  const [loading, setLoading] = useState(
+    initialArticles.length === 0
+  );
+
   useEffect(() => {
     if (initialArticles.length > 0) return;
+
     async function loadArticles() {
       const { data } = await supabase
         .from("articles")
         .select(ARTICLE_LIST_COLUMNS)
         .eq("status", "publicado")
         .order("created_at", { ascending: false });
-      if (data) setArticles(data);
+
+      if (data) {
+        setArticles(data);
+      }
+
       setLoading(false);
     }
+
     loadArticles();
   }, [initialArticles.length]);
 
@@ -51,40 +99,120 @@ export default function HomeClient({
         setSearchOpen(false);
       }
     };
+
     window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+    };
   }, []);
 
-  const featured = articles.find((item) => item.image_url);
-  const rest = articles.filter((item) => item.id !== featured?.id);
+  /*
+   * =========================================================
+   * DISTRIBUIÇÃO DAS NOTÍCIAS DO TOPO
+   * =========================================================
+   */
+
+  const featured = articles.find(
+    (item) => item.image_url
+  );
+
+  const rest = articles.filter(
+    (item) => item.id !== featured?.id
+  );
+
+  // 3 chamadas ao lado do destaque principal
   const sideArticles = rest.slice(0, 3);
+
+  // 3 matérias secundárias
   const secondaryArticles = rest.slice(3, 6);
-  const gridArticles = rest.slice(6, 12);
+
+  // 8 matérias em Últimas Notícias = 4 + 4 no desktop
+  const gridArticles = rest.slice(6, 14);
+
+  // Notícias rápidas
   const tickerArticles = articles.slice(0, 8);
 
   const dark = darkMode;
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
+
     if (searchQuery.trim()) {
-      window.location.href = `/busca?q=${encodeURIComponent(searchQuery.trim())}`;
+      window.location.href = `/busca?q=${encodeURIComponent(
+        searchQuery.trim()
+      )}`;
     }
   };
 
   return (
     <>
       <style>{`
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes fadeUp { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
-        .fade-up { animation: fadeUp 0.5s ease forwards; }
-        .nav-item { position: relative; }
-        .nav-item:hover .nav-underline { width: 100%; }
-        .nav-underline { display: block; height: 2px; background: #dc2626; width: 0; transition: width 0.2s ease; position: absolute; bottom: -2px; left: 0; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        @keyframes fadeUp {
+          0% {
+            opacity: 0;
+            transform: translateY(14px);
+          }
+
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .fade-up {
+          animation: fadeUp 0.5s ease forwards;
+        }
+
+        .nav-item {
+          position: relative;
+        }
+
+        .nav-item:hover .nav-underline {
+          width: 100%;
+        }
+
+        .nav-underline {
+          display: block;
+          height: 2px;
+          background: #dc2626;
+          width: 0;
+          transition: width 0.2s ease;
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
 
-      <main className={`transition-colors duration-300 ${dark ? "bg-[#0d0d0d] text-white" : "bg-white text-black"}`}>
+      <main
+        className={`transition-colors duration-300 ${
+          dark
+            ? "bg-[#0d0d0d] text-white"
+            : "bg-white text-black"
+        }`}
+      >
+        {/* MENU */}
         {menuOpen && (
           <MegaMenu
             searchQuery={searchQuery}
@@ -95,8 +223,15 @@ export default function HomeClient({
           />
         )}
 
-        {loginOpen && <LoginModal dark={dark} onClose={() => setLoginOpen(false)} />}
+        {/* LOGIN */}
+        {loginOpen && (
+          <LoginModal
+            dark={dark}
+            onClose={() => setLoginOpen(false)}
+          />
+        )}
 
+        {/* BUSCA */}
         {searchOpen && (
           <SearchModal
             searchQuery={searchQuery}
@@ -106,21 +241,52 @@ export default function HomeClient({
           />
         )}
 
+        {/* CARREGAMENTO */}
         {loading && (
           <section className="max-w-[1280px] mx-auto px-4 py-10">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 border-b pb-10 mb-10">
               <div>
-                <Skeleton dark={dark} className="h-3 w-20 mb-4" />
-                <Skeleton dark={dark} className="h-10 w-full mb-2" />
-                <Skeleton dark={dark} className="h-10 w-3/4 mb-6" />
-                <Skeleton dark={dark} className="w-full h-[360px]" />
+                <Skeleton
+                  dark={dark}
+                  className="h-3 w-20 mb-4"
+                />
+
+                <Skeleton
+                  dark={dark}
+                  className="h-10 w-full mb-2"
+                />
+
+                <Skeleton
+                  dark={dark}
+                  className="h-10 w-3/4 mb-6"
+                />
+
+                <Skeleton
+                  dark={dark}
+                  className="w-full h-[360px]"
+                />
               </div>
+
               <div className="space-y-5">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="space-y-2 pb-5 border-b">
-                    <Skeleton dark={dark} className="h-3 w-16" />
-                    <Skeleton dark={dark} className="h-4 w-full" />
-                    <Skeleton dark={dark} className="h-4 w-2/3" />
+                  <div
+                    key={i}
+                    className="space-y-2 pb-5 border-b"
+                  >
+                    <Skeleton
+                      dark={dark}
+                      className="h-3 w-16"
+                    />
+
+                    <Skeleton
+                      dark={dark}
+                      className="h-4 w-full"
+                    />
+
+                    <Skeleton
+                      dark={dark}
+                      className="h-4 w-2/3"
+                    />
                   </div>
                 ))}
               </div>
@@ -130,27 +296,211 @@ export default function HomeClient({
 
         {!loading && featured && (
           <section className="max-w-[1280px] mx-auto px-4 pt-6 pb-0 fade-up">
-            <HeroSection dark={dark} featured={featured} sideArticles={sideArticles} />
-            <Ticker dark={dark} articles={tickerArticles} />
 
-            {/* ── FRISO DE COLUNISTAS (logo abaixo da capa) ── */}
+            {/* ==================================================
+                DESTAQUE PRINCIPAL
+            ================================================== */}
+            <HeroSection
+              dark={dark}
+              featured={featured}
+              sideArticles={sideArticles}
+            />
+
+            {/* NOTÍCIAS RÁPIDAS */}
+            <Ticker
+              dark={dark}
+              articles={tickerArticles}
+            />
+
+            {/* COLUNISTAS */}
             <ColumnistsShowcase />
 
-            <SecondaryGrid dark={dark} articles={secondaryArticles} />
+            {/* NOTÍCIAS SECUNDÁRIAS */}
+            <SecondaryGrid
+              dark={dark}
+              articles={secondaryArticles}
+            />
 
-            {/* ── CONTEÚDO EXCLUSIVO (premium) ── */}
-            <ExclusiveSection dark={dark} articles={articles} />
+            {/* CONTEÚDO EXCLUSIVO */}
+            <ExclusiveSection
+              dark={dark}
+              articles={articles}
+            />
 
-            <ArticleGrid dark={dark} articles={gridArticles} />
+            {/* ==================================================
+                ÚLTIMAS NOTÍCIAS
+                8 matérias
+            ================================================== */}
+            <ArticleGrid
+              dark={dark}
+              articles={gridArticles}
+            />
 
-            {/* ── COMUNIDADE / APP (uma vez, ao fim do fluxo editorial) ── */}
-            <CommunityPromo className="mt-12" />
+            {/* ==================================================
+                GOOGLE ADSENSE 01
+                INVISÍVEL ENQUANTO NÃO CONFIGURADO
+            ================================================== */}
+            <AdSlot />
+
+            {/* ==================================================
+                NEGÓCIOS
+                1 principal + 3 centrais + 3 laterais
+            ================================================== */}
+            <CategorySection
+              title="Negócios"
+              href="/negocios"
+              dark={dark}
+              articles={initialNegociosArticles}
+            />
+
+            {/* ==================================================
+                INTELIGÊNCIA ARTIFICIAL
+            ================================================== */}
+            <CategorySection
+              title="Inteligência Artificial"
+              href="/ia"
+              dark={dark}
+              articles={initialIaArticles}
+            />
+
+            {/* ==================================================
+                PUBLICIDADE COMERCIAL PRÓPRIA 01
+            ================================================== */}
+            <CommercialAd
+              ad={initialCommercialAd1}
+            />
+
+            {/* ==================================================
+                MERCADO
+            ================================================== */}
+            <CategorySection
+              title="Mercado"
+              href="/mercado"
+              dark={dark}
+              articles={initialMercadoArticles}
+            />
+
+            {/* ==================================================
+                BRASIL
+            ================================================== */}
+            <CategorySection
+              title="Brasil"
+              href="/brasil"
+              dark={dark}
+              articles={initialBrasilArticles}
+            />
+
+            {/* ==================================================
+                GOOGLE ADSENSE 02
+            ================================================== */}
+            <AdSlot />
+
+            {/* ==================================================
+                POLÍTICA
+            ================================================== */}
+            <CategorySection
+              title="Política"
+              href="/politica"
+              dark={dark}
+              articles={initialPoliticaArticles}
+            />
+
+            {/* ==================================================
+                TECNOLOGIA
+            ================================================== */}
+            <CategorySection
+              title="Tecnologia"
+              href="/tech"
+              dark={dark}
+              articles={initialTecnologiaArticles}
+            />
+
+            {/* ==================================================
+                EDIÇÕES MONATIZA
+            ================================================== */}
+            <MagazinesShowcase
+              magazines={initialMagazines}
+              dark={dark}
+            />
+
+            {/* ==================================================
+                PUBLICIDADE COMERCIAL PRÓPRIA 02
+            ================================================== */}
+            <CommercialAd
+              ad={initialCommercialAd2}
+            />
+
+            {/* ==================================================
+                EMPREENDE
+            ================================================== */}
+            <CategorySection
+              title="Empreende"
+              href="/empreende"
+              dark={dark}
+              articles={initialEmpreendeArticles}
+            />
+
+            {/* ==================================================
+                STARTUPS
+            ================================================== */}
+            <CategorySection
+              title="Startups"
+              href="/startups"
+              dark={dark}
+              articles={initialStartupsArticles}
+            />
+
+            {/* ==================================================
+                GOOGLE ADSENSE 03
+            ================================================== */}
+            <AdSlot />
+
+            {/* ==================================================
+                CARREIRA
+            ================================================== */}
+            <CategorySection
+              title="Carreira"
+              href="/carreira"
+              dark={dark}
+              articles={initialCarreiraArticles}
+            />
+
+            {/* ==================================================
+                SAÚDE
+            ================================================== */}
+            <CategorySection
+              title="Saúde"
+              href="/saude"
+              dark={dark}
+              articles={initialSaudeArticles}
+            />
+
+            {/* ==================================================
+                GOOGLE ADSENSE 04
+            ================================================== */}
+            <AdSlot />
+
+            {/* ==================================================
+                COMUNIDADE
+            ================================================== */}
+            <CommunityPromo className="mt-14" />
           </section>
         )}
 
-        {/* ── NEWSLETTER (fim da capa) ── */}
+        {/* =====================================================
+            NEWSLETTER
+        ===================================================== */}
         {!loading && (
-          <NewsletterHero images={articles.filter((a) => a.image_url).map((a) => a.image_url as string)} />
+          <NewsletterHero
+            images={articles
+              .filter(
+                (article) => article.image_url
+              )
+              .map(
+                (article) =>
+                  article.image_url as string
+              )}
+          />
         )}
       </main>
     </>
