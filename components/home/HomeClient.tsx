@@ -335,6 +335,14 @@ export default function HomeClient({
                 articles={tickerArticles}
               />
 
+              {/* REVISTAS — prioridade no mobile */}
+              <div className="lg:hidden">
+                <MagazinesShowcase
+                  magazines={initialMagazines}
+                  dark={dark}
+                />
+              </div>
+
               <ColumnistsShowcase />
 
               <SecondaryGrid
@@ -342,11 +350,13 @@ export default function HomeClient({
                 articles={secondaryArticles}
               />
 
-              {/* REVISTAS EM DESTAQUE */}
-              <MagazinesShowcase
-                magazines={initialMagazines}
-                dark={dark}
-              />
+              {/* REVISTAS — posição editorial do desktop */}
+              <div className="hidden lg:block">
+                <MagazinesShowcase
+                  magazines={initialMagazines}
+                  dark={dark}
+                />
+              </div>
 
               <ArticleGrid
                 dark={dark}

@@ -192,19 +192,23 @@ export default function ArticleClient({
           )}
 
           {/* ── Siga-nos no Google ── */}
-          <div className="flex items-center gap-3 my-6">
-            <span className="font-serif text-[18px] font-semibold text-zinc-800">
+          <div className="my-6 flex w-full flex-col items-start gap-2.5 border-y border-zinc-100 py-4 sm:flex-row sm:items-center sm:gap-3 sm:border-0 sm:py-0">
+            <span className="font-serif text-[16px] font-semibold text-zinc-800 sm:text-[18px]">
               Siga-nos no
             </span>
 
             <div
               aria-label="Perfil da Monatiza no Google"
-              className="inline-flex items-center"
+              className="flex max-w-full items-center"
             >
               <img
                 src="/google-search-profile-badge.svg"
                 alt="Perfil da Monatiza na Pesquisa Google"
-                className="h-[46px] w-auto"
+                width="180"
+                height="46"
+                loading="eager"
+                decoding="async"
+                className="block h-auto max-h-[46px] max-w-full w-auto"
               />
             </div>
           </div>
