@@ -17,6 +17,7 @@ import { ExclusiveSection } from "@/components/home/ExclusiveSection";
 import { MagazinesShowcase } from "@/components/home/MagazinesShowcase";
 import { CategorySection } from "@/components/home/CategorySection";
 import { AdSlot } from "@/components/home/AdSlot";
+import HomeSidebar from "@/components/home/HomeSidebar";
 import {
   CommercialAd,
   type CommercialAdData,
@@ -59,7 +60,7 @@ export default function HomeClient({
   initialCarreiraArticles?: Article[];
   initialSaudeArticles?: Article[];
 }) {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -121,16 +122,12 @@ export default function HomeClient({
     (item) => item.id !== featured?.id
   );
 
-  // 3 chamadas ao lado do destaque principal
-  const sideArticles = rest.slice(0, 3);
-
-  // 3 matérias secundárias
+  const sideArticles = rest.slice(0, 2);
   const secondaryArticles = rest.slice(3, 6);
 
-  // 8 matérias em Últimas Notícias = 4 + 4 no desktop
+  // 8 notícias = 4 + 4 no desktop
   const gridArticles = rest.slice(6, 14);
 
-  // Notícias rápidas
   const tickerArticles = articles.slice(0, 8);
 
   const dark = darkMode;
@@ -243,27 +240,27 @@ export default function HomeClient({
 
         {/* CARREGAMENTO */}
         {loading && (
-          <section className="max-w-[1280px] mx-auto px-4 py-10">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 border-b pb-10 mb-10">
+          <section className="mx-auto max-w-[1280px] px-4 py-10">
+            <div className="mb-10 grid grid-cols-1 gap-8 border-b pb-10 lg:grid-cols-[1fr_320px]">
               <div>
                 <Skeleton
                   dark={dark}
-                  className="h-3 w-20 mb-4"
+                  className="mb-4 h-3 w-20"
                 />
 
                 <Skeleton
                   dark={dark}
-                  className="h-10 w-full mb-2"
+                  className="mb-2 h-10 w-full"
                 />
 
                 <Skeleton
                   dark={dark}
-                  className="h-10 w-3/4 mb-6"
+                  className="mb-6 h-10 w-3/4"
                 />
 
                 <Skeleton
                   dark={dark}
-                  className="w-full h-[360px]"
+                  className="h-[360px] w-full"
                 />
               </div>
 
@@ -271,7 +268,7 @@ export default function HomeClient({
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="space-y-2 pb-5 border-b"
+                    className="space-y-2 border-b pb-5"
                   >
                     <Skeleton
                       dark={dark}
@@ -295,201 +292,199 @@ export default function HomeClient({
         )}
 
         {!loading && featured && (
-          <section className="max-w-[1280px] mx-auto px-4 pt-6 pb-0 fade-up">
+          <>
+            {/* ==================================================
+                TOPO DA HOME - LARGURA COMPLETA
+            ================================================== */}
+            <section className="fade-up mx-auto max-w-[1280px] px-4 pt-6">
+
+              {/* Publicidade comercial principal no topo da home */}
+              <div className="mb-8">
+                <CommercialAd ad={initialCommercialAd1} />
+              </div>
+
+              <HeroSection
+                dark={dark}
+                featured={featured}
+                sideArticles={sideArticles}
+              />
+
+              {/* CHAMADAS COMPLEMENTARES DO DESTAQUE */}
+              <div className="grid grid-cols-1 border-b border-zinc-200 sm:grid-cols-3">
+                {secondaryArticles.slice(0, 3).map((article, index) => (
+                  <a
+                    key={article.id}
+                    href={`/noticia/${article.slug}`}
+                    className={`group block py-5 sm:px-5 ${
+                      index > 0 ? "border-t sm:border-l sm:border-t-0 border-zinc-200" : ""
+                    }`}
+                  >
+                    <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.16em] text-red-600">
+                      {article.category || "Em destaque"}
+                    </span>
+
+                    <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-zinc-900 transition-colors group-hover:text-red-600">
+                      {article.title}
+                    </h3>
+                  </a>
+                ))}
+              </div>
+
+              <Ticker
+                dark={dark}
+                articles={tickerArticles}
+              />
+
+              <ColumnistsShowcase />
+
+              <SecondaryGrid
+                dark={dark}
+                articles={secondaryArticles}
+              />
+
+              {/* REVISTAS EM DESTAQUE */}
+              <MagazinesShowcase
+                magazines={initialMagazines}
+                dark={dark}
+              />
+
+              <ArticleGrid
+                dark={dark}
+                articles={gridArticles}
+              />
+
+            </section>
 
             {/* ==================================================
-                DESTAQUE PRINCIPAL
+                CORPO EDITORIAL
+                ESQUERDA = CONTEÚDO
+                DIREITA = SIDEBAR
             ================================================== */}
-            <HeroSection
-              dark={dark}
-              featured={featured}
-              sideArticles={sideArticles}
-            />
+            <section className="mx-auto max-w-[1280px] px-4 pb-8">
 
-            {/* NOTÍCIAS RÁPIDAS */}
-            <Ticker
-              dark={dark}
-              articles={tickerArticles}
-            />
+              <div className="mt-8 border-t border-neutral-200 pt-2">
+                <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_330px] xl:gap-12">
 
-            {/* COLUNISTAS */}
-            <ColumnistsShowcase />
+                  {/* =============================================
+                      COLUNA EDITORIAL PRINCIPAL
+                  ============================================= */}
+                  <div className="min-w-0">
 
-            {/* NOTÍCIAS SECUNDÁRIAS */}
-            <SecondaryGrid
-              dark={dark}
-              articles={secondaryArticles}
-            />
+                    <CategorySection
+                      title="Negócios"
+                      href="/negocios"
+                      dark={dark}
+                      articles={initialNegociosArticles}
+                    />
 
-            {/* CONTEÚDO EXCLUSIVO */}
-            <ExclusiveSection
-              dark={dark}
-              articles={articles}
-            />
+                    <CategorySection
+                      title="Inteligência Artificial"
+                      href="/ia"
+                      dark={dark}
+                      articles={initialIaArticles}
+                    />
 
-            {/* ==================================================
-                ÚLTIMAS NOTÍCIAS
-                8 matérias
-            ================================================== */}
-            <ArticleGrid
-              dark={dark}
-              articles={gridArticles}
-            />
+                    <CategorySection
+                      title="Mercado"
+                      href="/mercado"
+                      dark={dark}
+                      articles={initialMercadoArticles}
+                    />
 
-            {/* ==================================================
-                GOOGLE ADSENSE 01
-                INVISÍVEL ENQUANTO NÃO CONFIGURADO
-            ================================================== */}
-            <AdSlot />
+                    <CategorySection
+                      title="Brasil"
+                      href="/brasil"
+                      dark={dark}
+                      articles={initialBrasilArticles}
+                    />
 
-            {/* ==================================================
-                NEGÓCIOS
-                1 principal + 3 centrais + 3 laterais
-            ================================================== */}
-            <CategorySection
-              title="Negócios"
-              href="/negocios"
-              dark={dark}
-              articles={initialNegociosArticles}
-            />
+                    {/* Futuro AdSense dentro do editorial */}
+                    <AdSlot />
 
-            {/* ==================================================
-                INTELIGÊNCIA ARTIFICIAL
-            ================================================== */}
-            <CategorySection
-              title="Inteligência Artificial"
-              href="/ia"
-              dark={dark}
-              articles={initialIaArticles}
-            />
+                    <CategorySection
+                      title="Política"
+                      href="/politica"
+                      dark={dark}
+                      articles={initialPoliticaArticles}
+                    />
 
-            {/* ==================================================
-                PUBLICIDADE COMERCIAL PRÓPRIA 01
-            ================================================== */}
-            <CommercialAd
-              ad={initialCommercialAd1}
-            />
+                    <CategorySection
+                      title="Tecnologia"
+                      href="/tech"
+                      dark={dark}
+                      articles={initialTecnologiaArticles}
+                    />
+                  </div>
 
-            {/* ==================================================
-                MERCADO
-            ================================================== */}
-            <CategorySection
-              title="Mercado"
-              href="/mercado"
-              dark={dark}
-              articles={initialMercadoArticles}
-            />
+                  {/* =============================================
+                      SIDEBAR
+                      No desktop acompanha a área editorial.
+                      No celular desce naturalmente.
+                  ============================================= */}
+                  <div className="min-w-0 border-neutral-200 lg:border-l lg:pl-7 xl:pl-8">
+                    <div className="lg:sticky lg:top-5">
+                      <HomeSidebar
+                        commercialAd1={initialCommercialAd1}
+                        commercialAd2={initialCommercialAd2}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-            {/* ==================================================
-                BRASIL
-            ================================================== */}
-            <CategorySection
-              title="Brasil"
-              href="/brasil"
-              dark={dark}
-              articles={initialBrasilArticles}
-            />
+              {/* ==================================================
+                  CONTEÚDO EXCLUSIVO / ASSINANTES
+              ================================================== */}
+              <div className="mt-4 border-t border-neutral-200 pt-4">
+                <ExclusiveSection
+                  dark={dark}
+                  articles={articles}
+                />
+              </div>
 
-            {/* ==================================================
-                GOOGLE ADSENSE 02
-            ================================================== */}
-            <AdSlot />
+              {/* ==================================================
+                  SEGUNDA PARTE EDITORIAL
+              ================================================== */}
+              <div className="mt-4">
 
-            {/* ==================================================
-                POLÍTICA
-            ================================================== */}
-            <CategorySection
-              title="Política"
-              href="/politica"
-              dark={dark}
-              articles={initialPoliticaArticles}
-            />
+                <CategorySection
+                  title="Empreende"
+                  href="/empreende"
+                  dark={dark}
+                  articles={initialEmpreendeArticles}
+                />
 
-            {/* ==================================================
-                TECNOLOGIA
-            ================================================== */}
-            <CategorySection
-              title="Tecnologia"
-              href="/tech"
-              dark={dark}
-              articles={initialTecnologiaArticles}
-            />
+                <CategorySection
+                  title="Startups"
+                  href="/startups"
+                  dark={dark}
+                  articles={initialStartupsArticles}
+                />
 
-            {/* ==================================================
-                EDIÇÕES MONATIZA
-            ================================================== */}
-            <MagazinesShowcase
-              magazines={initialMagazines}
-              dark={dark}
-            />
+                <CategorySection
+                  title="Carreira"
+                  href="/carreira"
+                  dark={dark}
+                  articles={initialCarreiraArticles}
+                />
 
-            {/* ==================================================
-                PUBLICIDADE COMERCIAL PRÓPRIA 02
-            ================================================== */}
-            <CommercialAd
-              ad={initialCommercialAd2}
-            />
+                <CategorySection
+                  title="Saúde"
+                  href="/saude"
+                  dark={dark}
+                  articles={initialSaudeArticles}
+                />
+              </div>
 
-            {/* ==================================================
-                EMPREENDE
-            ================================================== */}
-            <CategorySection
-              title="Empreende"
-              href="/empreende"
-              dark={dark}
-              articles={initialEmpreendeArticles}
-            />
+              {/* Futuro AdSense horizontal */}
+              <AdSlot />
 
-            {/* ==================================================
-                STARTUPS
-            ================================================== */}
-            <CategorySection
-              title="Startups"
-              href="/startups"
-              dark={dark}
-              articles={initialStartupsArticles}
-            />
-
-            {/* ==================================================
-                GOOGLE ADSENSE 03
-            ================================================== */}
-            <AdSlot />
-
-            {/* ==================================================
-                CARREIRA
-            ================================================== */}
-            <CategorySection
-              title="Carreira"
-              href="/carreira"
-              dark={dark}
-              articles={initialCarreiraArticles}
-            />
-
-            {/* ==================================================
-                SAÚDE
-            ================================================== */}
-            <CategorySection
-              title="Saúde"
-              href="/saude"
-              dark={dark}
-              articles={initialSaudeArticles}
-            />
-
-            {/* ==================================================
-                GOOGLE ADSENSE 04
-            ================================================== */}
-            <AdSlot />
-
-            {/* ==================================================
-                COMUNIDADE
-            ================================================== */}
-            <CommunityPromo className="mt-14" />
-          </section>
+              <CommunityPromo className="mt-14" />
+            </section>
+          </>
         )}
 
-        {/* =====================================================
-            NEWSLETTER
-        ===================================================== */}
+        {/* NEWSLETTER PRINCIPAL */}
         {!loading && (
           <NewsletterHero
             images={articles

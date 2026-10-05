@@ -15,10 +15,10 @@ export function MagazinesShowcase({ magazines, dark = false }: Props) {
   return (
     <section
       aria-labelledby="edicoes-monatiza"
-      className={`mt-14 border-t pt-9 ${border}`}
+      className={`mt-16 border-t pt-10 ${border}`}
     >
       {/* Cabeçalho */}
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-8 flex items-end justify-between gap-4">
         <div>
           <div className="mb-1.5 flex items-center gap-2">
             <span
@@ -49,7 +49,7 @@ export function MagazinesShowcase({ magazines, dark = false }: Props) {
 
       {/* Fileira horizontal de revistas */}
       <div
-        className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 pt-2 scroll-smooth sm:gap-5"
+        className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-6 pt-2 scroll-smooth sm:gap-6 lg:gap-7"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         {magazines.map((m) => (
@@ -57,7 +57,7 @@ export function MagazinesShowcase({ magazines, dark = false }: Props) {
             key={m.id}
             href={`/revista/${m.slug}`}
             aria-label={`Abrir revista ${m.title}`}
-            className="group block w-[145px] shrink-0 snap-start sm:w-[165px] md:w-[175px] lg:w-[185px]"
+            className="group block w-[165px] shrink-0 snap-start sm:w-[185px] md:w-[205px] lg:w-[220px] xl:w-[230px]"
           >
             {/* Capa */}
             <div
@@ -100,7 +100,7 @@ export function MagazinesShowcase({ magazines, dark = false }: Props) {
                 </span>
               )}
 
-              <h3 className="mt-1 line-clamp-2 text-sm font-bold leading-snug tracking-tight group-hover:underline">
+              <h3 className="mt-1.5 line-clamp-2 text-sm font-bold leading-snug tracking-tight group-hover:underline sm:text-[15px]">
                 {m.title}
               </h3>
 
