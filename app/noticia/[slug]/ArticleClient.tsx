@@ -191,6 +191,24 @@ export default function ArticleClient({
             </div>
           )}
 
+          {/* ── Siga-nos no Google ── */}
+          <div className="flex items-center gap-3 my-6">
+            <span className="font-serif text-[18px] font-semibold text-zinc-800">
+              Siga-nos no
+            </span>
+
+            <div
+              aria-label="Perfil da Monatiza no Google"
+              className="inline-flex items-center"
+            >
+              <img
+                src="/google-search-profile-badge.svg"
+                alt="Perfil da Monatiza na Pesquisa Google"
+                className="h-[46px] w-auto"
+              />
+            </div>
+          </div>
+
           {/* ── ANÚNCIO: dentro da matéria, após a introdução ── */}
           <AdSlot placement="articleInline" format="auto" minHeight={120} className="my-8" />
 
