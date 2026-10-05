@@ -223,6 +223,12 @@ export default function ArticleClient({
                 )}
               </div>
 
+              {/* ── CTA Google Reader Revenue Manager ── */}
+              <div
+                rrm-inline-cta="0942f4c4-86d9-468a-ab2f-d255a1b4cd69"
+                className="my-8"
+              />
+
               {/* ── ANÚNCIO: fim da matéria ── */}
               <AdSlot placement="articleBottom" format="auto" minHeight={280} className="mt-10" />
 

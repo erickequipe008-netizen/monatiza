@@ -65,6 +65,24 @@ export default function RootLayout({
           src="https://cdn-cookieyes.com/client_data/e1fd1ac7ad976fb79e788aa18623b15c/script.js"
           strategy="beforeInteractive"
         />
+        {/* Google Reader Revenue Manager */}
+        <Script
+          src="https://news.google.com/swg/js/v1/swg-basic.js"
+          strategy="afterInteractive"
+        />
+        <Script id="google-reader-revenue-manager" strategy="afterInteractive">
+          {`
+            (self.SWG_BASIC = self.SWG_BASIC || []).push((basicSubscriptions) => {
+              basicSubscriptions.init({
+                type: "NewsArticle",
+                isPartOfType: ["Product"],
+                isPartOfProductId: "CAow5fDhCw:openaccess",
+                clientOptions: { theme: "light", lang: "pt-BR" },
+              });
+            });
+          `}
+        </Script>
+
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/* Mobile web com a identidade do APP (lilás). Injetado direto para
             não passar pelo processador de CSS; no desktop nada muda. */}
