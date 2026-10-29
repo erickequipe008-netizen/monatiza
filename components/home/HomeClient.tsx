@@ -280,7 +280,7 @@ export default function HomeClient({
                       className="h-4 w-full"
                     />
 
-                    <Skeleton
+                    <
                       dark={dark}
                       className="h-4 w-2/3"
                     />

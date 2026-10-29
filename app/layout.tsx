@@ -60,10 +60,10 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
         <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
-        <Script
+                <Script
           id="cookieyes"
           src="https://cdn-cookieyes.com/client_data/e1fd1ac7ad976fb79e788aa18623b15c/script.js"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
         {/* Google Reader Revenue Manager */}
         <Script
