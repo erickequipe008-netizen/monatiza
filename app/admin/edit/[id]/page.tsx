@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ARTICLE_LIST_COLUMNS } from "@/lib/articleFields";
 import EditClient from "./EditClient";
 
 export default async function EditPage({
@@ -12,7 +13,7 @@ export default async function EditPage({
 
   const { data: article } = await supabase
     .from("articles")
-    .select("*")
+    .select(ARTICLE_LIST_COLUMNS)
     .eq("id", id)
     .single();
 

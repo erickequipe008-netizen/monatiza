@@ -1,11 +1,13 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import Link from "next/link";
+import { requireEditorial } from "@/lib/editorial-auth";
 
 export default async function BriefingPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireEditorial();
   const { id } = await params;
 
   const { data, error } = await supabaseAdmin

@@ -111,3 +111,172 @@ body {
 .cky-btn-revisit-wrapper {
   display: none !important;
 }
+
+/* ───────────── MonatizaPro — design system (Gemini-style) ───────────── */
+/* Estilo X (Twitter): azul chapado, sem gradiente lilás. */
+.pro-gradient {
+  background-image: none;
+  background-color: #1d9bf0;
+}
+.pro-gradient-text {
+  background-image: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: #1d9bf0;
+  color: #1d9bf0;
+}
+.pro-ring {
+  background-image: none;
+  background-color: transparent;
+}
+@keyframes pro-pop {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.pro-pop { animation: pro-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* rolagem sem barra feia dentro do app */
+.pro-scroll { scrollbar-width: none; }
+.pro-scroll::-webkit-scrollbar { display: none; }
+
+/* Botão de vidro translúcido (estilo Google IA / Gemini) */
+.pro-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: background 0.25s, border-color 0.25s, transform 0.25s;
+}
+.pro-glass:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+/* Sem brilho colorido (visual limpo do X). */
+.pro-glow { box-shadow: none; }
+
+/* Contorno neutro (estilo X: fundo escuro + borda cinza). */
+.pro-border {
+  background: #16181c;
+  border: 1px solid #2f3336;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Selo de notificação (badge) — pop ao aparecer */
+@keyframes pro-badge-in {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.pro-badge { animation: pro-badge-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Aura suave animada (efeito Gemini) — discreta, sem exagero de roxo */
+@keyframes pro-aura {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50%      { opacity: 0.34; transform: scale(1.06); }
+}
+/* Aura desativada — nada de brilhos/manchas de fundo (minimalista). */
+.pro-aura { display: none !important; }
+
+/* ═══════════ Usabilidade "app": leve, tátil, com ondas na entrada ═══════════ */
+/* Sem realce cinza no toque + rolagem com inércia (não trava no celular). */
+.app-shell, .app-shell * { -webkit-tap-highlight-color: transparent; }
+.app-shell {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  text-rendering: optimizeSpeed;
+}
+
+/* Feedback tátil: botões e links "afundam" de leve ao tocar (sensação de app). */
+.app-shell button, .app-shell a, .app-shell [role="button"], .app-shell label {
+  transition: transform 0.13s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.app-shell button:active,
+.app-shell a:active,
+.app-shell [role="button"]:active { transform: scale(0.965); }
+/* Cartões/posts/linhas clicáveis dão um "flash" suave ao tocar. */
+.app-shell [class*="cursor-pointer"]:active { background-color: rgba(255, 255, 255, 0.055); }
+
+/* Entrada em "onda": o conteúdo sobe suave ao abrir/trocar de aba. */
+@keyframes wave-in {
+  from { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.994); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+.wave-in { animation: wave-in 0.44s cubic-bezier(0.16, 1, 0.3, 1) both; will-change: transform, opacity; }
+
+/* Ripple: uma onda circular macia sob o toque (some sozinha). */
+.ripple { position: relative; overflow: hidden; isolation: isolate; }
+.ripple::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.16), transparent 60%);
+  opacity: 0; transform: scale(0.6);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+.ripple:active::after { opacity: 1; transform: scale(1); transition-duration: 0s, 0s; }
+
+/* Rolagem mais leve: reduz o blur pesado das barras fixas do app. */
+.app-shell [class*="backdrop-blur"] {
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Transições de navegação mais rápidas (menos "forçado"). */
+.pro-pop { animation-duration: 0.3s; }
+
+/* Respeita quem prefere menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+  .wave-in, .pro-pop, .pro-badge { animation: none !important; }
+  .app-shell button:active, .app-shell a:active, .app-shell [role="button"]:active { transform: none; }
+}
+
+/* ───────── Tema CLARO do app (classe .pro-light no contêiner do /app) ─────────
+   Remapeia os padrões escuros mais usados para superfícies claras. */
+.pro-light { background-color: #ffffff !important; color: #18181b; }
+.pro-light [class*="bg-[#0a0a0c]"] { background-color: #ffffff !important; }
+.pro-light [class*="bg-[#101014]"],
+.pro-light [class*="bg-[#15151b]"],
+.pro-light [class*="bg-[#0f0f14]"],
+.pro-light [class*="bg-[#0b0b0f]"] { background-color: #ffffff !important; }
+/* superfícies translúcidas viram BRANCO limpo (separação pela borda) */
+.pro-light [class*="bg-white/"] { background-color: #ffffff !important; }
+.pro-light [class*="hover:bg-white/"]:hover { background-color: #f4f4f6 !important; }
+.pro-light [class*="border-white/"] { border-color: rgba(0, 0, 0, 0.14) !important; }
+.pro-light [class*="ring-white/"] { --tw-ring-color: rgba(0, 0, 0, 0.14) !important; }
+.pro-light [class*="divide-white/"] > * + * { border-color: rgba(0, 0, 0, 0.1) !important; }
+/* textos: garante contraste em fundo claro */
+.pro-light [class*="text-zinc-1"],
+.pro-light [class*="text-zinc-2"] { color: #18181b !important; }
+.pro-light [class*="text-zinc-3"] { color: #3f3f46 !important; }
+.pro-light [class*="text-zinc-4"],
+.pro-light [class*="text-zinc-5"] { color: #565660 !important; }
+.pro-light [class*="text-zinc-6"] { color: #71717a !important; }
+.pro-light [class*="text-white"]:not([class*="pro-gradient"]):not(.pro-gradient *):not([class*="bg-"]) { color: #111113 !important; }
+.pro-light .pro-glass { background: #ffffff !important; border-color: rgba(0, 0, 0, 0.14) !important; }
+.pro-light .pro-glass:hover { background: #f4f4f6 !important; }
+.pro-light ::placeholder { color: #8e8e93 !important; }
+/* auras/brilhos de fundo somem no claro (evita manchas roxas) */
+.pro-light [class*="blur-3xl"],
+.pro-light [class*="blur-[120px]"],
+.pro-light .pro-aura { display: none !important; }
+/* Leitor de artigos no tema claro — evita o texto cinza apagado sobre o branco */
+.pro-light .reader-body { color: #27272a !important; }
+.pro-light .reader-body h2,
+.pro-light .reader-body h3 { color: #0b0b0c !important; }
+.pro-light .reader-body strong { color: #000000 !important; }
+.pro-light .reader-body blockquote { color: #52525b !important; border-left-color: #9B72CB !important; }
+.pro-light .reader-body a { color: #b21e8b !important; }
+.pro-light .reader-body hr { border-top-color: rgba(0, 0, 0, 0.12) !important; }
+
+/* ───────── Leitor de artigos — capitular (drop cap) em gradiente da marca ───────── */
+.reader-body > p:first-of-type::first-letter {
+  font-size: 3.1em;
+  line-height: 0.86;
+  font-weight: 800;
+  float: left;
+  margin: 0.04em 0.14em 0 0;
+  background-image: linear-gradient(120deg, #4285F4 0%, #9B72CB 48%, #FF5C8A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

@@ -1,14 +1,17 @@
+import CategoryFeed from "@/components/CategoryFeed";
+import { getCategoryArticles } from "@/lib/feed";
+import { SITE_URL } from "@/lib/seo";
+
+export const revalidate = 300;
 
 export const metadata = {
-  title: "Brasil | Monatiza",
-  description: "Últimas notícias do Brasil.",
+  title: "Brasil",
+  description:
+    "Últimas notícias do Brasil — política, economia e os fatos que definem o país.",
+  alternates: { canonical: `${SITE_URL}/brasil` },
 };
 
-export default function BrasilPage() {
-  return (
-    <main className="p-10">
-      <h1>Brasil</h1>
-    </main>
-  );
+export default async function BrasilPage() {
+  const initialArticles = await getCategoryArticles("brasil");
+  return <CategoryFeed slug="brasil" initialArticles={initialArticles} />;
 }
-

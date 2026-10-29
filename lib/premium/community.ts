@@ -1,0 +1,462 @@
+import { supabase } from "@/lib/supabase/client";
+import { isHidden } from "@/lib/premium/prefs";
+import { logEvent } from "@/lib/premium/events";
+
+// ─────────────────────────────────────────────────────────────
+// Rede social do assinante: perfis + posts (feed de opinião).
+// Todas as leituras/escritas passam pelo RLS (só assinante ativo).
+// ─────────────────────────────────────────────────────────────
+
+export interface CommunityProfile {
+  user_id: string;
+  handle: string | null;
+  display_name: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  cover_url?: string | null;
+  link?: string | null;
+  verified?: boolean | null;
+  verified_tier?: string | null;
+  created_at?: string;
+}
+
+export interface Post {
+  id: number;
+  user_id: string;
+  content: string;
+  image_url: string | null;
+  parent_id: number | null;
+  repost_of?: number | null;
+  created_at: string;
+  author?: CommunityProfile;
+  likeCount: number;
+  likedByMe: boolean;
+  bookmarkedByMe?: boolean;
+  replyCount: number;
+  repostOf?: Post | null;
+}
+
+async function uid(): Promise<string | null> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.user.id ?? null;
+}
+
+function handleFromEmail(email: string) {
+  return (
+    email.split("@")[0].replace(/[^a-z0-9_]/gi, "").toLowerCase().slice(0, 20) || "membro"
+  );
+}
+
+// Cria o perfil social no primeiro acesso (idempotente).
+export async function ensureProfile(): Promise<CommunityProfile | null> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const u = session?.user;
+  if (!u) return null;
+
+  const { data: existing } = await supabase
+    .from("community_profiles")
+    .select("*")
+    .eq("user_id", u.id)
+    .maybeSingle();
+  if (existing) return existing as CommunityProfile;
+
+  // @ escolhido no cadastro (user_metadata) tem prioridade sobre o derivado do e-mail
+  const wanted = (u.user_metadata?.handle as string | undefined)?.replace(/[^a-z0-9_]/gi, "").toLowerCase();
+  const base = wanted || handleFromEmail(u.email || "membro");
+  let handle = base;
+  for (let i = 0; i < 6; i++) {
+    const { count } = await supabase
+      .from("community_profiles")
+      .select("user_id", { count: "exact", head: true })
+      .eq("handle", handle);
+    if (!count) break;
+    handle = `${base}${Math.floor(Math.random() * 9000 + 1000)}`;
+  }
+  const display_name = (u.user_metadata?.name as string | undefined) || base;
+  const { data } = await supabase
+    .from("community_profiles")
+    .insert({ user_id: u.id, handle, display_name })
+    .select()
+    .maybeSingle();
+  return (data as CommunityProfile) || null;
+}
+
+export async function getMyProfile(): Promise<CommunityProfile | null> {
+  const u = await uid();
+  if (!u) return null;
+  const { data } = await supabase.from("community_profiles").select("*").eq("user_id", u).maybeSingle();
+  return (data as CommunityProfile) || null;
+}
+
+export async function getProfileByHandle(handle: string): Promise<CommunityProfile | null> {
+  const { data } = await supabase
+    .from("community_profiles")
+    .select("*")
+    .eq("handle", handle)
+    .maybeSingle();
+  return (data as CommunityProfile) || null;
+}
+
+export async function updateProfile(
+  p: Partial<CommunityProfile>
+): Promise<{ error: string | null }> {
+  const u = await uid();
+  if (!u) return { error: "Não autenticado" };
+  const { error } = await supabase
+    .from("community_profiles")
+    .update({
+      display_name: p.display_name,
+      bio: p.bio,
+      avatar_url: p.avatar_url,
+      cover_url: p.cover_url,
+      link: p.link,
+      handle: p.handle,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", u);
+  if (error) {
+    if (error.code === "23505") return { error: "Esse @usuário já está em uso." };
+    return { error: error.message };
+  }
+  return { error: null };
+}
+
+// Junta autor + contagem de curtidas/respostas aos posts.
+async function enrich(rows: any[]): Promise<Post[]> {
+  if (!rows.length) return [];
+  const me = await uid();
+  const ids = rows.map((r) => r.id);
+  const authorIds = new Set<string>(rows.map((r) => r.user_id));
+
+  // posts originais dos reposts/citações
+  const repostIds = [...new Set(rows.map((r) => r.repost_of).filter(Boolean))] as number[];
+  let origRows: any[] = [];
+  if (repostIds.length) {
+    const { data } = await supabase.from("posts").select(POST_COLS).in("id", repostIds);
+    origRows = data || [];
+    origRows.forEach((o) => authorIds.add(o.user_id));
+  }
+  const allPostIds = [...new Set([...ids, ...origRows.map((o) => o.id)])];
+
+  const [{ data: profs }, { data: likes }, { data: replies }, { data: marks }] = await Promise.all([
+    supabase
+      .from("community_profiles")
+      .select("user_id, handle, display_name, avatar_url, verified, verified_tier")
+      .in("user_id", [...authorIds]),
+    supabase.from("post_likes").select("post_id, user_id").in("post_id", allPostIds),
+    supabase.from("posts").select("parent_id").in("parent_id", allPostIds),
+    supabase.from("post_bookmarks").select("post_id").in("post_id", allPostIds), // RLS: só os meus
+  ]);
+  const bookmarked = new Set((marks || []).map((b: any) => b.post_id));
+
+  const pmap = new Map((profs || []).map((p: any) => [p.user_id, p]));
+  const likeCount: Record<number, number> = {};
+  const liked: Record<number, boolean> = {};
+  (likes || []).forEach((l: any) => {
+    likeCount[l.post_id] = (likeCount[l.post_id] || 0) + 1;
+    if (l.user_id === me) liked[l.post_id] = true;
+  });
+  const replyCount: Record<number, number> = {};
+  (replies || []).forEach((r: any) => {
+    if (r.parent_id != null) replyCount[r.parent_id] = (replyCount[r.parent_id] || 0) + 1;
+  });
+
+  const toPost = (r: any): Post => ({
+    id: r.id,
+    user_id: r.user_id,
+    content: r.content,
+    image_url: r.image_url ?? null,
+    parent_id: r.parent_id,
+    repost_of: r.repost_of ?? null,
+    created_at: r.created_at,
+    author: pmap.get(r.user_id),
+    likeCount: likeCount[r.id] || 0,
+    likedByMe: !!liked[r.id],
+    bookmarkedByMe: bookmarked.has(r.id),
+    replyCount: replyCount[r.id] || 0,
+  });
+
+  const origMap = new Map<number, Post>(origRows.map((o) => [o.id, toPost(o)]));
+  return rows.map((r) => {
+    const p = toPost(r);
+    p.repostOf = r.repost_of ? origMap.get(r.repost_of) ?? null : null;
+    return p;
+  });
+}
+
+const POST_COLS = "id, user_id, content, image_url, parent_id, repost_of, created_at";
+
+export async function listPosts(limit = 30, before?: string | null): Promise<Post[]> {
+  let q = supabase
+    .from("posts")
+    .select(POST_COLS)
+    .is("parent_id", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (before) q = q.lt("created_at", before);
+  const { data } = await q;
+  return (await enrich(data || [])).filter((p) => !isHidden(p.user_id));
+}
+
+// Feed "Seguindo": posts de quem eu sigo (+ os meus).
+export async function listFollowingPosts(limit = 30, before?: string | null): Promise<Post[]> {
+  const me = await uid();
+  if (!me) return [];
+  const { data: fol } = await supabase.from("follows").select("following_id").eq("follower_id", me);
+  const ids = [me, ...(fol || []).map((r: any) => r.following_id)];
+  let q = supabase
+    .from("posts")
+    .select(POST_COLS)
+    .is("parent_id", null)
+    .in("user_id", ids)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (before) q = q.lt("created_at", before);
+  const { data } = await q;
+  return (await enrich(data || [])).filter((p) => !isHidden(p.user_id));
+}
+
+export async function getPost(id: number): Promise<Post | null> {
+  const { data } = await supabase.from("posts").select(POST_COLS).eq("id", id).maybeSingle();
+  if (!data) return null;
+  const [p] = await enrich([data]);
+  return p;
+}
+
+export async function listReplies(parentId: number): Promise<Post[]> {
+  const { data } = await supabase
+    .from("posts")
+    .select(POST_COLS)
+    .eq("parent_id", parentId)
+    .order("created_at", { ascending: true });
+  return enrich(data || []);
+}
+
+export async function listUserPosts(userId: string, limit = 40): Promise<Post[]> {
+  const { data } = await supabase
+    .from("posts")
+    .select(POST_COLS)
+    .eq("user_id", userId)
+    .is("parent_id", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return enrich(data || []);
+}
+
+export async function createPost(
+  content: string,
+  parentId: number | null = null,
+  imageUrl: string | null = null,
+  repostOf: number | null = null
+): Promise<Post | null> {
+  const u = await uid();
+  if (!u) return null;
+  const text = content.trim().slice(0, 1000);
+  if (!text && !imageUrl && !repostOf) return null; // precisa de texto, imagem ou repost
+  const { data } = await supabase
+    .from("posts")
+    .insert({ user_id: u, content: text, parent_id: parentId, image_url: imageUrl, repost_of: repostOf })
+    .select(POST_COLS)
+    .maybeSingle();
+  if (!data) return null;
+  const [p] = await enrich([data]);
+  return p;
+}
+
+// Repost simples (sem comentário). Citação = createPost(texto, null, null, postId).
+export async function repost(postId: number): Promise<Post | null> {
+  return createPost("", null, null, postId);
+}
+
+export async function deletePost(id: number): Promise<void> {
+  const u = await uid();
+  if (!u) return;
+  await supabase.from("posts").delete().eq("id", id).eq("user_id", u);
+}
+
+export async function togglePostBookmark(postId: number, on: boolean): Promise<void> {
+  const u = await uid();
+  if (!u) return;
+  if (on) {
+    await supabase.from("post_bookmarks").upsert({ post_id: postId, user_id: u }, { onConflict: "user_id,post_id" });
+  } else {
+    await supabase.from("post_bookmarks").delete().eq("post_id", postId).eq("user_id", u);
+  }
+}
+
+// Posts salvos (mais recentes primeiro).
+export async function listSavedPosts(): Promise<Post[]> {
+  const u = await uid();
+  if (!u) return [];
+  const { data: marks } = await supabase
+    .from("post_bookmarks")
+    .select("post_id, created_at")
+    .eq("user_id", u)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const ids = (marks || []).map((m: any) => m.post_id);
+  if (!ids.length) return [];
+  const { data } = await supabase.from("posts").select(POST_COLS).in("id", ids);
+  const posts = await enrich(data || []);
+  const order = new Map(ids.map((id: number, i: number) => [id, i]));
+  return posts.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+}
+
+// Denunciar publicação (vai para a moderação no admin).
+export async function reportPost(postId: number, reason: string): Promise<boolean> {
+  const u = await uid();
+  if (!u) return false;
+  const { error } = await supabase
+    .from("reports")
+    .insert({ reporter_id: u, post_id: postId, reason: reason.trim().slice(0, 300) || null });
+  return !error;
+}
+
+export async function togglePostLike(postId: number, on: boolean): Promise<void> {
+  const u = await uid();
+  if (!u) return;
+  if (on) {
+    await supabase.from("post_likes").upsert({ post_id: postId, user_id: u }, { onConflict: "post_id,user_id" });
+  } else {
+    await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", u);
+  }
+}
+
+// ── Seguidores ─────────────────────────────────────────────
+export interface FollowCounts {
+  followers: number;
+  following: number;
+}
+
+export async function getFollowCounts(userId: string): Promise<FollowCounts> {
+  const [{ count: followers }, { count: following }] = await Promise.all([
+    supabase.from("follows").select("follower_id", { count: "exact", head: true }).eq("following_id", userId),
+    supabase.from("follows").select("following_id", { count: "exact", head: true }).eq("follower_id", userId),
+  ]);
+  return { followers: followers ?? 0, following: following ?? 0 };
+}
+
+export async function isFollowing(userId: string): Promise<boolean> {
+  const me = await uid();
+  if (!me) return false;
+  const { count } = await supabase
+    .from("follows")
+    .select("following_id", { count: "exact", head: true })
+    .eq("follower_id", me)
+    .eq("following_id", userId);
+  return (count ?? 0) > 0;
+}
+
+export async function follow(userId: string): Promise<void> {
+  const me = await uid();
+  if (!me || me === userId) return;
+  await supabase.from("follows").upsert(
+    { follower_id: me, following_id: userId },
+    { onConflict: "follower_id,following_id" }
+  );
+  void logEvent("follow", { targetUser: userId });
+}
+
+export async function unfollow(userId: string): Promise<void> {
+  const me = await uid();
+  if (!me) return;
+  await supabase.from("follows").delete().eq("follower_id", me).eq("following_id", userId);
+}
+
+async function profilesByIds(ids: string[]): Promise<CommunityProfile[]> {
+  if (!ids.length) return [];
+  const { data } = await supabase
+    .from("community_profiles")
+    .select("user_id, handle, display_name, avatar_url, bio, verified, verified_tier")
+    .in("user_id", ids);
+  const map = new Map((data || []).map((p: any) => [p.user_id, p]));
+  return ids.map((id) => map.get(id)).filter(Boolean) as CommunityProfile[];
+}
+
+export async function listFollowers(userId: string): Promise<CommunityProfile[]> {
+  const { data } = await supabase
+    .from("follows")
+    .select("follower_id")
+    .eq("following_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  return profilesByIds((data || []).map((r: any) => r.follower_id));
+}
+
+export async function listFollowing(userId: string): Promise<CommunityProfile[]> {
+  const { data } = await supabase
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  return profilesByIds((data || []).map((r: any) => r.following_id));
+}
+
+// Perfis recomendados para seguir: exclui você e quem você já segue.
+export async function getRecommendedProfiles(limit = 40): Promise<CommunityProfile[]> {
+  const me = await uid();
+  let exclude: string[] = [];
+  if (me) {
+    const { data } = await supabase.from("follows").select("following_id").eq("follower_id", me);
+    exclude = [me, ...(data || []).map((r: any) => r.following_id)];
+  }
+  let q = supabase
+    .from("community_profiles")
+    .select("user_id, handle, display_name, avatar_url, bio, verified, verified_tier")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (exclude.length) q = q.not("user_id", "in", `(${exclude.join(",")})`);
+  const { data } = await q;
+  return (data as CommunityProfile[]) || [];
+}
+
+// ── Trending: hashtags mais usadas nos posts recentes ───────
+export async function getTrendingHashtags(limit = 8): Promise<{ tag: string; count: number }[]> {
+  const { data } = await supabase
+    .from("posts")
+    .select("content")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const counts = new Map<string, number>();
+  (data || []).forEach((r: any) => {
+    const tags = (r.content || "").match(/#[\p{L}0-9_]+/gu) || [];
+    tags.forEach((t: string) => {
+      const k = t.toLowerCase();
+      counts.set(k, (counts.get(k) || 0) + 1);
+    });
+  });
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
+// ── Busca (pessoas + publicações/hashtags) ──────────────────
+export async function searchProfiles(term: string): Promise<CommunityProfile[]> {
+  const t = term.replace(/^#/, "").trim();
+  if (!t) return [];
+  const { data } = await supabase
+    .from("community_profiles")
+    .select("user_id, handle, display_name, avatar_url, bio, verified, verified_tier")
+    .or(`handle.ilike.%${t}%,display_name.ilike.%${t}%`)
+    .limit(20);
+  return (data as CommunityProfile[]) || [];
+}
+
+export async function searchPosts(term: string): Promise<Post[]> {
+  const t = term.trim();
+  if (!t) return [];
+  const { data } = await supabase
+    .from("posts")
+    .select(POST_COLS)
+    .is("parent_id", null)
+    .ilike("content", `%${t}%`)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  return enrich(data || []);
+}

@@ -1,0 +1,554 @@
+import 'dart:io';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+final _sb = Supabase.instance.client;
+String? get myId => _sb.auth.currentUser?.id;
+
+String timeAgo(String? iso) {
+  if (iso == null) return '';
+  final d = DateTime.tryParse(iso.contains('T') ? iso : iso.replaceFirst(' ', 'T') + 'Z');
+  if (d == null) return '';
+  final diff = DateTime.now().toUtc().difference(d.toUtc());
+  if (diff.inHours < 1) return 'agora';
+  if (diff.inHours < 24) return '${diff.inHours}h';
+  return '${diff.inDays}d';
+}
+
+// ── Notícias ──
+Future<List<Map<String, dynamic>>> fetchArticles() async {
+  final d = await _sb
+      .from('articles')
+      .select('id, slug, title, excerpt, image_url, category, is_premium')
+      .eq('status', 'publicado')
+      .order('created_at', ascending: false)
+      .limit(40);
+  return List<Map<String, dynamic>>.from(d);
+}
+
+Future<String?> fetchArticleBody(String slug) async {
+  final r = await _sb.rpc('get_article_body', params: {'p_slug': slug});
+  return r as String?;
+}
+
+// ── Comunidade ──
+Future<List<Map<String, dynamic>>> fetchPosts() async {
+  final posts = List<Map<String, dynamic>>.from(await _sb
+      .from('posts')
+      .select('id, user_id, content, image_url, created_at')
+      .isFilter('parent_id', null)
+      .order('created_at', ascending: false)
+      .limit(40));
+  if (posts.isEmpty) return posts;
+  await _enrich(posts);
+  return posts;
+}
+
+Future<List<Map<String, dynamic>>> fetchUserPosts(String userId) async {
+  final posts = List<Map<String, dynamic>>.from(await _sb
+      .from('posts')
+      .select('id, user_id, content, image_url, created_at')
+      .eq('user_id', userId)
+      .isFilter('parent_id', null)
+      .order('created_at', ascending: false)
+      .limit(40));
+  if (posts.isEmpty) return posts;
+  await _enrich(posts);
+  return posts;
+}
+
+// Feed "Seguindo": posts de quem eu sigo (+ os meus).
+Future<List<Map<String, dynamic>>> fetchFollowingPosts() async {
+  final me = myId;
+  if (me == null) return [];
+  final fol = List<Map<String, dynamic>>.from(
+      await _sb.from('follows').select('following_id').eq('follower_id', me));
+  final ids = <dynamic>{me, ...fol.map((f) => f['following_id'])}.toList();
+  final posts = List<Map<String, dynamic>>.from(await _sb
+      .from('posts')
+      .select('id, user_id, content, image_url, created_at')
+      .isFilter('parent_id', null)
+      .inFilter('user_id', ids)
+      .order('created_at', ascending: false)
+      .limit(40));
+  if (posts.isEmpty) return posts;
+  await _enrich(posts);
+  return posts;
+}
+
+Future<void> _enrich(List<Map<String, dynamic>> posts) async {
+  final ids = posts.map((p) => p['id']).toList();
+  final authorIds = posts.map((p) => p['user_id']).toSet().toList();
+  final profs = List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
+      .inFilter('user_id', authorIds));
+  final pmap = {for (final p in profs) p['user_id']: p};
+  final likes = List<Map<String, dynamic>>.from(
+      await _sb.from('post_likes').select('post_id, user_id').inFilter('post_id', ids));
+  final marks = List<Map<String, dynamic>>.from(
+      await _sb.from('post_bookmarks').select('post_id').inFilter('post_id', ids)); // RLS: só os meus
+  final bset = marks.map((m) => m['post_id']).toSet();
+  final me = myId;
+  for (final p in posts) {
+    p['author'] = pmap[p['user_id']];
+    p['likeCount'] = likes.where((l) => l['post_id'] == p['id']).length;
+    p['likedByMe'] = likes.any((l) => l['post_id'] == p['id'] && l['user_id'] == me);
+    p['bookmarkedByMe'] = bset.contains(p['id']);
+  }
+}
+
+Future<void> togglePostLike(int postId, bool on) async {
+  final me = myId;
+  if (me == null) return;
+  if (on) {
+    await _sb.from('post_likes').upsert({'post_id': postId, 'user_id': me});
+  } else {
+    await _sb.from('post_likes').delete().eq('post_id', postId).eq('user_id', me);
+  }
+}
+
+Future<void> togglePostBookmark(int postId, bool on) async {
+  final me = myId;
+  if (me == null) return;
+  if (on) {
+    await _sb.from('post_bookmarks').upsert({'post_id': postId, 'user_id': me});
+  } else {
+    await _sb.from('post_bookmarks').delete().eq('post_id', postId).eq('user_id', me);
+  }
+}
+
+Future<void> repost(int postId) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('posts').insert({'user_id': me, 'content': '', 'repost_of': postId});
+}
+
+Future<void> reportPost(int postId, String reason) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('reports').insert({'reporter_id': me, 'post_id': postId, 'reason': reason.trim().isEmpty ? null : reason.trim()});
+}
+
+Future<void> deletePost(int postId) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('posts').delete().eq('id', postId).eq('user_id', me);
+}
+
+Future<String?> uploadPostMedia(File file) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/posts/${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('community').upload(path, file);
+  return _sb.storage.from('community').getPublicUrl(path);
+}
+
+Future<void> createPost(String content, {String? imageUrl}) async {
+  final me = myId;
+  if (me == null || (content.trim().isEmpty && imageUrl == null)) return;
+  await _sb.from('posts').insert({
+    'user_id': me,
+    'content': content.trim(),
+    if (imageUrl != null) 'image_url': imageUrl,
+  });
+}
+
+// ── Perfis ──
+Future<Map<String, dynamic>?> ensureProfile() async {
+  final u = _sb.auth.currentUser;
+  if (u == null) return null;
+  final existing =
+      await _sb.from('community_profiles').select().eq('user_id', u.id).maybeSingle();
+  if (existing != null) return existing;
+  final base = (u.email ?? 'membro')
+      .split('@')
+      .first
+      .replaceAll(RegExp(r'[^a-z0-9_]', caseSensitive: false), '')
+      .toLowerCase();
+  final base2 = base.isEmpty ? 'membro' : base;
+  final name = u.userMetadata?['name'] ?? base2;
+  // Tenta o @ do e-mail; se já existir, tenta variações com números.
+  for (final handle in [
+    base2,
+    '$base2${DateTime.now().millisecondsSinceEpoch % 1000}',
+    '$base2${DateTime.now().millisecondsSinceEpoch % 100000}',
+  ]) {
+    try {
+      final created = await _sb
+          .from('community_profiles')
+          .insert({'user_id': u.id, 'handle': handle, 'display_name': name})
+          .select()
+          .maybeSingle();
+      if (created != null) return created;
+    } catch (_) {
+      // handle em uso ou corrida — verifica se o perfil já foi criado
+      final mine = await _sb.from('community_profiles').select().eq('user_id', u.id).maybeSingle();
+      if (mine != null) return mine;
+    }
+  }
+  return await _sb.from('community_profiles').select().eq('user_id', u.id).maybeSingle();
+}
+
+/// Perfil completo de um membro (capa, link, bio etc.).
+Future<Map<String, dynamic>?> fetchProfile(String userId) async {
+  return await _sb.from('community_profiles').select().eq('user_id', userId).maybeSingle();
+}
+
+Future<List<Map<String, dynamic>>> recommendedProfiles() async {
+  final me = myId;
+  final fol = me == null
+      ? <Map<String, dynamic>>[]
+      : List<Map<String, dynamic>>.from(
+          await _sb.from('follows').select('following_id').eq('follower_id', me));
+  final exclude = <dynamic>{me, ...fol.map((f) => f['following_id'])}..remove(null);
+  final list = List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, cover_url, bio, verified, verified_tier')
+      .order('created_at', ascending: false)
+      .limit(40));
+  return list.where((p) => !exclude.contains(p['user_id'])).toList();
+}
+
+Future<bool> isFollowing(String userId) async {
+  final me = myId;
+  if (me == null) return false;
+  final r = await _sb
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', me)
+      .eq('following_id', userId)
+      .maybeSingle();
+  return r != null;
+}
+
+Future<void> follow(String userId, bool on) async {
+  final me = myId;
+  if (me == null) return;
+  if (on) {
+    await _sb.from('follows').upsert({'follower_id': me, 'following_id': userId});
+  } else {
+    await _sb.from('follows').delete().eq('follower_id', me).eq('following_id', userId);
+  }
+}
+
+Future<Map<String, int>> followCounts(String userId) async {
+  final f = List.from(await _sb.from('follows').select('follower_id').eq('following_id', userId));
+  final g = List.from(await _sb.from('follows').select('following_id').eq('follower_id', userId));
+  return {'followers': f.length, 'following': g.length};
+}
+
+// ── Conteúdo (categorias / exclusivo) ──
+Future<List<Map<String, dynamic>>> fetchByCategory(String like) async {
+  final d = await _sb
+      .from('articles')
+      .select('id, slug, title, excerpt, image_url, category, is_premium')
+      .eq('status', 'publicado')
+      .ilike('category', like)
+      .order('created_at', ascending: false)
+      .limit(40);
+  return List<Map<String, dynamic>>.from(d);
+}
+
+Future<List<Map<String, dynamic>>> fetchPremium() async {
+  final d = await _sb
+      .from('articles')
+      .select('id, slug, title, excerpt, image_url, category, is_premium')
+      .eq('status', 'publicado')
+      .eq('is_premium', true)
+      .order('created_at', ascending: false)
+      .limit(40);
+  return List<Map<String, dynamic>>.from(d);
+}
+
+// ── Biblioteca (salvar / curtir / histórico de matérias) ──
+Future<bool> isBookmarked(int articleId) async {
+  final me = myId;
+  if (me == null) return false;
+  final r = await _sb.from('bookmarks').select('article_id').eq('user_id', me).eq('article_id', articleId).maybeSingle();
+  return r != null;
+}
+
+Future<void> toggleBookmark(int articleId, bool on) async {
+  final me = myId;
+  if (me == null) return;
+  if (on) {
+    await _sb.from('bookmarks').upsert({'user_id': me, 'article_id': articleId});
+  } else {
+    await _sb.from('bookmarks').delete().eq('user_id', me).eq('article_id', articleId);
+  }
+}
+
+Future<bool> isArticleLiked(int articleId) async {
+  final me = myId;
+  if (me == null) return false;
+  final r = await _sb.from('article_likes').select('article_id').eq('user_id', me).eq('article_id', articleId).maybeSingle();
+  return r != null;
+}
+
+Future<void> toggleArticleLike(int articleId, bool on) async {
+  final me = myId;
+  if (me == null) return;
+  if (on) {
+    await _sb.from('article_likes').upsert({'user_id': me, 'article_id': articleId});
+  } else {
+    await _sb.from('article_likes').delete().eq('user_id', me).eq('article_id', articleId);
+  }
+}
+
+Future<void> recordView(int articleId) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('reading_history').upsert(
+      {'user_id': me, 'article_id': articleId, 'last_read_at': DateTime.now().toUtc().toIso8601String()});
+}
+
+List<Map<String, dynamic>> _embedArticles(List data) =>
+    data.map((r) => r['articles']).whereType<Map<String, dynamic>>().toList();
+
+Future<List<Map<String, dynamic>>> getSavedArticles() async {
+  final me = myId;
+  if (me == null) return [];
+  final d = await _sb.from('bookmarks').select('articles(id,slug,title,image_url,category,is_premium)').eq('user_id', me).order('created_at', ascending: false);
+  return _embedArticles(List.from(d));
+}
+
+Future<List<Map<String, dynamic>>> getLikedArticles() async {
+  final me = myId;
+  if (me == null) return [];
+  final d = await _sb.from('article_likes').select('articles(id,slug,title,image_url,category,is_premium)').eq('user_id', me).order('created_at', ascending: false);
+  return _embedArticles(List.from(d));
+}
+
+Future<List<Map<String, dynamic>>> getHistory() async {
+  final me = myId;
+  if (me == null) return [];
+  final d = await _sb.from('reading_history').select('articles(id,slug,title,image_url,category,is_premium)').eq('user_id', me).order('last_read_at', ascending: false).limit(50);
+  return _embedArticles(List.from(d));
+}
+
+// ── Newsletter ──
+Future<Map<String, dynamic>?> getNewsletterPrefs() async {
+  final me = myId;
+  if (me == null) return null;
+  return await _sb.from('newsletter_subscriptions').select('categories, frequency').eq('user_id', me).maybeSingle();
+}
+
+Future<void> saveNewsletterPrefs(List<String> cats, String freq) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('newsletter_subscriptions').upsert({
+    'user_id': me,
+    'categories': cats,
+    'frequency': freq,
+    'updated_at': DateTime.now().toUtc().toIso8601String(),
+  });
+}
+
+// ── Conta / verificação ──
+Future<Map<String, dynamic>?> getSubscription() async {
+  final me = myId;
+  if (me == null) return null;
+  return await _sb.from('subscribers').select('status, plan, current_period_end').eq('id', me).maybeSingle();
+}
+
+Future<Map<String, dynamic>> getVerification() async {
+  final me = myId;
+  if (me == null) return {'verified': false, 'status': null};
+  final prof = await _sb.from('community_profiles').select('verified, verified_tier').eq('user_id', me).maybeSingle();
+  final req = await _sb.from('verification_requests').select('status, tier').eq('user_id', me).maybeSingle();
+  return {
+    'verified': prof?['verified'] == true,
+    'tier': prof?['verified_tier'] ?? req?['tier'],
+    'status': req?['status'],
+  };
+}
+
+/// Marca a intenção de compra do selo (igual ao site) antes do checkout.
+Future<void> upsertVerificationRequest(String tier) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('verification_requests').upsert(
+    {'user_id': me, 'status': 'pending', 'tier': tier, 'updated_at': DateTime.now().toUtc().toIso8601String()},
+    onConflict: 'user_id',
+  );
+}
+
+/// Sobe documento/selfie no bucket privado `verification`. Retorna o caminho.
+Future<String?> uploadVerificationFile(File file, String kind) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/${kind}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('verification').upload(path, file);
+  return path;
+}
+
+Future<void> submitVerificationDocs(String docPath, String selfiePath) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb.from('verification_requests').update({
+    'doc_url': docPath,
+    'selfie_url': selfiePath,
+    'status': 'review',
+    'updated_at': DateTime.now().toUtc().toIso8601String(),
+  }).eq('user_id', me);
+}
+
+/// O @ está livre? (verificação ao vivo no cadastro)
+Future<bool> handleAvailable(String handle) async {
+  final h = handle.trim().toLowerCase();
+  if (h.length < 3) return false;
+  final r = await _sb.from('community_profiles').select('user_id').eq('handle', h).maybeSingle();
+  return r == null;
+}
+
+/// Busca contas por nome ou @ (para a busca do app).
+Future<List<Map<String, dynamic>>> searchProfiles(String q) async {
+  final t = q.trim();
+  if (t.isEmpty) return [];
+  return List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, bio, verified, verified_tier')
+      .or('handle.ilike.%$t%,display_name.ilike.%$t%')
+      .limit(30));
+}
+
+/// Atualiza campos do meu perfil (ex.: avatar_url / cover_url).
+Future<void> updateMyProfile(Map<String, dynamic> fields) async {
+  final me = myId;
+  if (me == null) return;
+  fields['updated_at'] = DateTime.now().toUtc().toIso8601String();
+  await _sb.from('community_profiles').update(fields).eq('user_id', me);
+}
+
+/// Sobe imagem de perfil/capa no bucket público `community`.
+Future<String?> uploadProfileImage(File file, String kind) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/$kind/${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('community').upload(path, file);
+  return _sb.storage.from('community').getPublicUrl(path);
+}
+
+// ── Comentários (respostas a posts) ──
+Future<List<Map<String, dynamic>>> fetchReplies(int postId) async {
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('posts')
+      .select('id, user_id, content, image_url, created_at')
+      .eq('parent_id', postId)
+      .order('created_at', ascending: true));
+  if (rows.isNotEmpty) await _enrich(rows);
+  return rows;
+}
+
+Future<void> createReply(int postId, String content) async {
+  final me = myId;
+  if (me == null || content.trim().isEmpty) return;
+  await _sb.from('posts').insert({'user_id': me, 'content': content.trim(), 'parent_id': postId});
+}
+
+// ── Mensagens diretas (DM) ──
+Future<List<Map<String, dynamic>>> listConversations() async {
+  final me = myId;
+  if (me == null) return [];
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('direct_messages')
+      .select('sender_id, recipient_id, content, created_at')
+      .or('sender_id.eq.$me,recipient_id.eq.$me')
+      .order('created_at', ascending: false)
+      .limit(300));
+  final latest = <String, Map<String, dynamic>>{};
+  for (final r in rows) {
+    final other = (r['sender_id'] == me ? r['recipient_id'] : r['sender_id']) as String;
+    latest.putIfAbsent(other, () => {'other': other, 'content': r['content'], 'created_at': r['created_at'], 'fromMe': r['sender_id'] == me});
+  }
+  if (latest.isEmpty) return [];
+  final profs = List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
+      .inFilter('user_id', latest.keys.toList()));
+  final pmap = {for (final p in profs) p['user_id']: p};
+  return latest.values.map((c) {
+    c['profile'] = pmap[c['other']];
+    return c;
+  }).toList();
+}
+
+Future<List<Map<String, dynamic>>> fetchMessages(String otherId) async {
+  final me = myId;
+  if (me == null) return [];
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('direct_messages')
+      .select('id, sender_id, recipient_id, content, created_at, image_url, read')
+      .or('and(sender_id.eq.$me,recipient_id.eq.$otherId),and(sender_id.eq.$otherId,recipient_id.eq.$me)')
+      .order('created_at', ascending: true)
+      .limit(300));
+  return rows;
+}
+
+Future<void> sendMessage(String otherId, String content, {String? imageUrl}) async {
+  final me = myId;
+  if (me == null || (content.trim().isEmpty && imageUrl == null)) return;
+  await _sb.from('direct_messages').insert({
+    'sender_id': me,
+    'recipient_id': otherId,
+    'content': content.trim(),
+    if (imageUrl != null) 'image_url': imageUrl,
+  });
+}
+
+/// Foto enviada no chat (bucket público `community`, pasta do remetente).
+Future<String?> uploadDmMedia(File file) async {
+  final me = myId;
+  if (me == null) return null;
+  final ext = file.path.contains('.') ? file.path.split('.').last.toLowerCase() : 'jpg';
+  final path = '$me/dm/${DateTime.now().millisecondsSinceEpoch}.$ext';
+  await _sb.storage.from('community').upload(path, file);
+  return _sb.storage.from('community').getPublicUrl(path);
+}
+
+/// Marca como lidas as mensagens recebidas dessa conversa (visto ✓✓).
+Future<void> markConversationRead(String otherId) async {
+  final me = myId;
+  if (me == null) return;
+  await _sb
+      .from('direct_messages')
+      .update({'read': true})
+      .eq('sender_id', otherId)
+      .eq('recipient_id', me)
+      .eq('read', false);
+}
+
+Future<List<Map<String, dynamic>>> listFollowers(String userId) async {
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('follows')
+      .select('follower_id')
+      .eq('following_id', userId)
+      .order('created_at', ascending: false)
+      .limit(100));
+  if (rows.isEmpty) return [];
+  final ids = rows.map((r) => r['follower_id']).toList();
+  return List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, bio, verified, verified_tier')
+      .inFilter('user_id', ids));
+}
+
+Future<List<Map<String, dynamic>>> listFollowing([String? userId]) async {
+  final uid = userId ?? myId;
+  if (uid == null) return [];
+  final rows = List<Map<String, dynamic>>.from(await _sb
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', uid)
+      .order('created_at', ascending: false)
+      .limit(50));
+  if (rows.isEmpty) return [];
+  final ids = rows.map((r) => r['following_id']).toList();
+  return List<Map<String, dynamic>>.from(await _sb
+      .from('community_profiles')
+      .select('user_id, handle, display_name, avatar_url, verified, verified_tier')
+      .inFilter('user_id', ids));
+}

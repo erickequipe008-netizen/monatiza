@@ -1,10 +1,11 @@
 import "./globals.css";
 import Script from "next/script";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import SiteFrame from "@/components/SiteFrame";
+import SubscriberProvider from "@/components/premium/SubscriberProvider";
+import AdScripts from "@/components/ads/AdScripts";
 
 export const metadata = {
-  metadataBase: new URL("https://monatiza.com"),
+  metadataBase: new URL("https://www.monatiza.com"),
 
   title: {
     default: "Monatiza - Notícias, IA, Negócios e Tecnologia",
@@ -22,15 +23,25 @@ export const metadata = {
     "google-adsense-account": "ca-pub-2575495674688917",
   },
 
+  alternates: {
+    canonical: "https://www.monatiza.com",
+  },
+
   openGraph: {
     title: "Monatiza",
     description:
       "Portal premium de notícias sobre IA, negócios, tecnologia e economia.",
-    url: "https://monatiza.com",
+    url: "https://www.monatiza.com",
     siteName: "Monatiza",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "pt_BR",
     type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Monatiza",
+    description:
+      "Portal premium de notícias sobre IA, negócios, tecnologia e economia.",
   },
 };
 
@@ -42,24 +53,66 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
+        <link
+          rel="preconnect"
+          href="https://cmfuphjxdhqslhvlvesu.supabase.co"
+          crossOrigin="anonymous"
+        />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+        <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
         <Script
           id="cookieyes"
           src="https://cdn-cookieyes.com/client_data/e1fd1ac7ad976fb79e788aa18623b15c/script.js"
           strategy="beforeInteractive"
         />
+        {/* Google Reader Revenue Manager */}
         <Script
-          id="adsense-script"
-          async
+          src="https://news.google.com/swg/js/v1/swg-basic.js"
           strategy="afterInteractive"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2575495674688917"
-          crossOrigin="anonymous"
         />
+        <Script id="google-reader-revenue-manager" strategy="afterInteractive">
+          {`
+            (self.SWG_BASIC = self.SWG_BASIC || []).push((basicSubscriptions) => {
+              basicSubscriptions.init({
+                type: "NewsArticle",
+                isPartOfType: ["Product"],
+                isPartOfProductId: "CAow5fDhCw:openaccess",
+                clientOptions: { theme: "light", lang: "pt-BR" },
+              });
+            });
+          `}
+        </Script>
+
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Mobile web com a identidade do APP (lilás). Injetado direto para
+            não passar pelo processador de CSS; no desktop nada muda. */}
+        <style
+          id="mobile-app-skin"
+          dangerouslySetInnerHTML={{
+            __html: `
+@media (max-width: 767px) {
+  .pro-gradient { background-color: #8b5cf6 !important; background-image: linear-gradient(135deg, #a78bfa, #7c3aed) !important; }
+  .pro-gradient-text { -webkit-text-fill-color: #8b5cf6 !important; color: #8b5cf6 !important; }
+  .text-\\[\\#1d9bf0\\] { color: #8b5cf6 !important; }
+  .hover\\:text-\\[\\#1d9bf0\\]:hover { color: #8b5cf6 !important; }
+  .bg-\\[\\#1d9bf0\\] { background-color: #8b5cf6 !important; }
+  .hover\\:bg-\\[\\#1d9bf0\\]:hover { background-color: #7c3aed !important; }
+  .border-\\[\\#1d9bf0\\] { border-color: #8b5cf6 !important; }
+  .ring-\\[\\#1d9bf0\\] { --tw-ring-color: #8b5cf6 !important; }
+  .text-sky-300, .text-sky-400, .text-sky-500 { color: #a78bfa !important; }
+  .hover\\:text-sky-300:hover, .hover\\:text-sky-400:hover { color: #c4b5fd !important; }
+  .bg-sky-500 { background-color: #8b5cf6 !important; }
+  .border-sky-500 { border-color: #8b5cf6 !important; }
+}`,
+          }}
+        />
       </head>
       <body>
-        <Header />
-        {children}
-        <Footer />
+        {/* O AdSense (script + anúncios) só carrega para quem NÃO é assinante. */}
+        <SubscriberProvider>
+          <AdScripts />
+          <SiteFrame>{children}</SiteFrame>
+        </SubscriberProvider>
       </body>
     </html>
   );

@@ -54,21 +54,38 @@ export function HeroSection({ dark, featured, sideArticles }: HeroSectionProps) 
       <div className={`hidden lg:block w-px ${dark ? "bg-zinc-800" : "bg-zinc-200"}`} />
 
       {/* COLUNA LATERAL */}
-      <div className="pl-0 lg:pl-7 pt-6 lg:pt-0 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
+      <div className="pl-0 lg:pl-7 pt-2 lg:pt-0 flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
         {sideArticles.map((item) => (
-          <Link href={`/noticia/${item.slug}`} key={item.id} className="group flex flex-col gap-2 py-5 first:pt-0">
-            <span className="text-red-600 text-[11px] font-black uppercase tracking-widest">{item.category}</span>
-            <h3 className={`text-[16px] leading-[1.3] font-bold group-hover:text-red-600 transition-colors ${dark ? "text-white" : "text-zinc-900"}`}>
-              {item.title}
-            </h3>
+          <Link
+            href={`/noticia/${item.slug}`}
+            key={item.id}
+            className="group grid grid-cols-[minmax(0,1fr)_112px] gap-4 py-4 sm:grid-cols-[minmax(0,1fr)_150px] lg:flex lg:flex-col lg:gap-2 lg:py-5 lg:first:pt-0"
+          >
+            <div className="min-w-0 lg:contents">
+              <span className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-red-600 lg:mb-0 lg:text-[11px]">
+                {item.category}
+              </span>
+
+              <h3 className={`line-clamp-3 text-[15px] leading-[1.3] font-bold transition-colors group-hover:text-red-600 lg:text-[16px] ${dark ? "text-white" : "text-zinc-900"}`}>
+                {item.title}
+              </h3>
+
+              <span className={`mt-2 flex items-center gap-1 text-[10px] lg:order-last lg:mt-1 lg:text-[11px] ${dark ? "text-zinc-500" : "text-zinc-400"}`}>
+                <Clock3 size={11} /> {timeAgo(item.created_at)}
+              </span>
+            </div>
+
             {item.image_url && (
-              <div className="relative w-full overflow-hidden mt-1" style={{ aspectRatio: "16/9" }}>
-                <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm lg:mt-1 lg:aspect-video lg:rounded-none">
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
             )}
-            <span className={`text-[11px] flex items-center gap-1 mt-1 ${dark ? "text-zinc-500" : "text-zinc-400"}`}>
-              <Clock3 size={11} /> {timeAgo(item.created_at)}
-            </span>
           </Link>
         ))}
       </div>

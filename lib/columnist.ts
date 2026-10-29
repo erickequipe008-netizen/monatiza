@@ -1,0 +1,66 @@
+// Planos do programa de colunistas — usados pelo checkout, webhook e páginas.
+// Valores em centavos (BRL). Créditos = artigos liberados por mês no plano.
+
+export interface ColumnistPerk {
+  text: string;
+  included: boolean; // false = aparece riscado no card
+}
+
+export interface ColumnistPlan {
+  id: 1 | 2 | 3;
+  name: string;
+  badge: string;
+  amount: number; // centavos, cobrança mensal
+  credits: number; // créditos de publicação liberados por mês
+  perks: ColumnistPerk[];
+}
+
+export const COLUMNIST_PLANS: Record<number, ColumnistPlan> = {
+  1: {
+    id: 1,
+    name: "Plano 1 — Completo",
+    badge: "Plano 1 · Completo",
+    amount: 9500,
+    credits: 4,
+    perks: [
+      { text: "Até 4 artigos por mês no site (1 por semana)", included: true },
+      { text: "Publicação no Instagram da Monatiza", included: true },
+    ],
+  },
+  2: {
+    id: 2,
+    name: "Plano 2 — Intermediário",
+    badge: "Plano 2 · Intermediário",
+    amount: 7000,
+    credits: 4,
+    perks: [
+      { text: "Até 4 artigos por mês no site (1 por semana)", included: true },
+      { text: "Publicação no Instagram", included: false },
+    ],
+  },
+  3: {
+    id: 3,
+    name: "Plano 3 — Essencial",
+    badge: "Plano 3 · Essencial",
+    amount: 5000,
+    credits: 3,
+    perks: [
+      { text: "Até 3 artigos por mês no site (1 por semana)", included: true },
+      { text: "Se já tem site ou portal, sua logo e link entram junto ao texto", included: true },
+      { text: "Publicação no Instagram", included: false },
+    ],
+  },
+};
+
+// Pacotes de créditos de publicação (compra avulsa). Valores em centavos (BRL).
+// Preços por pacote (com desconto por volume), não por unidade.
+export const CREDIT_PACKAGES: { credits: number; amount: number }[] = [
+  { credits: 1, amount: 15000 }, // R$ 150,00
+  { credits: 3, amount: 30000 }, // R$ 300,00
+  { credits: 5, amount: 82000 }, // R$ 820,00
+  { credits: 10, amount: 120000 }, // R$ 1.200,00
+];
+
+export function formatBRL(cents: number) {
+  return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}

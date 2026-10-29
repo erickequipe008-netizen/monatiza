@@ -6,7 +6,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 
-const CATEGORIES = ["Negócios","Tecnologia","IA","Brasil","Política","Mercado","Saúde"];
+const CATEGORIES = ["Negócios","Tecnologia","IA","Brasil","Política","Mercado","Saúde","Empreende","Startups","Carreira","Revista"];
 
 function generateSlug(text: string): string {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replaceAll(" ","-").replace(/[^\w-]+/g,"");
@@ -339,11 +339,27 @@ export default function NewArticlePage() {
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Negócios");
+  const [isPremium, setIsPremium] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [authorList, setAuthorList] = useState<{ id: string; name: string; display_name: string | null }[]>([]);
+  const [authorName, setAuthorName] = useState("");
+
+  // Carrega os jornalistas do time para escolher o autor (byline "Por <nome>").
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("journalists").select("id, name, display_name").order("name");
+      const list = (data || []) as { id: string; name: string; display_name: string | null }[];
+      setAuthorList(list);
+      const { data: { user } } = await supabase.auth.getUser();
+      const mine = list.find((j) => j.id === user?.id);
+      const def = mine?.display_name || mine?.name || list[0]?.display_name || list[0]?.name || "Redação";
+      setAuthorName(def.replace(/^\s*por\s+/i, "").trim());
+    })();
+  }, []);
 
   function validate() {
     const e: Record<string, string> = {};
@@ -384,13 +400,15 @@ export default function NewArticlePage() {
     const slug = generateSlug(title);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { alert("Usuário não autenticado"); setLoading(false); return; }
-    const { data: profile } = await supabase.from("journalists").select("name").eq("id", user.id).single();
+    // autor escolhido no seletor — o byline aparece como "Por <nome>"
+    const journalistName = (authorName || "Redação Monatiza").replace(/^\s*por\s+/i, "").trim() || "Redação Monatiza";
     const { error } = await supabase.from("articles").insert([{
       title, description, content, category,
       image_url: uploadedImage, slug,
-      author: profile?.name || user.email,
-      journalist_name: profile?.name || user.email,
+      author: journalistName,
+      journalist_name: journalistName,
       author_id: user.id,
+      is_premium: isPremium,
     }]);
     if (error) { alert(error.message); setLoading(false); return; }
     alert("Matéria publicada com sucesso!");
@@ -402,19 +420,6 @@ export default function NewArticlePage() {
 
   return (
     <div style={{ backgroundColor:"#F7F6F3", minHeight:"100vh", fontFamily:"sans-serif" }}>
-
-      {/* Top bar */}
-      <div style={{ background:"#0b0b0c", borderBottom:"1px solid rgba(255,255,255,0.08)", padding:"14px 32px", display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:50 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <span style={{ color:"#fff", fontWeight:900, fontSize:16, letterSpacing:"-0.02em" }}>MONATIZA</span>
-          <span style={{ width:1, height:16, background:"rgba(255,255,255,0.2)" }} />
-          <span style={{ color:"#E0263B", fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.3em" }}>Nova Matéria</span>
-        </div>
-        <button type="button" onClick={() => router.push("/admin/dashboard")}
-          style={{ color:"rgba(255,255,255,0.6)", fontSize:13, background:"transparent", border:"1px solid rgba(255,255,255,0.15)", borderRadius:8, padding:"6px 16px", cursor:"pointer" }}>
-          ← Voltar
-        </button>
-      </div>
 
       <form onSubmit={handlePublish}>
         <div style={{ maxWidth:820, margin:"0 auto", padding:"32px 24px", display:"flex", flexDirection:"column", gap:20 }}>
@@ -468,6 +473,26 @@ export default function NewArticlePage() {
                 <ImageDropZone imageFile={imageFile} imagePreview={imagePreview} onFileChange={handleImageChange} onClear={() => { setImageFile(null); setImagePreview(null); }} />
               </div>
             </div>
+
+            <div style={{ padding:"0 20px 20px" }}>
+              <label style={labelStyle}>Autor — aparece como “Por …”</label>
+              <select value={authorName} onChange={e => setAuthorName(e.target.value)} style={{ ...inputStyle, cursor:"pointer" }}>
+                {authorList.length === 0 && <option value="Redação">Redação</option>}
+                {authorList.map(a => {
+                  const nm = (a.display_name || a.name || "").replace(/^\s*por\s+/i, "").trim();
+                  return <option key={a.id} value={nm}>{nm}</option>;
+                })}
+              </select>
+            </div>
+
+            {/* Acesso: matéria premium (somente assinantes) */}
+            <label style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 20px", borderTop:"1.5px solid #e5e5e5", cursor:"pointer" }}>
+              <input type="checkbox" checked={isPremium} onChange={e => setIsPremium(e.target.checked)} style={{ width:18, height:18, accentColor:"#E0263B" }} />
+              <span style={{ display:"flex", flexDirection:"column" }}>
+                <span style={{ fontSize:13, fontWeight:700, color:"#0b0b0c" }}>Matéria premium (somente assinantes)</span>
+                <span style={{ fontSize:12, color:"#888" }}>Visitantes veem só a prévia + convite para assinar. Assinantes leem completa e sem anúncios.</span>
+              </span>
+            </label>
           </div>
 
           {/* ── Card: Conteúdo ── */}

@@ -1,0 +1,175 @@
+name: Build Android APK (Monatiza)
+
+# Roda manualmente (botão "Run workflow") ou quando o app mobile mudar.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "mobile/**"
+      - ".github/workflows/android-apk.yml"
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # Preserva o código real (lib/ e pubspec) antes de gerar as plataformas
+      - name: Backup do código
+        run: |
+          cp pubspec.yaml ../pubspec.bak
+          cp -r lib ../lib.bak
+
+      - name: Gerar plataforma Android
+        run: flutter create --org com.monatiza --platforms=android .
+
+      - name: Restaurar código real
+        run: |
+          cp ../pubspec.bak pubspec.yaml
+          rm -rf lib && cp -r ../lib.bak lib
+
+      # IMPORTANTE: o APK release precisa da permissão de Internet no manifesto principal
+      - name: Garantir permissão de Internet
+        run: |
+          MAN="android/app/src/main/AndroidManifest.xml"
+          grep -q 'android.permission.INTERNET' "$MAN" || \
+            sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <application|' "$MAN"
+          # Permite abrir links externos (url_launcher) no Android 11+
+          grep -q 'android.intent.action.VIEW' "$MAN" || \
+            sed -i 's|</manifest>|  <queries>\n    <intent>\n      <action android:name="android.intent.action.VIEW"/>\n      <data android:scheme="https"/>\n    </intent>\n  </queries>\n</manifest>|' "$MAN"
+          echo "----- AndroidManifest -----"; cat "$MAN"
+
+      # Máxima compatibilidade: Android 5.0+ (minSdk 21)
+      - name: Ajustar minSdk
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/' android/app/build.gradle.kts
+          fi
+          if [ -f android/app/build.gradle ]; then
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' android/app/build.gradle
+            sed -i 's/minSdkVersion = flutter.minSdkVersion/minSdkVersion = 21/' android/app/build.gradle
+          fi
+
+      # Identidade definitiva na loja: com.monatiza.app + nome "Monatiza"
+      - name: Definir applicationId e nome do app
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i -E 's/applicationId = "[^"]*"/applicationId = "com.monatiza.app"/' android/app/build.gradle.kts
+          fi
+          if [ -f android/app/build.gradle ]; then
+            sed -i -E 's/applicationId "[^"]*"/applicationId "com.monatiza.app"/' android/app/build.gradle
+          fi
+          sed -i 's/android:label="monatiza"/android:label="Monatiza"/' android/app/src/main/AndroidManifest.xml
+
+      # Segurança: só HTTPS (sem tráfego em texto puro) e sem backup da
+      # sessão para fora do app.
+      - name: Endurecer segurança do app
+        run: |
+          MAN="android/app/src/main/AndroidManifest.xml"
+          grep -q 'usesCleartextTraffic' "$MAN" || \
+            sed -i 's/<application/<application android:usesCleartextTraffic="false" android:allowBackup="false"/' "$MAN"
+          grep -o 'android:usesCleartextTraffic="false"' "$MAN"
+          # Notificações (Android 13+ exige permissão declarada)
+          grep -q 'POST_NOTIFICATIONS' "$MAN" || \
+            sed -i 's|<application|<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <application|' "$MAN"
+          grep -o 'POST_NOTIFICATIONS' "$MAN"
+          # Tela nativa de ajuste/centralização de foto (image_cropper)
+          grep -q 'UCropActivity' "$MAN" || \
+            sed -i 's|</application>|    <activity android:name="com.yalantis.ucrop.UCropActivity" android:screenOrientation="portrait" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>\n    </application>|' "$MAN"
+          grep -o 'UCropActivity' "$MAN"
+
+      # flutter_local_notifications exige desugaring (APIs Java 8+)
+      - name: Ativar desugaring (notificações)
+        run: |
+          python3 - <<'PY2'
+          p = 'android/app/build.gradle.kts'
+          s = open(p).read()
+          if 'isCoreLibraryDesugaringEnabled' not in s:
+              s = s.replace('compileOptions {', 'compileOptions {\n        isCoreLibraryDesugaringEnabled = true', 1)
+              s += '\ndependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")\n}\n'
+              open(p, 'w').write(s)
+          print('desugaring:', 'ok' if 'isCoreLibraryDesugaringEnabled' in s else 'NAO APLICADO')
+          PY2
+
+      - run: flutter pub get
+
+      - name: Gerar ícone do app
+        run: dart run flutter_launcher_icons
+
+      # Assinatura de release (secrets ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD).
+      # Sem as secrets, o build continua com assinatura debug (só para testes).
+      - name: Configurar assinatura de release
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KS_B64" ]; then
+            echo "AVISO: sem keystore — release sairá com assinatura debug."
+            exit 0
+          fi
+          echo "$KS_B64" | base64 -d > android/app/upload-keystore.jks
+          printf 'storePassword=%s\nkeyPassword=%s\nkeyAlias=upload\nstoreFile=upload-keystore.jks\n' "$KS_PASS" "$KS_PASS" > android/key.properties
+          python3 - <<'PY'
+          gradle = 'android/app/build.gradle.kts'
+          s = open(gradle).read()
+          header = (
+              'import java.util.Properties\n'
+              'import java.io.FileInputStream\n'
+              'val keystoreProperties = Properties()\n'
+              'val keystorePropertiesFile = rootProject.file("key.properties")\n'
+              'if (keystorePropertiesFile.exists()) {\n'
+              '    keystoreProperties.load(FileInputStream(keystorePropertiesFile))\n'
+              '}\n'
+          )
+          sign = (
+              '\n    signingConfigs {\n'
+              '        create("release") {\n'
+              '            keyAlias = keystoreProperties["keyAlias"] as String\n'
+              '            keyPassword = keystoreProperties["keyPassword"] as String\n'
+              '            storeFile = keystoreProperties["storeFile"]?.let { file(it) }\n'
+              '            storePassword = keystoreProperties["storePassword"] as String\n'
+              '        }\n'
+              '    }\n'
+          )
+          s = header + s
+          s = s.replace('android {', 'android {' + sign, 1)
+          before = s
+          s = s.replace('signingConfig = signingConfigs.getByName("debug")',
+                        'signingConfig = signingConfigs.getByName("release")')
+          print('assinatura release aplicada' if s != before else 'ATENCAO: linha de signingConfig nao encontrada')
+          open(gradle, 'w').write(s)
+          PY
+
+      # Gera os três: AAB (loja), APK release e APK debug (teste rápido).
+      # Release com código ofuscado (dificulta engenharia reversa).
+      - run: flutter build appbundle --release --obfuscate --split-debug-info=build/symbols
+      - run: flutter build apk --release --obfuscate --split-debug-info=build/symbols
+      - run: flutter build apk --debug
+
+      - name: Publicar APKs como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: monatiza-apk
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-release.apk
+            mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publicar AAB (Play Store) como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: monatiza-aab
+          path: mobile/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error

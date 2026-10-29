@@ -1,0 +1,550 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  Home,
+  MessagesSquare,
+  Compass,
+  Newspaper,
+  Bookmark,
+  User,
+  Sparkles,
+  BookOpen,
+  Mail,
+  LayoutDashboard,
+  CreditCard,
+  ShieldCheck,
+  Search,
+  MessageCircle,
+  Bell,
+  MoreHorizontal,
+  PenSquare,
+  Plus,
+  Sun,
+  Moon,
+  LogOut,
+  Loader2,
+  Crown,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase/client";
+import { useSubscriber } from "@/components/premium/SubscriberProvider";
+import { countUnread } from "@/lib/premium/messages";
+import { getMyProfile, type CommunityProfile } from "@/lib/premium/community";
+import { countUnreadNotifications, markNotificationsRead } from "@/lib/premium/notifications";
+import { useLang } from "@/components/premium/useLang";
+import AppFooter from "@/components/premium/AppFooter";
+
+// Mapa rótulo (pt) → chave de tradução, para traduzir a navegação automaticamente.
+const NAVK: Record<string, string> = {
+  "Início": "home", "Explorar": "explore", "Descobrir": "explore",
+  "Notificações": "notifications", "Mensagens": "messages", "Comunidade": "community",
+  "Notícias": "news", "Biblioteca": "library", "Perfil": "profile", "Meu perfil": "profile",
+  "Verificação": "verification", "Exclusivo": "exclusive", "Revistas": "magazines",
+  "Newsletter": "newsletter", "Painel": "dashboard", "Conta": "account",
+};
+
+const PRIMARY = [
+  { href: "/app", label: "Início", icon: Home },
+  { href: "/app/comunidade", label: "Comunidade", icon: MessagesSquare },
+  { href: "/app/descobrir", label: "Descobrir", icon: Compass },
+  { href: "/app/feed", label: "Notícias", icon: Newspaper },
+  { href: "/app/biblioteca", label: "Biblioteca", icon: Bookmark },
+];
+
+const MORE = [
+  { href: "/app/perfil", label: "Meu perfil", icon: User },
+  { href: "/app/mensagens", label: "Mensagens", icon: MessageCircle },
+  { href: "/app/notificacoes", label: "Notificações", icon: Bell },
+  { href: "/app/verificacao", label: "Verificação", icon: ShieldCheck },
+  { href: "/app/exclusivo", label: "Exclusivo", icon: Sparkles },
+  { href: "/app/revistas", label: "Revistas", icon: BookOpen },
+  { href: "/app/newsletter", label: "Newsletter", icon: Mail },
+  { href: "/app/dashboard", label: "Painel", icon: LayoutDashboard },
+  { href: "/app/conta", label: "Conta", icon: CreditCard },
+];
+
+// Barra mobile = mesma do aplicativo: Notícias (home) · Comunidade · Mensagens · Descobrir · Perfil.
+const MOBILE = [
+  { href: "/app", label: "Notícias", icon: Newspaper },
+  { href: "/app/comunidade", label: "Comunidade", icon: MessagesSquare },
+  { href: "/app/mensagens", label: "Mensagens", icon: MessageCircle },
+  { href: "/app/descobrir", label: "Descobrir", icon: Compass },
+  { href: "/app/perfil", label: "Perfil", icon: User },
+];
+
+function isActive(pathname: string, href: string) {
+  return href === "/app" ? pathname === "/app" : pathname.startsWith(href);
+}
+
+function FullScreen({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-[#0a0a0c] text-zinc-500">
+      {children}
+    </div>
+  );
+}
+
+export default function PremiumGuard({ children }: { children: React.ReactNode }) {
+  const { loading, isSubscriber, user } = useSubscriber();
+  const router = useRouter();
+  const pathname = usePathname() || "/app";
+  const { t } = useLang();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("app_theme") === "light") setTheme("light");
+  }, []);
+
+  function toggleTheme() {
+    setTheme((t) => {
+      const n = t === "dark" ? "light" : "dark";
+      localStorage.setItem("app_theme", n);
+      return n;
+    });
+  }
+  const [profile, setProfile] = useState<CommunityProfile | null>(null);
+  const [notif, setNotif] = useState(0);
+  const onNotif = pathname.startsWith("/app/notificacoes");
+
+  // não lidas: contadas pelo banco (abrir a conversa marca como lida)
+  useEffect(() => {
+    if (!user?.id) return;
+    countUnread().then(setUnread);
+  }, [user?.id, pathname]);
+
+  // tempo real: nova mensagem recebida fora da aba → +1 no badge
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch = supabase
+      .channel("dm-unread")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (payload) => {
+        const m = payload.new as { recipient_id: string };
+        if (m.recipient_id === user.id && !window.location.pathname.startsWith("/app/mensagens")) {
+          setUnread((n) => n + 1);
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) getMyProfile().then(setProfile);
+  }, [user?.id]);
+
+  // notificações: zera ao entrar na aba, senão conta
+  useEffect(() => {
+    if (!user?.id) return;
+    if (onNotif) {
+      markNotificationsRead();
+      setNotif(0);
+      return;
+    }
+    countUnreadNotifications().then(setNotif);
+  }, [user?.id, onNotif]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch = supabase
+      .channel("notif-unread")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
+        const n = payload.new as { user_id: string };
+        if (n.user_id === user.id && !window.location.pathname.startsWith("/app/notificacoes")) {
+          setNotif((x) => x + 1);
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [user?.id]);
+
+  // App PÚBLICO: qualquer usuário logado entra. Se ainda não é assinante ativo,
+  // liberamos acesso grátis (linha de assinante ativa) para o RLS funcionar.
+  const [access, setAccess] = useState(false);
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.replace(`/painel/login?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    if (isSubscriber) {
+      setAccess(true);
+      return;
+    }
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await fetch("/api/ensure-access", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+        }
+      } catch {
+        /* segue mesmo assim */
+      }
+      setAccess(true);
+    })();
+  }, [loading, user, isSubscriber, pathname, router]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  if (loading || (user && !access)) {
+    return (
+      <FullScreen>
+        <Loader2 className="animate-spin" size={22} />
+        <span className="text-sm">Carregando…</span>
+      </FullScreen>
+    );
+  }
+  if (!user) {
+    return (
+      <FullScreen>
+        <Crown size={22} className="text-[#1d9bf0]" />
+        <span className="text-sm">Redirecionando…</span>
+      </FullScreen>
+    );
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    router.push("/");
+  }
+
+  const firstName = (user.name || user.email || "Assinante").split(" ")[0];
+  const displayName = profile?.display_name || firstName;
+  const initial = (displayName || "A").charAt(0).toUpperCase();
+  const avatarUrl = profile?.avatar_url || null;
+
+  return (
+    <div className={`app-shell min-h-screen bg-[#0a0a0c] pb-24 text-zinc-100 md:pb-0 ${theme === "light" ? "pro-light" : ""}`}>
+      {/* ── BARRA SUPERIOR (celular/tablet) ── */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0a0c]/80 backdrop-blur-xl lg:hidden">
+        <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-3 px-4 md:px-6">
+          {/* Avatar + menu da conta (esquerda) */}
+          <div className="relative shrink-0">
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="pro-ring rounded-full p-[2px] transition hover:opacity-90"
+              aria-label="Menu da conta"
+            >
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+              ) : (
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#8b5cf6] text-[13px] font-bold text-white">
+                  {initial}
+                </span>
+              )}
+            </button>
+
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <div className="pro-pop absolute left-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-white/10 bg-[#15151b] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)]">
+                    <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
+                      <span className="pro-ring rounded-full p-[2px]">
+                        {avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+                        ) : (
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#15151b] text-[13px] font-bold text-white">
+                            {initial}
+                          </span>
+                        )}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-[14px] font-bold text-white">{displayName}</p>
+                        <p className="truncate text-[12px] text-zinc-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <nav className="p-1.5">
+                      {MORE.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-zinc-300 transition hover:bg-white/5 hover:text-white"
+                          >
+                            <Icon size={17} className="text-zinc-500" />
+                            {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
+                          </Link>
+                        );
+                      })}
+                      <button
+                        onClick={logout}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-zinc-300 transition hover:bg-white/5 hover:text-white"
+                      >
+                        <LogOut size={17} className="text-zinc-500" /> {t("logout")}
+                      </button>
+                    </nav>
+                  </div>
+                </>
+              )}
+            </div>
+
+          {/* Centro: "Fazer upgrade" (celular) · navegação (tablet) */}
+          <Link
+            href="/app/verificacao"
+            className="flex items-center gap-1.5 rounded-full border border-[#8b5cf6]/70 bg-[#8b5cf6]/10 px-4 py-2 text-[13.5px] font-bold text-[#c4b5fd] transition active:scale-95 md:hidden"
+          >
+            <Sparkles size={15} /> Fazer upgrade
+          </Link>
+          <nav className="pro-scroll hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto md:flex">
+            {PRIMARY.map((item) => {
+              const active = isActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`shrink-0 rounded-full px-4 py-2 text-[13.5px] font-semibold transition ${
+                    active
+                      ? "pro-gradient text-white shadow-lg shadow-[#1d9bf0]/20"
+                      : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Direita: tema + busca (celular) · +mensagens/notificações (tablet) */}
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              aria-label={theme === "dark" ? "Tema claro" : "Tema escuro"}
+            >
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
+            <Link
+              href="/app/busca"
+              className="rounded-full p-2.5 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              aria-label="Buscar"
+            >
+              <Search size={19} />
+            </Link>
+            <Link
+              href="/app/mensagens"
+              className={`relative hidden rounded-full p-2.5 transition md:block ${
+                isActive(pathname, "/app/mensagens")
+                  ? "pro-gradient text-white"
+                  : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              }`}
+              aria-label="Mensagens"
+            >
+              <MessageCircle size={19} />
+              {unread > 0 && (
+                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
+                  {unread > 99 ? "99+" : unread}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/app/notificacoes"
+              className={`relative hidden rounded-full p-2.5 transition md:block ${
+                onNotif ? "pro-gradient text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
+              }`}
+              aria-label="Notificações"
+            >
+              <Bell size={19} />
+              {notif > 0 && (
+                <span className="pro-badge pro-gradient absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-[#0a0a0c]">
+                  {notif > 99 ? "99+" : notif}
+                </span>
+              )}
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* ── CORPO: menu lateral (desktop) + conteúdo ── */}
+      <div className="mx-auto flex w-full max-w-[1300px]">
+        {/* menu lateral estilo grande rede social */}
+        <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-white/10 px-4 py-6 lg:flex">
+          <div className="flex items-center justify-between px-3">
+            <Link href="/app" className="text-[24px] font-extrabold tracking-tight text-white">
+              monatiza
+            </Link>
+            <button
+              onClick={toggleTheme}
+              className="rounded-full p-2 text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              aria-label={theme === "dark" ? "Tema claro" : "Tema escuro"}
+              title={theme === "dark" ? "Tema claro" : "Tema escuro"}
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (q.trim()) router.push(`/app/busca?q=${encodeURIComponent(q.trim())}`);
+            }}
+            className="relative mt-5 px-1"
+          >
+            <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t("search")}
+              className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-[14px] text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-[#1d9bf0]"
+            />
+          </form>
+
+          <nav className="mt-5 flex-1 space-y-1 overflow-y-auto pro-scroll">
+            {[
+              { href: "/app", label: "Início", icon: Home },
+              { href: "/app/descobrir", label: "Explorar", icon: Compass },
+              { href: "/app/notificacoes", label: "Notificações", icon: Bell, badge: notif },
+              { href: "/app/mensagens", label: "Mensagens", icon: MessageCircle, badge: unread },
+              { href: "/app/comunidade", label: "Comunidade", icon: MessagesSquare },
+              { href: "/app/feed", label: "Notícias", icon: Newspaper },
+              { href: "/app/biblioteca", label: "Biblioteca", icon: Bookmark },
+              { href: "/app/perfil", label: "Perfil", icon: User },
+            ].map((item) => {
+              const Icon = item.icon;
+              const active = isActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3.5 rounded-full px-4 py-2.5 text-[15px] transition ${
+                    active ? "bg-white/5 font-extrabold text-white" : "font-semibold text-zinc-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <span className="relative">
+                    <Icon size={21} />
+                    {!!item.badge && item.badge > 0 && (
+                      <span className="pro-badge pro-gradient absolute -right-2 -top-1.5 flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-extrabold leading-none text-white">
+                        {item.badge > 99 ? "99+" : item.badge}
+                      </span>
+                    )}
+                  </span>
+                  {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
+                </Link>
+              );
+            })}
+
+            <button
+              onClick={() => setMoreOpen((v) => !v)}
+              className="flex w-full items-center gap-3.5 rounded-full px-4 py-2.5 text-[15px] font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+            >
+              <MoreHorizontal size={21} /> {t("more")}
+            </button>
+            {moreOpen && (
+              <div className="ml-4 space-y-1 border-l border-white/10 pl-3">
+                {MORE.filter((m) => !["/app/perfil", "/app/mensagens", "/app/notificacoes"].includes(m.href)).map(
+                  (item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                      >
+                        <Icon size={17} /> {NAVK[item.label] ? t(NAVK[item.label]) : item.label}
+                      </Link>
+                    );
+                  }
+                )}
+              </div>
+            )}
+
+            <Link
+              href="/app#publicar"
+              className="ripple mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] font-bold text-black transition hover:bg-white/90"
+            >
+              <PenSquare size={17} /> {t("publish")}
+            </Link>
+          </nav>
+
+          {/* perfil no rodapé */}
+          <div className="mt-4 flex items-center gap-3 rounded-full px-2 py-2 transition hover:bg-white/5">
+            <Link href="/app/perfil" className="flex min-w-0 flex-1 items-center gap-3">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+              ) : (
+                <span className="pro-gradient flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-bold text-white">
+                  {initial}
+                </span>
+              )}
+              <span className="min-w-0">
+                <span className="block truncate text-[14px] font-bold text-white">{displayName}</span>
+                {profile?.handle && <span className="block truncate text-[12px] text-zinc-500">@{profile.handle}</span>}
+              </span>
+            </Link>
+            <button onClick={logout} className="shrink-0 rounded-full p-2 text-zinc-500 transition hover:bg-white/10 hover:text-white" aria-label={t("logout")} title={t("logout")}>
+              <LogOut size={17} />
+            </button>
+          </div>
+
+          <AppFooter className="mt-3 border-t border-white/10 pt-3" />
+        </aside>
+
+        {/* ── CONTEÚDO ── */}
+        <main key={pathname} className="wave-in min-w-0 flex-1 px-4 pt-6 pb-28 md:px-6 md:py-8">
+          {children}
+          <AppFooter className="mt-8 border-t border-white/10 pt-4 lg:hidden" />
+        </main>
+      </div>
+
+      {/* ── DOCK FLUTUANTE (mobile) — mesma identidade do aplicativo ── */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 px-3 md:hidden"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)" }}
+      >
+        <div className="mx-auto flex max-w-[640px] items-center gap-2.5">
+          <div className="flex min-w-0 flex-1 items-center rounded-full border border-white/10 bg-[#14171b]/95 px-1.5 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+            {MOBILE.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(pathname, item.href);
+              const label = NAVK[item.label] ? t(NAVK[item.label]) : item.label;
+              return active ? (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="mx-0.5 flex h-11 shrink-0 items-center gap-2 rounded-full bg-[#8b5cf6] px-4 text-white transition active:scale-95"
+                >
+                  <Icon size={18} />
+                  <span className="max-w-[92px] truncate text-[12.5px] font-extrabold">{label}</span>
+                </Link>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-label={label}
+                  className="flex min-w-0 flex-1 items-center justify-center py-0.5 transition active:scale-95"
+                >
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/5 text-zinc-400">
+                    <Icon size={19} />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          <Link
+            href="/app/comunidade"
+            aria-label="Publicar"
+            className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white text-black shadow-[0_5px_16px_rgba(0,0,0,0.5)] transition active:scale-95"
+          >
+            <Plus size={24} strokeWidth={2.5} />
+          </Link>
+        </div>
+      </nav>
+    </div>
+  );
+}

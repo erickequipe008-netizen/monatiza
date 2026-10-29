@@ -1,7 +1,9 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import Link from "next/link";
+import { requireEditorial } from "@/lib/editorial-auth";
 
 export default async function RevistaAdmin() {
+  await requireEditorial();
   const { data: pedidos, error } = await supabaseAdmin
     .from("magazine_orders")
     .select(`
